@@ -317,10 +317,12 @@
         <h4>📸 Body Scans</h4>
         <div id="scansContainer" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div>
         <div style="display:flex; gap:6px; align-items:center;">
-          <input type="file" accept="image/*" capture="environment" id="scanFileInput" style="display:none;">
+          <!-- Removed capture="environment" so you can choose from library -->
+          <input type="file" accept="image/*" id="scanFileInput" style="display:none;">
           <button class="btn btn-outline btn-sm" id="addScanBtn">➕ Add Scan</button>
           <button class="btn btn-outline btn-sm" id="analyzeLastScanBtn">🔬 Analyze Latest</button>
         </div>
+        <small style="color:var(--sub); display:block;">You can take a photo or pick one from your library</small>
         <hr style="margin:16px 0; border-color:var(--border);">
         <button class="btn btn-outline" id="helpBtn">❓ Help Guide</button>
         <button class="btn btn-outline" id="darkModeBtn">🌓 Toggle Theme</button>
@@ -361,6 +363,12 @@
       <button class="btn btn-outline" id="autoGenBtn" style="margin-top:8px;">🤖 Auto (+5 lbs)</button>
       <button class="btn btn-accent" id="aiProgModalBtn" style="margin-top:8px;">🧠 AI Smart Progression</button>
       <button class="btn btn-outline" style="margin-top:8px; width:100%;" onclick="document.getElementById('newWeekModal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+  <div id="scanViewModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <img id="scanViewImage" style="width:100%; border-radius:16px;">
+      <button class="btn btn-outline" style="margin-top:10px;" onclick="document.getElementById('scanViewModal').style.display='none'">Close</button>
     </div>
   </div>
 
@@ -753,7 +761,7 @@
       function stopCircuit(key) {
         if (timerIntervals[key]) { clearInterval(timerIntervals[key]); delete timerIntervals[key]; }
       }
-      function updateCircuitDisplay(di, bi, overall, station, inWork, time) {
+      function updateCircuitDisplay(di, bi, overall) {
         const disp = document.querySelector(`#circuitTimer-${di}-${bi} .timer-display`);
         if (disp) disp.textContent = formatTime(overall);
       }
@@ -980,7 +988,6 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'} Notes: ${day.notes||'
         };
         reader.readAsDataURL(file);
       });
-      document.getElementById('scanViewModal').innerHTML = '<div class="modal-box"><img id="scanViewImage" style="width:100%; border-radius:16px;"><button class="btn btn-outline" style="margin-top:10px;" onclick="document.getElementById(\'scanViewModal\').style.display=\'none\'">Close</button></div>';
 
       // ---- HELP ----
       document.getElementById('helpBtn').addEventListener('click', ()=>{
@@ -1049,7 +1056,6 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'} Notes: ${day.notes||'
 
       // ---- PROGRESS ----
       function renderProgressPage() {
-        const chartSelect = document.getElementById('chartSelect');
         const ctx = document.getElementById('progressChart').getContext('2d');
         const week = getCurrentWeek();
         if (!week) return;
