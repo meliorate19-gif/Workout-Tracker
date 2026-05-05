@@ -10,14 +10,8 @@
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>">
   <title>Fitness Tracker</title>
   <style>
-    :root {
-      --bg: #0f0f0f; --card: #1c1c1e; --text: #fff; --sub: #8e8e93;
-      --accent: #30d158; --blue: #0a84ff; --red: #ff453a; --orange: #ff9f0a;
-      --border: #2c2c2e; --radius: 20px;
-    }
-    @media (prefers-color-scheme: light) {
-      body { --bg: #fff; --card: #f2f2f7; --text: #1c1c1e; --sub: #6e6e73; --border: #e5e5ea; }
-    }
+    :root { --bg: #0f0f0f; --card: #1c1c1e; --text: #fff; --sub: #8e8e93; --accent: #30d158; --blue: #0a84ff; --red: #ff453a; --orange: #ff9f0a; --border: #2c2c2e; --radius: 20px; }
+    @media (prefers-color-scheme: light) { body { --bg: #fff; --card: #f2f2f7; --text: #1c1c1e; --sub: #6e6e73; --border: #e5e5ea; } }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); margin:0; padding:0 0 100px; min-height:100vh; -webkit-tap-highlight-color:transparent; user-select:none; }
     .app { max-width:600px; margin:0 auto; padding:16px; }
@@ -48,7 +42,6 @@
     .check-circle.done::after { content:'✓'; color:#000; font-weight:bold; font-size:14px; }
     .macro-chips { display:flex; gap:4px; margin-left:10px; flex-wrap:wrap; align-items:center; }
     .macro-quick { background:var(--border); border:none; padding:4px 8px; border-radius:12px; font-size:12px; cursor:pointer; color:var(--text); }
-    .exercises-container { margin:8px 0; }
     .exercise-row { padding:12px 0; border-bottom:1px solid var(--border); }
     .exercise-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
     .timer-big { background:var(--border); border:none; color:var(--text); padding:8px 16px; border-radius:12px; font-size:16px; display:flex; align-items:center; gap:8px; cursor:pointer; }
@@ -69,11 +62,11 @@
     <div class="card" id="overviewCard"></div>
     <div class="card"><h3>📈 Weight Trend</h3><canvas id="homeChart" height="200"></canvas></div>
     <div class="home-grid">
-      <div class="home-tile" id="tileImportPlan" onclick="navigateTo('input')">📋<br>Import Plan</div>
-      <div class="home-tile" id="tileLoadChat" onclick="document.getElementById('chatHistoryFileInputHome').click()">💬<br>Load Chat</div>
+      <div class="home-tile" onclick="navigateTo('input')">📋<br>Import Plan</div>
+      <div class="home-tile" onclick="document.getElementById('chatHistoryFileInputHome').click()">💬<br>Load Chat</div>
       <input type="file" accept=".txt" id="chatHistoryFileInputHome" style="display:none;" onchange="importChatFromHome(this.files[0])">
-      <div class="home-tile" id="tileCoach" onclick="navigateTo('coach')">🧠<br>Coach</div>
-      <div class="home-tile" id="tileSettings" onclick="navigateTo('settings')">⚙️<br>Settings</div>
+      <div class="home-tile" onclick="navigateTo('coach')">🧠<br>Coach</div>
+      <div class="home-tile" onclick="navigateTo('settings')">⚙️<br>Settings</div>
     </div>
   </div>
 
@@ -85,7 +78,7 @@
       <button class="btn tab-btn" id="linkTabBtn">🔗 Link</button>
     </div>
     <div class="card">
-      <div id="pasteDiv"><textarea class="input" id="planText" rows="8" placeholder="SECTION 1: MEAL PLAN ..."></textarea><button class="btn btn-primary" onclick="loadFromPaste()">✨ Parse & Load</button></div>
+      <div id="pasteDiv"><textarea class="input" id="planText" rows="8" placeholder="Paste your plan with SECTION 1: MEAL PLAN & SECTION 2: WORKOUT SCHEDULE"></textarea><button class="btn btn-primary" onclick="loadFromPaste()">✨ Parse & Load</button></div>
       <div id="linkDiv" style="display:none;"><input class="input" id="docLink" placeholder="Google Doc link"><button class="btn btn-primary" onclick="loadFromLink()">🔍 Fetch & Parse</button></div>
     </div>
   </div>
@@ -94,11 +87,11 @@
   <div id="trackerPage" class="page">
     <div id="weekProgressCard" class="card"></div>
     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
-      <button class="btn btn-outline btn-sm" onclick="exportPDF()">📄</button>
-      <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋</button>
-      <button class="btn btn-outline btn-sm" onclick="toggleAllDays()">📅</button>
+      <button class="btn btn-outline btn-sm" onclick="exportPDF()">📄 PDF</button>
+      <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 Copy</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleAllDays()">📅 Expand/Collapse</button>
       <button class="btn btn-outline btn-sm" onclick="goToToday()">📍 Today</button>
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('newWeekModal').style.display='flex'">🗑 New</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('newWeekModal').style.display='flex'">🗑 New Week</button>
     </div>
     <div id="daysContainer"></div>
   </div>
@@ -119,14 +112,7 @@
 
   <!-- History Page -->
   <div id="historyPage" class="page">
-    <div class="card">
-      <h3>📚 Past Weeks</h3>
-      <div id="historyList"></div>
-      <hr style="border-color:var(--border); margin:16px 0;">
-      <h4>🗂 Templates</h4>
-      <div id="templateList"></div>
-      <button class="btn btn-outline btn-sm" onclick="saveTemplate()">💾 Save Current</button>
-    </div>
+    <div class="card"><h3>📚 Past Weeks</h3><div id="historyList"></div><hr style="border-color:var(--border); margin:16px 0;"><h4>🗂 Templates</h4><div id="templateList"></div><button class="btn btn-outline btn-sm" onclick="saveTemplate()">💾 Save Current</button></div>
   </div>
 
   <!-- Settings Page -->
@@ -161,10 +147,10 @@
 <div id="newWeekModal" class="modal-overlay" style="display:none;">
   <div class="modal-box">
     <h3>New Week</h3>
-    <button class="btn btn-primary" onclick="newWeekPaste()">📋 Paste</button>
-    <button class="btn btn-outline" onclick="newWeekLink()" style="margin-top:8px;">🔗 Link</button>
-    <button class="btn btn-outline" onclick="autoGenNextWeek()" style="margin-top:8px;">🤖 +5 lbs</button>
-    <button class="btn btn-accent" onclick="aiSmartProgression()" style="margin-top:8px;">🧠 AI Smart</button>
+    <button class="btn btn-primary" onclick="newWeekPaste()">📋 Paste text</button>
+    <button class="btn btn-outline" onclick="newWeekLink()" style="margin-top:8px;">🔗 Google Doc link</button>
+    <button class="btn btn-outline" onclick="autoGenNextWeek()" style="margin-top:8px;">🤖 Auto (+5 lbs)</button>
+    <button class="btn btn-accent" onclick="aiSmartProgression()" style="margin-top:8px;">🧠 AI Smart Progression</button>
     <button class="btn btn-outline" onclick="document.getElementById('newWeekModal').style.display='none'" style="margin-top:8px; width:100%;">Cancel</button>
   </div>
 </div>
@@ -183,9 +169,9 @@
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
-// ==================== FULL APP CODE ====================
+// ==================== COMPLETE APP ====================
 (function() {
-  // ---------- STATE ----------
+  // ----- STATE -----
   let weekHistory = [], currentWeekIndex = -1;
   const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   let allExpanded = true;
@@ -194,6 +180,11 @@
   let chatHistory = localStorage.getItem('deepseekChatHistory') || '';
   let templates = JSON.parse(localStorage.getItem('templates') || '[]');
   let aiMode = localStorage.getItem('aiMode') || 'web';
+  let db;
+  const DB_NAME = 'BodyScansDB', STORE_NAME = 'scans';
+  let currentChart = null;
+  let activeTimers = {};
+  let tesseractWorker = null; // reuse worker for OCR
   let helpSlide = 0;
   const helpSlides = [
     {title:'Welcome!',text:'Your AI-powered fitness tracker. Log workouts, meals, and get free coaching via DeepSeek.'},
@@ -202,17 +193,13 @@
     {title:'Coach (Free)',text:'Web Chat opens DeepSeek with your data. Weekly reports, shopping lists, workout generation.'},
     {title:'Settings',text:'Switch AI mode, import chat history, manage body scans and templates.'}
   ];
-  let db;
-  const DB_NAME = 'BodyScansDB', STORE_NAME = 'scans';
-  let currentChart = null;
-  let activeTimers = {}; // timer persistence
 
   function toast(msg) {
     const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
     clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 2000);
   }
 
-  // ---------- INDEXEDDB ----------
+  // ----- INDEXEDDB -----
   async function openDB() {
     return new Promise((res,rej) => {
       const req = indexedDB.open(DB_NAME, 1);
@@ -245,7 +232,7 @@
     });
   }
 
-  // ---------- STORAGE ----------
+  // ----- STORAGE -----
   function saveHistory() { localStorage.setItem('weekHistory', JSON.stringify(weekHistory)); localStorage.setItem('currentWeekIndex', currentWeekIndex); }
   function loadHistory() {
     const h = localStorage.getItem('weekHistory');
@@ -260,7 +247,7 @@
   function getCurrentPlan() { const w = getCurrentWeek(); return w ? w.plan : null; }
   function saveCurrentWeek() { if (getCurrentWeek()) { weekHistory[currentWeekIndex] = getCurrentWeek(); saveHistory(); } }
 
-  // ---------- PARSER ----------
+  // ----- PARSER (improved) -----
   function parsePlan(text) {
     const dayMap = {}; daysOrder.forEach(d => dayMap[d] = { day:d, meals:[], workoutBlocks:[], dailyWeight:null, waterOz:'' });
     const mealSec = text.match(/SECTION\s*1\s*:?\s*MEAL\s*PLAN/i);
@@ -269,14 +256,14 @@
     const mealText = text.substring(mealSec.index, workSec.index);
     const workoutText = text.substring(workSec.index);
 
-    // Parse meals
+    // Meals
     let curMealDay = null;
     mealText.split('\n').forEach(line => {
       line = line.trim(); if (!line) return;
       const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z]/.test(line[d.length]));
       if (dayMatch) { curMealDay = dayMatch; return; }
-      if (curMealDay && line.startsWith('·')) {
-        let content = line.replace(/^·\s*/, '').trim();
+      if (curMealDay && /^[·•\-*]\s/.test(line)) {
+        let content = line.replace(/^[·•\-*]\s*/, '').trim();
         const timeMatch = content.match(/^.*?\(([^)]+)\)\s*:\s*(.*)/);
         let time='', desc=content;
         if (timeMatch) { time=timeMatch[1].trim(); desc=timeMatch[2].trim(); }
@@ -288,7 +275,7 @@
       }
     });
 
-    // Parse workouts
+    // Workouts
     let curWorkDay = null, curBlock = null;
     workoutText.split('\n').forEach(line => {
       line = line.trim(); if (!line) return;
@@ -313,10 +300,10 @@
         }
         return;
       }
-      // Skip notes
-      if (/^·\s*Notes/i.test(line)) return;
+      // Skip notes lines
+      if (/^[·•\-*]\s*Notes/i.test(line)) return;
 
-      // Part / Circuit headers
+      // Part / Circuit
       const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/);
       const circuitMatch = line.match(/^Format\s*:\s*(.*)/);
       if (partMatch || circuitMatch) {
@@ -335,7 +322,7 @@
       if (/^(Post-Workout|Pre-Class|Pre-Workout|Post-Class|Step\s+Exercise)/i.test(line)) return;
       if (/Exercise\s+Sets\s+Reps/i.test(line) || /^Actual/i.test(line) || /^Weights Used/i.test(line)) return;
 
-      // Parse exercise
+      // Exercise
       let exName=null, prescribed='', workSec=0, restSec=0, prescribedWeight='', sets='';
       const stationMatch = line.match(/^(.+?)\s+(\d+)\s*sec\s+(\d+)\s*sec/i);
       if (stationMatch && curBlock.isCircuit) {
@@ -343,10 +330,8 @@
         const wM = line.match(/(\d+)\s*lbs?/i); if (wM) prescribedWeight = wM[1] + ' lbs';
       } else {
         let m = line.match(/^\d+\s+(.*?)\s+(\d+)\s*(?:min|sec)\s+(\d+-?\d*)/i);
-        if (m) {
-          exName = m[1].trim(); workSec = +m[2]*60; prescribed = m[3];
-          const wM = line.match(/(\d+)\s*lb/i); if (wM) prescribedWeight = wM[1] + ' lbs';
-        } else {
+        if (m) { exName = m[1].trim(); workSec = +m[2]*60; prescribed = m[3]; const wM = line.match(/(\d+)\s*lb/i); if (wM) prescribedWeight = wM[1] + ' lbs'; }
+        else {
           m = line.match(/^([A-Z]):\s*(.*?)(?:\s+(\d+)\s+(\d+[\/\w]*))?\s+(\d+\s*sec)?/);
           if (m) {
             exName = m[2].trim();
@@ -372,7 +357,7 @@
     return { days: daysOrder.map(d => ({ ...dayMap[d], notes:'' })).filter(d => d.meals.length || d.workoutBlocks.length) };
   }
 
-  // ---------- HELPERS ----------
+  // ----- HELPERS -----
   function calcProgress(plan) {
     let total=0, done=0;
     plan.days.forEach(d => {
@@ -407,7 +392,7 @@
   function formatMinutes(mins) { return formatSeconds(parseInt(mins)*60); }
   function parseTimeToSecs(str) { const mins = str.match(/(\d+)\s*min/); return mins ? +mins[1]*60 : 0; }
 
-  // ---------- TRACKER RENDER ----------
+  // ----- TRACKER RENDER -----
   function renderTracker() {
     const plan = getCurrentPlan();
     if (!plan) return;
@@ -481,13 +466,13 @@
             </div>
             <div style="margin-top:8px;">
               <label>Intensity: <span id="classIntensityLabel-${di}-${bi}">${block.intensity}%</span></label>
-              <input type="range" min="0" max="100" value="${block.intensity}" class="class-intensity" data-day="${di}" data-block="${bi}" data-field="intensity" step="5" oninput="updateClassIntensity(${di},${bi}, this.value)">
+              <input type="range" min="0" max="100" value="${block.intensity}" oninput="updateClassIntensity(${di},${bi}, this.value)">
               <div class="intensity-bar"><div class="intensity-fill" id="classIntensityBar-${di}-${bi}" style="width:${block.intensity}%;"></div></div>
             </div>
-            <textarea class="input" placeholder="Class notes" data-day="${di}" data-block="${bi}" data-field="notes" style="height:40px;" onchange="saveCurrentWeek()">${block.notes||''}</textarea>
+            <textarea class="input" placeholder="Class notes" style="height:40px;" onchange="saveCurrentWeek()">${block.notes||''}</textarea>
           </div>`;
       } else {
-        html += `<div class="workout-block" style="background:var(--bg); border-radius:12px; padding:12px; margin:8px 0;">
+        html += `<div style="background:var(--bg); border-radius:12px; padding:12px; margin:8px 0;">
           <div style="display:flex; justify-content:space-between;"><b>${block.name}</b><span>${block.time||''}</span></div>`;
         block.exercises.forEach((ex, ei) => {
           html += `
@@ -518,7 +503,7 @@
     return html;
   }
 
-  // ---------- STATE UPDATES ----------
+  // ----- STATE UPDATES -----
   function toggleMeal(di, mi) { const w = getCurrentWeek(); w.plan.days[di].meals[mi].completed = !w.plan.days[di].meals[mi].completed; saveCurrentWeek(); renderTracker(); }
   function toggleExercise(di, bi, ei) { const w = getCurrentWeek(); w.plan.days[di].workoutBlocks[bi].exercises[ei].completed = !w.plan.days[di].workoutBlocks[bi].exercises[ei].completed; saveCurrentWeek(); renderTracker(); }
   function updateDailyWeight(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].dailyWeight = val ? +val : null; saveCurrentWeek(); renderHome(); } }
@@ -538,7 +523,6 @@
     saveCurrentWeek();
     updateMacroLive(di);
   }
-
   function updateMacroLive(di) {
     const day = getCurrentPlan().days[di];
     const macros = calcDayMacros(day);
@@ -547,7 +531,7 @@
   }
   function updateAllMacroLive() { const p=getCurrentPlan(); if(p) p.days.forEach((_,i) => updateMacroLive(i)); }
 
-  // ---------- TIMERS ----------
+  // ----- TIMERS -----
   function startClassTimer(di, bi) {
     const block = getCurrentPlan().days[di].workoutBlocks[bi];
     const duration = parseInt(block.duration);
@@ -601,24 +585,31 @@
 
   function toggleAllDays() { allExpanded = !allExpanded; renderTracker(); }
   function goToToday() {
-    const today = daysOrder[new Date().getDay() - 1] || daysOrder[0];
-    const card = [...document.querySelectorAll('.day-header')].find(h => h.querySelector('b').textContent === today);
-    if (card) card.scrollIntoView({behavior:'smooth'});
+    const todayIdx = (new Date().getDay() + 6) % 7; // Monday=0, Tuesday=1 ... Sunday=6
+    const today = daysOrder[todayIdx];
+    const headers = document.querySelectorAll('.day-header b');
+    for (let h of headers) {
+      if (h.textContent === today) {
+        h.closest('.card').scrollIntoView({behavior:'smooth'});
+        break;
+      }
+    }
   }
 
-  // ---------- NAVIGATION ----------
+  // ----- NAVIGATION -----
   function navigateTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(page+'Page').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (activeNav) activeNav.classList.add('active');
     if (page === 'home') renderHome();
     if (page === 'tracker') renderTracker();
     if (page === 'history') renderHistory();
     if (page === 'settings') renderSettings();
   }
 
-  // ---------- HOME ----------
+  // ----- HOME -----
   function renderHome() {
     const week = getCurrentWeek();
     document.getElementById('overviewCard').innerHTML = week ? `
@@ -653,30 +644,31 @@
     });
   }
 
-  // ---------- AI (Free Web Chat) ----------
+  // ----- AI -----
   function sendToDeepSeek(prompt) { window.open(`https://chat.deepseek.com/?q=${encodeURIComponent(prompt)}`, '_blank'); }
+  function buildAISummary(plan) {
+    return plan.days.map(day => `
+Day: ${day.day}
+Meals: ${day.meals.map(m => `${m.completed?'[x]':'[ ]'} ${m.name} (Ate:${m.ateNotes||''}) P:${m.protein||0} C:${m.carbs||0} F:${m.fat||0}`).join(', ')}
+Workouts: ${(day.workoutBlocks||[]).map(b => b.type==='class' ? `Class: ${b.name} (${b.duration} min, intensity ${b.intensity}%)` : b.name + ': ' + b.exercises.map(e => `${e.completed?'[x]':'[ ]'} ${e.name} ${e.prescribedSetsReps} ${e.prescribedWeight||''} (Act: ${e.weight||'-'}x${e.reps||'-'} RPE:${e.rpe||'-'})`).join('; '))}
+Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
+  }
   function aiWeeklyReport() {
-    const w = getCurrentWeek();
-    if (!w) return toast('No data');
-    const summary = buildAISummary(w.plan);
-    sendToDeepSeek(`${summary}\n\nProvide a concise weekly debrief.`);
+    const w = getCurrentWeek(); if (!w) return toast('No data');
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`);
   }
   function aiShoppingList() {
-    const w = getCurrentWeek();
-    if (!w) return;
+    const w = getCurrentWeek(); if (!w) return;
     const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
     sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
   }
   function aiSmartProgression() {
-    const w = getCurrentWeek();
-    if (!w) return;
-    const summary = buildAISummary(w.plan);
-    sendToDeepSeek(`${summary}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights based on progress, injuries, and chat history. Keep meals unchanged.`);
+    const w = getCurrentWeek(); if (!w) return;
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights based on progress, injuries, and chat history. Keep meals unchanged.`);
     document.getElementById('newWeekModal').style.display='none';
   }
   function autoGenNextWeek() {
-    const w = getCurrentWeek();
-    if (!w) return;
+    const w = getCurrentWeek(); if (!w) return;
     const np = JSON.parse(JSON.stringify(w.plan));
     np.days.forEach(d => {
       (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => {
@@ -691,15 +683,8 @@
     navigateTo('tracker'); toast('+5 lbs applied');
     document.getElementById('newWeekModal').style.display='none';
   }
-  function buildAISummary(plan) {
-    return plan.days.map(day => `
-Day: ${day.day}
-Meals: ${day.meals.map(m => `${m.completed?'[x]':'[ ]'} ${m.name} (Ate:${m.ateNotes||''}) P:${m.protein||0} C:${m.carbs||0} F:${m.fat||0}`).join(', ')}
-Workouts: ${(day.workoutBlocks||[]).map(b => b.type==='class' ? `Class: ${b.name} (${b.duration} min, intensity ${b.intensity}%)` : b.name + ': ' + b.exercises.map(e => `${e.completed?'[x]':'[ ]'} ${e.name} ${e.prescribedSetsReps} ${e.prescribedWeight||''} (Act: ${e.weight||'-'}x${e.reps||'-'} RPE:${e.rpe||'-'})`).join('; '))}
-Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
-  }
 
-  // ---------- CHAT HISTORY IMPORT ----------
+  // ----- CHAT IMPORT -----
   function importChatFromHome(file) {
     if (!file) return;
     const reader = new FileReader();
@@ -722,7 +707,7 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     reader.readAsText(file);
   }
 
-  // ---------- SETTINGS ----------
+  // ----- SETTINGS / SCANS -----
   function renderSettings() {
     document.getElementById('aiModeSelect').value = aiMode;
     document.getElementById('apiKeySection').style.display = aiMode === 'api' ? 'block' : 'none';
@@ -759,13 +744,15 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   async function analyzeLastScan() {
     const scans = await getScans();
     if (!scans.length) return toast('No scans');
-    const last = scans[scans.length-1];
+    toast('Analyzing...');
     try {
-      const worker = await Tesseract.createWorker('eng');
-      const { data: { text } } = await worker.recognize(last.image);
-      await worker.terminate();
+      if (!tesseractWorker) tesseractWorker = await Tesseract.createWorker('eng');
+      const { data: { text } } = await tesseractWorker.recognize(scans[scans.length-1].image);
+      toast('Analysis ready. Opening DeepSeek.');
       sendToDeepSeek(`Analyze this body scan data: ${text}`);
-    } catch(e) { toast('OCR failed'); }
+    } catch(e) {
+      toast('OCR failed. Please try again.');
+    }
   }
   function toggleTheme() {
     darkMode = !darkMode;
@@ -783,13 +770,10 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   }
   function nextHelpSlide() {
     if (helpSlide < helpSlides.length-1) { helpSlide++; renderHelpSlide(); }
-    else {
-      document.getElementById('helpModal').style.display = 'none';
-      localStorage.setItem('introCompleted', 'true');
-    }
+    else { document.getElementById('helpModal').style.display='none'; localStorage.setItem('introCompleted','true'); }
   }
 
-  // ---------- HISTORY / TEMPLATES ----------
+  // ----- HISTORY / TEMPLATES -----
   function renderHistory() {
     const list = document.getElementById('historyList');
     list.innerHTML = weekHistory.map((w,i) => `<div onclick="loadWeek(${i})" style="padding:8px; cursor:pointer;">Week ${new Date(w.startDate).toLocaleDateString()} – ${calcProgress(w.plan)}%</div>`).join('');
@@ -803,17 +787,14 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     navigateTo('tracker');
   }
   function saveTemplate() {
-    const plan = getCurrentPlan();
-    if (!plan) return;
-    const name = prompt('Template name:');
-    if (!name) return;
+    const plan = getCurrentPlan(); if (!plan) return;
+    const name = prompt('Template name:'); if (!name) return;
     templates.push({ name, plan });
     localStorage.setItem('templates', JSON.stringify(templates));
-    renderHistory();
-    toast('Template saved');
+    renderHistory(); toast('Template saved');
   }
 
-  // ---------- EXPORT ----------
+  // ----- EXPORT -----
   function exportPDF() {
     const plan = getCurrentPlan(); if (!plan) return;
     const { jsPDF } = window.jspdf;
@@ -839,34 +820,38 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     navigator.clipboard.writeText(t).then(()=>toast('Copied'));
   }
 
-  // ---------- INPUT PAGE ----------
+  // ----- INPUT PAGE ACTIONS (FIXED) -----
   function loadFromPaste() {
     const text = document.getElementById('planText').value.trim();
     if (!text) return toast('Paste your plan');
-    const plan = parsePlan(text);
-    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
-    currentWeekIndex = weekHistory.length-1; saveHistory();
-    navigateTo('tracker'); toast('Loaded!');
+    try {
+      const plan = parsePlan(text);
+      if (!plan.days.length) return toast('No plan found. Make sure both sections are present.');
+      weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+      currentWeekIndex = weekHistory.length-1; saveHistory();
+      navigateTo('tracker'); toast('Loaded!');
+    } catch(e) { toast('Error parsing plan. Check format.'); }
   }
   async function loadFromLink() {
     const link = document.getElementById('docLink').value.trim();
     const m = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if (!m) return toast('Invalid link');
     try {
-      const r = await fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`);
-      const text = await r.text();
+      const res = await fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`);
+      const text = await res.text();
       const plan = parsePlan(text);
+      if (!plan.days.length) return toast('No plan found. Make sure both sections are present.');
       weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
       currentWeekIndex = weekHistory.length-1; saveHistory();
       navigateTo('tracker'); toast('Fetched & loaded');
-    } catch(e) { toast('Error fetching document'); }
+    } catch(e) { toast('Error fetching document.'); }
   }
 
-  // ---------- MODALS ----------
+  // ----- MODALS -----
   function newWeekPaste() { document.getElementById('newWeekModal').style.display='none'; navigateTo('input'); }
   function newWeekLink() { document.getElementById('newWeekModal').style.display='none'; navigateTo('input'); document.getElementById('linkTabBtn').click(); }
 
-  // ---------- TABS ----------
+  // ----- TABS -----
   document.getElementById('pasteTabBtn').addEventListener('click', ()=>{
     document.getElementById('pasteTabBtn').classList.add('active');
     document.getElementById('linkTabBtn').classList.remove('active');
@@ -880,7 +865,7 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     document.getElementById('pasteDiv').style.display='none';
   });
 
-  // ---------- GLOBAL EXPOSURES (FIXED) ----------
+  // ----- GLOBAL EXPOSURE -----
   window.navigateTo = navigateTo;
   window.loadFromPaste = loadFromPaste;
   window.loadFromLink = loadFromLink;
@@ -916,8 +901,10 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   window.deleteScanFromDB = deleteScanFromDB;
   window.loadWeek = loadWeek;
   window.loadTemplate = loadTemplate;
+  window.updateDayNotes = updateDayNotes;
+  window.saveCurrentWeek = saveCurrentWeek;
 
-  // ---------- INIT ----------
+  // ----- INIT -----
   window.addEventListener('DOMContentLoaded', async () => {
     await openDB();
     loadHistory();
@@ -927,7 +914,6 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     renderHome();
     document.body.style.colorScheme = darkMode ? 'dark' : 'light';
   });
-
 })();
 </script>
 </body>
