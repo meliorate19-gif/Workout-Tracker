@@ -11,734 +11,724 @@
   <title>Fitness Tracker</title>
   <style>
     :root {
-      --bg: #0f0f0f;
-      --card-bg: #1c1c1e;
-      --text: #fff;
-      --sub: #8e8e93;
-      --accent: #30d158;
-      --blue: #0a84ff;
-      --red: #ff453a;
-      --orange: #ff9f0a;
-      --border: #2c2c2e;
-      --radius: 20px;
+      --bg: #0f0f0f; --card-bg: #1c1c1e; --text: #fff; --sub: #8e8e93;
+      --accent: #30d158; --blue: #0a84ff; --red: #ff453a; --orange: #ff9f0a;
+      --border: #2c2c2e; --radius: 20px;
     }
     @media (prefers-color-scheme: light) {
-      body {
-        --bg: #ffffff; --card-bg: #f2f2f7; --text: #1c1c1e; --sub: #6e6e73;
-        --border: #e5e5ea;
-      }
+      body { --bg: #fff; --card-bg: #f2f2f7; --text: #1c1c1e; --sub: #6e6e73; --border: #e5e5ea; }
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0 0 100px;
-      min-height: 100vh;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      transition: background 0.3s, color 0.3s;
+      background: var(--bg); color: var(--text);
+      margin: 0; padding: 0 0 100px; min-height: 100vh;
+      -webkit-tap-highlight-color: transparent; user-select: none;
     }
     .app { max-width: 600px; margin: 0 auto; padding: 16px; }
     .header { text-align: center; margin-bottom: 20px; }
     h1 { font-size: 28px; font-weight: 800; }
-    .subtitle { font-size: 14px; color: var(--sub); margin-top: 4px; }
     .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--card-bg);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      height: 75px;
-      padding-bottom: env(safe-area-inset-bottom, 10px);
-      border-top: 1px solid var(--border);
-      z-index: 10;
-      backdrop-filter: blur(20px);
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg);
+      display: flex; justify-content: space-around; align-items: center;
+      height: 75px; padding-bottom: env(safe-area-inset-bottom, 10px);
+      border-top: 1px solid var(--border); z-index: 10;
     }
-    .nav-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--sub);
-      font-size: 11px;
-      font-weight: 500;
-      gap: 4px;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
+    .nav-item { flex: 1; text-align: center; font-size: 11px; color: var(--sub); cursor: pointer; }
     .nav-item.active { color: var(--blue); }
-    .nav-icon { font-size: 22px; }
-    .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-    .gradient-card { background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%); }
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
     .btn {
-      padding: 14px 20px; border-radius: 14px; border: none; font-size: 15px; font-weight: 600;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-      transition: transform 0.1s, opacity 0.2s; background: var(--border); color: var(--text);
+      padding: 14px 20px; border-radius: 14px; border: none; font-size: 16px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; background: var(--border); color: var(--text);
     }
-    .btn:active { transform: scale(0.96); opacity: 0.8; }
     .btn-primary { background: var(--blue); color: #fff; width: 100%; justify-content: center; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--blue); }
-    .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 10px; }
-    .btn-accent { background: var(--accent); color: #000; }
-    .btn-danger { background: var(--red); color: #fff; }
-    .input, textarea, select {
-      width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
-      background: var(--bg); color: var(--text); font-size: 16px;
-    }
-    .input:focus, textarea:focus { outline: 2px solid var(--blue); }
-    .progress-bar { height: 8px; background: var(--border); border-radius: 4px; margin: 12px 0; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.3s ease; }
-    .day-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-    .day-header { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
-    .day-title { font-size: 18px; font-weight: 700; flex: 1; }
-    .day-summary { font-size: 13px; color: var(--sub); }
-    .macro-live { margin-left: 32px; margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--sub); }
-    .macro-live span { background: var(--border); padding: 4px 10px; border-radius: 12px; }
-    .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .check-circle.done { background: var(--accent); border-color: var(--accent); }
-    .check-circle.done::after { content: '✓'; color: #000; font-weight: bold; }
-    .timer-btn { background: var(--border); border: none; color: var(--text); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; }
-    .toast {
-      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: #000; padding: 10px 24px;
-      border-radius: 20px; font-weight: 600; opacity: 0; z-index: 20;
-      transition: opacity 0.2s; pointer-events: none;
-    }
+    .btn-sm { padding: 8px 16px; font-size: 14px; }
+    .input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 16px; }
+    .progress-bar { height: 8px; background: var(--border); border-radius: 4px; margin: 8px 0; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 10px 24px; border-radius: 20px; font-weight: 600; opacity: 0; z-index: 20; }
     .toast.show { opacity: 1; }
     .page { display: none; }
     .page.active { display: block; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30; display: none; align-items: center; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 30; }
     .modal-box { background: var(--card-bg); border-radius: 24px; padding: 24px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
-    .section-title { font-size: 14px; font-weight: 700; color: var(--blue); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .home-tile { background: var(--card-bg); border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="header"><h1>⚡️ Tracker</h1><p class="subtitle">Your AI‑Powered Fitness Coach</p></div>
-    <div class="toast" id="toast"></div>
-    <!-- Pages: Tracker, Input, Coach, History, Progress, Settings -->
-    <div id="trackerPage" class="page active"><div id="weekProgressCard" class="card gradient-card"></div><div id="trackerToolbar" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;"></div><div id="daysContainer"></div></div>
-    <div id="inputPage" class="page">
-      <div class="tabs" style="display:flex; gap:2px; background:var(--card-bg); border-radius:12px; padding:4px; margin-bottom:16px;">
-        <button class="btn tab-btn active" id="pasteTabBtn">📋 Paste</button>
-        <button class="btn tab-btn" id="linkTabBtn">🔗 Link</button>
-      </div>
-      <div class="card"><div id="pasteDiv"><textarea class="input" id="planText" rows="8" placeholder="SECTION 1: MEAL PLAN ..."></textarea><button class="btn btn-primary" id="parsePasteBtn">✨ Parse</button></div><div id="linkDiv" style="display:none;"><input class="input" id="docLink" placeholder="Google Doc link"><button class="btn btn-primary" id="fetchLinkBtn">🔍 Fetch</button></div></div>
+<div class="app">
+  <div class="toast" id="toast"></div>
+
+  <!-- HOME PAGE -->
+  <div id="homePage" class="page active">
+    <h1 style="text-align:center;">🏠 Dashboard</h1>
+    <div class="card" id="overviewCard"></div>
+    <div class="card">
+      <h3>📈 Weight Trend</h3>
+      <canvas id="homeChart" height="200"></canvas>
     </div>
-    <div id="coachPage" class="page">
-      <div class="card"><h3>🧠 AI Coach (Free)</h3><div id="chatMessages" style="height:200px; background:var(--bg); border-radius:12px; margin:10px 0; overflow-y:auto; padding:10px;"></div><div style="display:flex; gap:6px;"><input class="input" id="chatInput" placeholder="Ask anything..."><button class="btn btn-primary" style="width:auto;" id="sendChatBtn">📨</button></div><div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;"><button class="btn btn-outline btn-sm" id="aiReportBtn">📊 Report</button><button class="btn btn-outline btn-sm" id="shoppingListBtn">🛒 Grocery</button><button class="btn btn-accent btn-sm" id="aiProgressionBtn">🤖 Next Week</button></div></div>
+    <div class="home-grid">
+      <div class="home-tile" onclick="navigateTo('input')"><span style="font-size:28px;">📋</span><br>Import Plan</div>
+      <div class="home-tile" onclick="document.getElementById('chatHistoryFileInputHome').click()"><span style="font-size:28px;">💬</span><br>Load Chat History</div>
+      <input type="file" accept=".txt" id="chatHistoryFileInputHome" style="display:none;" onchange="importChatFromHome(this.files[0])">
+      <div class="home-tile" onclick="navigateTo('coach')"><span style="font-size:28px;">🧠</span><br>Coach</div>
+      <div class="home-tile" onclick="navigateTo('settings')"><span style="font-size:28px;">⚙️</span><br>Settings</div>
     </div>
-    <div id="historyPage" class="page"><div class="card"><h3>📚 Past Weeks</h3><div id="historyList"></div><hr><h4>🗂 Templates</h4><div id="templateList"></div><button class="btn btn-outline btn-sm" id="saveTemplateBtn">💾 Save Current</button></div></div>
-    <div id="progressPage" class="page"><div class="card"><h3>📈 Weight</h3><canvas id="progressChart" height="220"></canvas></div></div>
-    <div id="settingsPage" class="page">
-      <div class="card"><h3>⚙️ Settings</h3>
-        <label>AI Mode <select class="input" id="aiModeSelect"><option value="web" selected>Web (Free)</option><option value="api">API Key</option></select></label>
-        <div id="apiKeySection" style="display:none;"><label>Key <input class="input" type="password" id="apiKeyInput"></label><button class="btn btn-primary btn-sm" id="saveApiKeyBtn">Save</button></div>
-        <label>Chat History (.txt) <input type="file" accept=".txt" id="chatHistoryFileInput"></label>
-        <hr><h4>📸 Body Scans</h4><div id="scansContainer"></div>
-        <input type="file" accept="image/*" multiple id="scanFileInput" style="display:none;">
-        <button class="btn btn-outline btn-sm" id="addScanBtn">➕ Add Scans</button>
-        <button class="btn btn-outline btn-sm" id="analyzeLastScanBtn">🔬 Analyze Latest</button>
-        <small style="color:var(--sub);">Pick multiple from library</small>
-        <hr><button class="btn btn-outline" id="helpBtn">❓ Help</button>
-        <button class="btn btn-outline" id="darkModeBtn">🌓 Theme</button>
+  </div>
+
+  <!-- INPUT PAGE (for pasting/linking) -->
+  <div id="inputPage" class="page">
+    <button class="btn btn-outline btn-sm" onclick="navigateTo('home')">← Back</button>
+    <div class="tabs" style="display:flex; gap:2px; background:var(--card-bg); border-radius:12px; padding:4px; margin:16px 0;">
+      <button class="btn tab-btn active" id="pasteTabBtn">📋 Paste</button>
+      <button class="btn tab-btn" id="linkTabBtn">🔗 Link</button>
+    </div>
+    <div class="card">
+      <div id="pasteDiv"><textarea class="input" id="planText" rows="8" placeholder="SECTION 1: MEAL PLAN ..."></textarea><button class="btn btn-primary" id="parsePasteBtn">✨ Parse & Load</button></div>
+      <div id="linkDiv" style="display:none;"><input class="input" id="docLink" placeholder="Google Doc link"><button class="btn btn-primary" id="fetchLinkBtn">🔍 Fetch & Parse</button></div>
+    </div>
+  </div>
+
+  <!-- TRACKER PAGE -->
+  <div id="trackerPage" class="page">
+    <div id="weekProgressCard" class="card"></div>
+    <div id="trackerToolbar" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;"></div>
+    <div id="daysContainer"></div>
+  </div>
+
+  <!-- COACH PAGE -->
+  <div id="coachPage" class="page">
+    <div class="card">
+      <h3>🧠 AI Coach (Free)</h3>
+      <div id="chatMessages" style="height:200px; background:var(--bg); border-radius:12px; margin:10px 0; overflow-y:auto; padding:10px;"></div>
+      <div style="display:flex; gap:6px;"><input class="input" id="chatInput" placeholder="Ask anything..."><button class="btn btn-primary" style="width:auto;" id="sendChatBtn">📨</button></div>
+      <div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" id="aiReportBtn">📊 Report</button>
+        <button class="btn btn-outline btn-sm" id="shoppingListBtn">🛒 Grocery</button>
+        <button class="btn btn-accent btn-sm" id="aiProgressionBtn">🤖 Next Week</button>
       </div>
     </div>
   </div>
-  <div class="bottom-nav">
-    <div class="nav-item active" data-page="tracker"><span class="nav-icon">📋</span>Tracker</div>
-    <div class="nav-item" data-page="coach"><span class="nav-icon">🧠</span>Coach</div>
-    <div class="nav-item" data-page="progress"><span class="nav-icon">📊</span>Progress</div>
-    <div class="nav-item" data-page="history"><span class="nav-icon">📚</span>History</div>
-    <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>Settings</div>
+
+  <!-- HISTORY PAGE -->
+  <div id="historyPage" class="page">
+    <div class="card"><h3>📚 Past Weeks</h3><div id="historyList"></div><hr><h4>🗂 Templates</h4><div id="templateList"></div><button class="btn btn-outline btn-sm" id="saveTemplateBtn">💾 Save Current</button></div>
   </div>
-  <!-- Modals -->
-  <div id="helpModal" class="modal-overlay"><div class="modal-box"><div id="helpSlides"></div><div style="display:flex; gap:10px; margin-top:16px;"><button class="btn btn-outline" id="helpSkipBtn">Skip</button><button class="btn btn-primary" id="helpNextBtn">Next →</button></div></div></div>
-  <div id="reportModal" class="modal-overlay"><div class="modal-box"><h3>📊 Report</h3><div id="reportContent"></div><button class="btn btn-outline" onclick="document.getElementById('reportModal').style.display='none'">Close</button></div></div>
-  <div id="shoppingListModal" class="modal-overlay"><div class="modal-box"><h3>🛒 Grocery</h3><div id="shoppingListOutput"></div><button class="btn btn-outline" onclick="document.getElementById('shoppingListModal').style.display='none'">Close</button></div></div>
-  <div id="newWeekModal" class="modal-overlay"><div class="modal-box"><h3>New Week</h3><button class="btn btn-primary" id="newWeekPasteBtn">📋 Paste</button><button class="btn btn-outline" id="newWeekLinkBtn">🔗 Link</button><button class="btn btn-outline" id="autoGenBtn">🤖 +5 lbs</button><button class="btn btn-accent" id="aiProgModalBtn">🧠 AI Smart</button><button class="btn btn-outline" onclick="document.getElementById('newWeekModal').style.display='none'">Cancel</button></div></div>
-  <div id="scanViewModal" class="modal-overlay"><div class="modal-box"><img id="scanViewImage" style="width:100%; border-radius:16px;"><button class="btn btn-outline" onclick="document.getElementById('scanViewModal').style.display='none'">Close</button></div></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script>
-    (function() {
-      // --- State ---
-      let weekHistory = [], currentWeekIndex = -1;
-      const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-      let allExpanded = true;
-      let deepseekKey = localStorage.getItem('deepseekKey') || '';
-      let chatHistory = localStorage.getItem('deepseekChatHistory') || '';
-      let templates = JSON.parse(localStorage.getItem('templates') || '[]');
-      let darkMode = localStorage.getItem('darkMode') !== 'false';
-      let aiMode = localStorage.getItem('aiMode') || 'web';
-      let helpSlide = 0;
-      const helpSlides = [
-        {title:'Welcome!',text:'Your AI‑powered fitness tracker. Log workouts, meals, and get free coaching via DeepSeek.'},
-        {title:'Input',text:'Paste your plan (or Google Doc link). It auto‑parses meals, workouts, and timers.'},
-        {title:'Tracker',text:'Check off meals, fill macros, log weights/reps. Timers for circuits/density blocks.'},
-        {title:'Coach (Free)',text:'Web Chat opens DeepSeek with your data. Weekly reports, shopping lists, workout generation.'},
-        {title:'Progress',text:'Daily weight chart and macro trends.'},
-        {title:'Settings',text:'Switch AI mode, import chat history, manage body scans and templates.'}
-      ];
-      let db = null;
-      const DB_NAME = 'BodyScansDB', STORE_NAME = 'scans';
-      let currentChart = null;
+  <!-- SETTINGS PAGE -->
+  <div id="settingsPage" class="page">
+    <div class="card">
+      <h3>⚙️ Settings</h3>
+      <label>AI Mode <select class="input" id="aiModeSelect"><option value="web">Web (Free)</option><option value="api">API Key</option></select></label>
+      <div id="apiKeySection" style="display:none;"><label>Key <input class="input" type="password" id="apiKeyInput"></label><button class="btn btn-primary btn-sm" id="saveApiKeyBtn">Save</button></div>
+      <hr><h4>📸 Body Scans</h4><div id="scansContainer"></div>
+      <input type="file" accept="image/*" multiple id="scanFileInput" style="display:none;">
+      <button class="btn btn-outline btn-sm" id="addScanBtn">➕ Add Scans</button>
+      <button class="btn btn-outline btn-sm" id="analyzeLastScanBtn">🔬 Analyze Latest</button>
+      <hr><button class="btn btn-outline" id="helpBtn">❓ Help</button>
+      <button class="btn btn-outline" id="darkModeBtn">🌓 Theme</button>
+    </div>
+  </div>
 
-      function toast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg; t.classList.add('show');
-        clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 2000);
+  <!-- MODALS -->
+  <div id="newWeekModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <h3>New Week</h3>
+      <button class="btn btn-primary" onclick="newWeekPaste()">📋 Paste</button>
+      <button class="btn btn-outline" onclick="newWeekLink()" style="margin-top:8px;">🔗 Link</button>
+      <button class="btn btn-outline" onclick="autoGenNextWeek()" style="margin-top:8px;">🤖 +5 lbs</button>
+      <button class="btn btn-accent" onclick="aiSmartProgression()" style="margin-top:8px;">🧠 AI Smart</button>
+      <button class="btn btn-outline" style="margin-top:8px; width:100%;" onclick="closeModal('newWeekModal')">Cancel</button>
+    </div>
+  </div>
+  <div id="helpModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box"><div id="helpSlides"></div><div style="display:flex; gap:10px; margin-top:16px;"><button class="btn btn-outline" onclick="closeModal('helpModal')">Skip</button><button class="btn btn-primary" id="helpNextBtn">Next →</button></div></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" data-page="home">🏠 Home</div>
+  <div class="nav-item" data-page="tracker">📋 Tracker</div>
+  <div class="nav-item" data-page="coach">🧠 Coach</div>
+  <div class="nav-item" data-page="history">📚 History</div>
+  <div class="nav-item" data-page="settings">⚙️ Settings</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+// ==================== FULL APP CODE ====================
+(function() {
+  // -- STATE --
+  let weekHistory = [], currentWeekIndex = -1;
+  const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  let allExpanded = true;
+  let deepseekKey = localStorage.getItem('deepseekKey') || '';
+  let chatHistory = localStorage.getItem('deepseekChatHistory') || '';
+  let templates = JSON.parse(localStorage.getItem('templates') || '[]');
+  let darkMode = localStorage.getItem('darkMode') !== 'false';
+  let aiMode = localStorage.getItem('aiMode') || 'web';
+  let helpSlide = 0;
+  const helpSlides = [
+    {title:'Welcome!',text:'Your AI‑powered fitness tracker. Log workouts, meals, and get free coaching via DeepSeek.'},
+    {title:'Home',text:'Dashboard with weight trend, quick import of plans and chat history.'},
+    {title:'Tracker',text:'Check off meals, fill macros, log weights/reps. Timers for circuits/density blocks.'},
+    {title:'Coach (Free)',text:'Web Chat opens DeepSeek with your data. Weekly reports, shopping lists, workout generation.'},
+    {title:'Settings',text:'Switch AI mode, import chat history, manage body scans and templates.'}
+  ];
+  let db = null;
+  const DB_NAME = 'BodyScansDB', STORE_NAME = 'scans';
+  let currentChart = null;
+
+  function toast(msg) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // --- INDEXEDDB ---
+  async function openDB() {
+    return new Promise((res,rej) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onerror = rej;
+      req.onsuccess = () => { db = req.result; res(); };
+      req.onupgradeneeded = () => { req.result.createObjectStore(STORE_NAME, { keyPath:'id', autoIncrement:true }); };
+    });
+  }
+  async function addScan(img, date) {
+    await openDB();
+    return new Promise(res => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).add({ image:img, date, notes:'' });
+      tx.oncomplete = res;
+    });
+  }
+  async function getScans() {
+    await openDB();
+    return new Promise(res => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      tx.objectStore(STORE_NAME).getAll().onsuccess = e => res(e.target.result);
+    });
+  }
+  async function deleteScan(id) {
+    await openDB();
+    return new Promise(res => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(id);
+      tx.oncomplete = res;
+    });
+  }
+
+  // --- STORAGE ---
+  function saveHistory() { localStorage.setItem('weekHistory', JSON.stringify(weekHistory)); localStorage.setItem('currentWeekIndex', currentWeekIndex); }
+  function loadHistory() {
+    const h = localStorage.getItem('weekHistory');
+    if (h) {
+      weekHistory = JSON.parse(h);
+      currentWeekIndex = parseInt(localStorage.getItem('currentWeekIndex')) || (weekHistory.length-1);
+      if (currentWeekIndex < 0 || currentWeekIndex >= weekHistory.length) currentWeekIndex = weekHistory.length-1;
+    } else {
+      const old = localStorage.getItem('weekPlan');
+      if (old) { weekHistory = [{ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(old) }]; currentWeekIndex = 0; localStorage.removeItem('weekPlan'); }
+      else { weekHistory = []; currentWeekIndex = -1; }
+    }
+    saveHistory();
+  }
+  function getCurrentWeek() { return (weekHistory.length && currentWeekIndex >= 0) ? weekHistory[currentWeekIndex] : null; }
+  function getCurrentPlan() { const w = getCurrentWeek(); return w ? w.plan : null; }
+  function saveCurrentWeek() { if (getCurrentWeek()) { weekHistory[currentWeekIndex] = getCurrentWeek(); saveHistory(); } }
+
+  // --- PARSER ---
+  function parsePlan(text) {
+    const dayMap = {}; daysOrder.forEach(d => dayMap[d] = { day:d, meals:[], workoutBlocks:[], dailyWeight:null, waterOz:'' });
+    const mealSec = text.match(/SECTION\s*1\s*:?\s*MEAL\s*PLAN/i);
+    const workSec = text.match(/SECTION\s*2\s*:?\s*(WEEKLY\s*)?WORKOUT\s*SCHEDULE/i);
+    if (!mealSec || !workSec) return { days:[] };
+    const mealText = text.substring(mealSec.index, workSec.index);
+    const workoutText = text.substring(workSec.index);
+
+    let curMealDay = null;
+    mealText.split('\n').forEach(line => {
+      line = line.trim(); if (!line) return;
+      const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z]/.test(line[d.length]));
+      if (dayMatch) { curMealDay = dayMatch; return; }
+      if (curMealDay && line.startsWith('·')) {
+        let content = line.replace(/^·\s*/, '').trim();
+        const timeMatch = content.match(/^.*?\(([^)]+)\)\s*:\s*(.*)/);
+        let time='', desc=content;
+        if (timeMatch) { time=timeMatch[1].trim(); desc=timeMatch[2].trim(); }
+        desc = desc.replace(/\s*~\s*\d+.*$/,'').trim();
+        if (desc) dayMap[curMealDay].meals.push({ id: crypto.randomUUID(), name:desc, time, completed:false, ateNotes:'', protein:'', carbs:'', fat:'' });
       }
+    });
 
-      // --- Storage ---
-      function saveHistory() {
-        localStorage.setItem('weekHistory', JSON.stringify(weekHistory));
-        localStorage.setItem('currentWeekIndex', currentWeekIndex);
+    let curWorkDay = null, curBlock = null;
+    workoutText.split('\n').forEach(line => {
+      line = line.trim(); if (!line) return;
+      const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z]/.test(line[d.length]));
+      if (dayMatch) {
+        if (curBlock && curBlock.exercises.length) dayMap[curWorkDay].workoutBlocks.push(curBlock);
+        curWorkDay = dayMatch; curBlock = null; return;
       }
-      function loadHistory() {
-        const h = localStorage.getItem('weekHistory');
-        if (h) {
-          weekHistory = JSON.parse(h);
-          currentWeekIndex = parseInt(localStorage.getItem('currentWeekIndex')) || (weekHistory.length - 1);
-          if (currentWeekIndex < 0 || currentWeekIndex >= weekHistory.length) currentWeekIndex = weekHistory.length - 1;
-        } else {
-          const old = localStorage.getItem('weekPlan');
-          if (old) {
-            weekHistory = [{ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(old) }];
-            currentWeekIndex = 0;
-            localStorage.removeItem('weekPlan');
-          } else { weekHistory = []; currentWeekIndex = -1; }
+      if (!curWorkDay) return;
+      const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/);
+      const circuitMatch = line.match(/^Format\s*:\s*(.*)/);
+      if (partMatch || circuitMatch) {
+        if (curBlock && curBlock.exercises.length) dayMap[curWorkDay].workoutBlocks.push(curBlock);
+        curBlock = { name: partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1], time:'', exercises:[], isCircuit: !!circuitMatch };
+        if (circuitMatch) { const t = circuitMatch[1].match(/(\d+)\s*-\s*min/); if (t) curBlock.time = t[1] + ' min'; }
+        return;
+      }
+      if (!curBlock) curBlock = { name:'Main', time:'', exercises:[], isCircuit:false };
+      if (/^(Post-Workout|Pre-Class|Pre-Workout|Post-Class|Notes|Option|Sunday Meal Prep|Step\s+Exercise)/i.test(line)) return;
+      if (/Exercise\s+Sets\s+Reps/i.test(line) || /^Actual/i.test(line) || /^Weights Used/i.test(line)) return;
+
+      let exName=null, prescribed='', workSec=0, restSec=0, prescribedWeight='';
+      const stationMatch = line.match(/^(.+?)\s+(\d+)\s*sec\s+(\d+)\s*sec/i);
+      if (stationMatch && curBlock.isCircuit) {
+        exName = stationMatch[1].trim(); workSec = +stationMatch[2]; restSec = +stationMatch[3]; prescribed = `${workSec}s/${restSec}s`;
+        const wM = line.match(/(\d+)\s*lbs?/i); if (wM) prescribedWeight = wM[1] + ' lbs';
+      } else {
+        let m = line.match(/^\d+\s+(.*?)\s+(\d+)\s*(?:min|sec)\s+(\d+-?\d*)/i);
+        if (m) { exName = m[1].trim(); workSec = +m[2]*60; prescribed = m[3];
+          const wM = line.match(/(\d+)\s*lb/i); if (wM) prescribedWeight = wM[1] + ' lbs'; }
+        else {
+          m = line.match(/^([A-Z]):\s*(.*?)(?:\s+(\d+)\s+(\d+[\/\w]*))?\s+(\d+\s*sec)?/);
+          if (m) { exName = m[2].trim(); if (m[3] && m[4]) prescribed = m[3]+'x'+m[4]; if (m[5]) workSec = +m[5];
+            const wM = line.match(/(\d+)\s*lb/i); if (wM) prescribedWeight = wM[1] + ' lbs'; }
+          else exName = line.split(/\s+/).slice(0,4).join(' ');
         }
-        saveHistory();
       }
-      function getCurrentWeek() { return (weekHistory.length && currentWeekIndex >= 0) ? weekHistory[currentWeekIndex] : null; }
-      function getCurrentPlan() { const w = getCurrentWeek(); return w ? w.plan : null; }
-      function saveCurrentWeek() { const w = getCurrentWeek(); if (w) { weekHistory[currentWeekIndex] = w; saveHistory(); } }
+      if (exName && exName.length>2) {
+        curBlock.exercises.push({
+          id: crypto.randomUUID(), name: exName.charAt(0).toUpperCase()+exName.slice(1),
+          prescribedSetsReps: prescribed, prescribedWeight, completed:false, weight:'', reps:'', rpe:'5', workSec, restSec
+        });
+      }
+    });
+    if (curBlock && curBlock.exercises.length && curWorkDay) dayMap[curWorkDay].workoutBlocks.push(curBlock);
+    return { days: daysOrder.map(d => ({ ...dayMap[d], notes:'' })).filter(d => d.meals.length || d.workoutBlocks.length) };
+  }
 
-      // --- IndexedDB ---
-      async function openDB() {
-        return new Promise((res, rej) => {
-          const req = indexedDB.open(DB_NAME, 1);
-          req.onerror = rej;
-          req.onsuccess = () => { db = req.result; res(); };
-          req.onupgradeneeded = () => { req.result.createObjectStore(STORE_NAME, { keyPath:'id', autoIncrement:true }); };
-        });
-      }
-      async function addScan(imageData, date) {
-        await openDB();
-        return new Promise(res => {
-          const tx = db.transaction(STORE_NAME, 'readwrite');
-          tx.objectStore(STORE_NAME).add({ image:imageData, date, notes:'' });
-          tx.oncomplete = res;
-        });
-      }
-      async function getScans() {
-        await openDB();
-        return new Promise(res => {
-          const tx = db.transaction(STORE_NAME, 'readonly');
-          const req = tx.objectStore(STORE_NAME).getAll();
-          req.onsuccess = () => res(req.result);
-        });
-      }
-      async function deleteScan(id) {
-        await openDB();
-        return new Promise(res => {
-          const tx = db.transaction(STORE_NAME, 'readwrite');
-          tx.objectStore(STORE_NAME).delete(id);
-          tx.oncomplete = res;
-        });
-      }
-
-      // --- Parser ---
-      function parsePlan(text) {
-        const dayMap = {}; daysOrder.forEach(d => dayMap[d] = { day:d, meals:[], workoutBlocks:[], dailyWeight:null, waterOz:'' });
-        const mealSec = text.match(/SECTION\s*1\s*:?\s*MEAL\s*PLAN/i);
-        const workSec = text.match(/SECTION\s*2\s*:?\s*(WEEKLY\s*)?WORKOUT\s*SCHEDULE/i);
-        if (!mealSec || !workSec) return { days:[] };
-        const mealText = text.substring(mealSec.index, workSec.index);
-        const workoutText = text.substring(workSec.index);
-        const mealLines = mealText.split('\n'); let curMealDay = null;
-        for (let line of mealLines) {
-          line = line.trim(); if (!line) continue;
-          const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z]/.test(line[d.length]));
-          if (dayMatch) { curMealDay = dayMatch; continue; }
-          if (curMealDay && line.startsWith('·')) {
-            let content = line.replace(/^·\s*/, '').trim();
-            const timeMatch = content.match(/^.*?\(([^)]+)\)\s*:\s*(.*)/);
-            let time='', desc=content;
-            if (timeMatch) { time=timeMatch[1].trim(); desc=timeMatch[2].trim(); }
-            desc = desc.replace(/\s*~\s*\d+.*$/,'').trim();
-            if (desc) dayMap[curMealDay].meals.push({ id: crypto.randomUUID(), name:desc, time, completed:false, ateNotes:'', protein:'', carbs:'', fat:'' });
-          }
-        }
-        const workLines = workoutText.split('\n'); let curWorkDay=null, curBlock=null;
-        for (let line of workLines) {
-          line = line.trim(); if (!line) continue;
-          const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z]/.test(line[d.length]));
-          if (dayMatch) {
-            if (curBlock && curBlock.exercises.length) dayMap[curWorkDay].workoutBlocks.push(curBlock);
-            curWorkDay = dayMatch; curBlock = null; continue;
-          }
-          if (!curWorkDay) continue;
-          const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/);
-          const circuitMatch = line.match(/^Format\s*:\s*(.*)/);
-          if (partMatch || circuitMatch) {
-            if (curBlock && curBlock.exercises.length) dayMap[curWorkDay].workoutBlocks.push(curBlock);
-            curBlock = { name: partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1], time:'', exercises:[], isCircuit:false };
-            if (circuitMatch) { curBlock.isCircuit = true; const t = circuitMatch[1].match(/(\d+)\s*-\s*min/); if (t) curBlock.time = t[1] + ' min'; }
-            continue;
-          }
-          const inlineTime = line.match(/^·\s*Format\s*:\s*(.*)/);
-          if (inlineTime && curBlock) { curBlock.time = inlineTime[1].trim(); continue; }
-          if (!curBlock) curBlock = { name:'Main Workout', time:'', exercises:[], isCircuit:false };
-          if (/^(Post-Workout|Pre-Class|Pre-Workout|Post-Class|Notes|Option|Sunday Meal Prep|Step\s+Exercise)/i.test(line)) continue;
-          if (/Exercise\s+Sets\s+Reps/i.test(line) || /Rest\s+Weight/i.test(line) || /^Actual/i.test(line) || /^Weights Used/i.test(line)) continue;
-          let exName=null, prescribed='', workSec=0, restSec=0, prescribedWeight='';
-          const stationMatch = line.match(/^(.+?)\s+(\d+)\s*sec\s+(\d+)\s*sec/i);
-          if (stationMatch && curBlock.isCircuit) {
-            exName = stationMatch[1].trim();
-            workSec = parseInt(stationMatch[2]); restSec = parseInt(stationMatch[3]);
-            prescribed = `${workSec}s/${restSec}s`;
-            const wM = line.match(/(\d+)\s*lbs?/i);
-            if (wM) prescribedWeight = wM[1] + ' lbs';
-          } else {
-            let m = line.match(/^\d+\s+(.*?)\s+(\d+)\s*(?:min|sec)\s+(\d+-?\d*)/i);
-            if (m) { exName = m[1].trim(); workSec = parseInt(m[2])*60; prescribed = m[3];
-              const wM = line.match(/(\d+)\s*lb\b/i); if (wM) prescribedWeight = wM[1] + ' lbs'; }
-            else {
-              m = line.match(/^([A-Z]):\s*(.*?)(?:\s+(\d+)\s+(\d+[\/\w]*))?\s+(\d+\s*sec)?/);
-              if (m) { exName = m[2].trim(); if (m[3] && m[4]) prescribed = m[3]+'x'+m[4]; if (m[5]) workSec = parseInt(m[5]);
-                const wM = line.match(/(\d+)\s*lb\b/i); if (wM) prescribedWeight = wM[1] + ' lbs'; }
-              else exName = line.split(/\s+/).slice(0,4).join(' ');
-            }
-          }
-          if (exName && exName.length>2) {
-            curBlock.exercises.push({ id: crypto.randomUUID(), name: exName.charAt(0).toUpperCase()+exName.slice(1),
-              prescribedSetsReps: prescribed, prescribedWeight, completed:false, weight:'', reps:'', rpe:'5', workSec, restSec });
-          }
-        }
-        if (curBlock && curBlock.exercises.length && curWorkDay) dayMap[curWorkDay].workoutBlocks.push(curBlock);
-        return { days: daysOrder.map(d => ({ ...dayMap[d], notes:'' })).filter(d => d.meals.length || d.workoutBlocks.length) };
-      }
-
-      // --- Tracker UI ---
-      function calcProgress(plan) {
-        let total=0, done=0;
-        plan.days.forEach(d => { d.meals.forEach(m => { total++; if(m.completed)done++; }); (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => { total++; if(e.completed)done++; })); });
-        return total ? Math.round(done/total*100) : 0;
-      }
-      function renderProgressCard() {
-        const plan = getCurrentPlan(); if (!plan) return;
-        const pct = calcProgress(plan);
-        document.getElementById('weekProgressCard').innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:700;">Week Progress</span>
-            <span style="font-size:24px; font-weight:800;">${pct}%</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>`;
-      }
-      function renderTracker() {
-        const plan = getCurrentPlan(); if (!plan) return;
-        renderProgressCard();
-        document.getElementById('trackerToolbar').innerHTML = `
-          <button class="btn btn-outline btn-sm" id="exportPdfBtn">📄</button>
-          <button class="btn btn-outline btn-sm" id="copyClipBtn">📋</button>
-          <button class="btn btn-outline btn-sm" id="toggleExpandBtn">📅 ${allExpanded?'Collapse':'Expand'}</button>
-          <button class="btn btn-outline btn-sm" id="newWeekBtn">🗑 New</button>
-          <button class="btn btn-outline btn-sm" id="exportWeightCsvBtn">📤 CSV</button>`;
-        document.getElementById('exportPdfBtn').onclick = exportPDF;
-        document.getElementById('copyClipBtn').onclick = copyToClipboard;
-        document.getElementById('toggleExpandBtn').onclick = toggleAllDays;
-        document.getElementById('newWeekBtn').onclick = () => document.getElementById('newWeekModal').style.display='flex';
-        document.getElementById('exportWeightCsvBtn').onclick = exportWeightCSV;
-        const container = document.getElementById('daysContainer'); container.innerHTML = '';
-        plan.days.forEach((day, di) => {
-          const card = document.createElement('div'); card.className = 'day-card';
-          card.innerHTML = buildDayHTML(day, di);
-          container.appendChild(card);
-          card.querySelector('.day-weight').onchange = e => updateDailyWeight(di, e.target.value);
-          card.querySelector('.water-input').onchange = e => updateWater(di, e.target.value);
-          card.querySelector('.day-notes').onchange = e => updateDayNotes(di, e.target.value);
-          card.querySelectorAll('.macro-input').forEach(inp => inp.oninput = () => updateMacroLive(di));
-        });
-        updateAllMacroLive();
-        bindCheckListeners();
-        bindTimers();
-      }
-      function buildDayHTML(day, di) {
-        const macros = calcDayMacros(day);
-        return `<div class="day-header" onclick="document.getElementById('dayBody${di}').style.display = document.getElementById('dayBody${di}').style.display === 'none' ? 'block' : 'none'">
-          <span class="day-title">${day.day}</span>
-          <span class="day-summary">${day.meals.filter(m=>m.completed).length}/${day.meals.length} meals · ${exerciseCompletion(day)}</span>
-          <input class="input day-weight" type="number" value="${day.dailyWeight||''}" placeholder="lbs" style="width:70px;">
-          <input class="input water-input" type="number" value="${day.waterOz||''}" placeholder="oz" style="width:60px;">
-        </div>
-        <div class="day-body" id="dayBody${di}" style="display:${allExpanded?'block':'none'};">
-          <div class="section-title">🥗 Meals</div>
-          ${day.meals.map((m, mi) => `
-            <div class="check-row meal-row" data-day="${di}" data-type="meal" data-index="${mi}">
-              <div class="check-circle ${m.completed?'done':''}"></div>
-              <span>${m.name} ${m.time ? `<small style="color:var(--sub);">${m.time}</small>` : ''}</span>
-            </div>
-            <input class="input ate-notes" placeholder="What I ate" value="${m.ateNotes||''}" data-day="${di}" data-index="${mi}" data-field="ateNotes" style="margin-left:32px;">
-            <div class="macro-chips">
-              <input class="input macro-input" type="number" placeholder="P(g)" value="${m.protein||''}" data-day="${di}" data-index="${mi}" data-field="protein" style="width:60px;">
-              <input class="input macro-input" type="number" placeholder="C(g)" value="${m.carbs||''}" data-day="${di}" data-index="${mi}" data-field="carbs" style="width:60px;">
-              <input class="input macro-input" type="number" placeholder="F(g)" value="${m.fat||''}" data-day="${di}" data-index="${mi}" data-field="fat" style="width:60px;">
-            </div>`).join('')}
-          <div class="macro-live" id="macroLive${di}"><span>🔥 ${macros.cal} kcal</span><span>🥩 ${macros.protein}g</span><span>🌾 ${macros.carbs}g</span><span>🥑 ${macros.fat}g</span></div>
-          <div class="section-title">🏋️ Workout</div>
-          ${(day.workoutBlocks||[]).map((block, bi) => `<div class="workout-block"><div class="block-header"><span>${block.name}</span>${block.time ? `<span>⏱ ${block.time}</span>` : ''}${block.isCircuit && block.exercises.some(e=>e.workSec) ? `<div class="timer-row" id="circuitTimer-${di}-${bi}"><span class="timer-display">${block.time ? formatTime(parseTimeStr(block.time)) : '--:--'}</span><button class="timer-btn circuit-start-btn" data-day="${di}" data-block="${bi}">▶</button></div>` : ''}</div>${block.exercises.map((ex, ei) => `<div class="check-row exercise-row" data-day="${di}" data-block="${bi}" data-index="${ei}" data-type="exercise"><div class="check-circle ${ex.completed?'done':''}"></div><span>${ex.name} ${ex.prescribedSetsReps ? `<small>${ex.prescribedSetsReps}</small>` : ''} ${ex.prescribedWeight ? `<small style="color:var(--orange);">${ex.prescribedWeight}</small>` : ''}</span>${!block.isCircuit && ex.workSec ? `<div class="timer-row" id="exTimer-${ex.id}"><span class="timer-display">${formatTime(ex.workSec)}</span><button class="timer-btn ex-start-btn" data-exid="${ex.id}">▶</button></div>` : ''}</div><div class="input-row"><input class="input exercise-input" type="text" placeholder="Weight" value="${ex.weight}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="weight" style="width:80px;"><input class="input exercise-input" type="text" placeholder="Reps" value="${ex.reps}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="reps" style="width:80px;"><input class="input exercise-input" type="number" min="1" max="10" value="${ex.rpe||'5'}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="rpe" style="width:60px;" title="RPE"></div>`).join('')}</div>`).join('')}
-          <textarea class="input day-notes" placeholder="Notes" style="height:60px;">${day.notes||''}</textarea>
-        </div>`;
-      }
-      function calcDayMacros(day) {
-        const p = (day.meals||[]).reduce((s,m) => s + (parseFloat(m.protein)||0), 0);
-        const c = (day.meals||[]).reduce((s,m) => s + (parseFloat(m.carbs)||0), 0);
-        const f = (day.meals||[]).reduce((s,m) => s + (parseFloat(m.fat)||0), 0);
-        return { protein: p.toFixed(0), carbs: c.toFixed(0), fat: f.toFixed(0), cal: (p*4+c*4+f*9).toFixed(0) };
-      }
-      function updateMacroLive(di) {
-        const day = getCurrentPlan().days[di]; const macros = calcDayMacros(day);
-        const el = document.getElementById(`macroLive${di}`); if (el) el.innerHTML = `<span>🔥 ${macros.cal} kcal</span><span>🥩 ${macros.protein}g</span><span>🌾 ${macros.carbs}g</span><span>🥑 ${macros.fat}g</span>`;
-      }
-      function updateAllMacroLive() { const plan = getCurrentPlan(); if (plan) plan.days.forEach((_,i) => updateMacroLive(i)); }
-      function exerciseCompletion(day) { let t=0,d=0; (day.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => { t++; if(e.completed) d++; })); return `${d}/${t} ex`; }
-      function bindCheckListeners() {
-        document.querySelectorAll('.meal-row').forEach(row => row.onclick = function() {
-          const di = +this.dataset.day, mi = +this.dataset.index;
-          const w = getCurrentWeek(); w.plan.days[di].meals[mi].completed = !w.plan.days[di].meals[mi].completed;
-          saveCurrentWeek(); renderTracker();
-        });
-        document.querySelectorAll('.exercise-row').forEach(row => row.onclick = function() {
-          const di = +this.dataset.day, bi = +this.dataset.block, ei = +this.dataset.index;
-          const w = getCurrentWeek(); w.plan.days[di].workoutBlocks[bi].exercises[ei].completed = !w.plan.days[di].workoutBlocks[bi].exercises[ei].completed;
-          saveCurrentWeek(); renderTracker();
-        });
-      }
-      let timers = {};
-      function bindTimers() {
-        document.querySelectorAll('.circuit-start-btn').forEach(btn => btn.onclick = function(e) {
-          e.stopPropagation(); const di = +this.dataset.day, bi = +this.dataset.block;
-          const block = getCurrentPlan().days[di].workoutBlocks[bi];
-          const key = `circuit-${di}-${bi}`;
-          if (this.textContent === '⏸') { clearInterval(timers[key]); delete timers[key]; this.textContent='▶'; return; }
-          let overall = parseTimeStr(block.time)||99999, station=0, inWork=true, left=block.exercises[0].workSec;
-          timers[key] = setInterval(() => {
-            overall--; left--;
-            document.querySelector(`#circuitTimer-${di}-${bi} .timer-display`).textContent = formatTime(overall);
-            if (left <= 0) {
-              if (inWork) { playBeep(1000,0.1); inWork=false; left=block.exercises[station].restSec; }
-              else { playBeep(600,0.1); station=(station+1)%block.exercises.length; inWork=true; left=block.exercises[station].workSec; }
-            }
-            if (overall <= 0) { clearInterval(timers[key]); delete timers[key]; playBeep(800,0.3); toast('Circuit done!'); this.textContent='▶'; }
-          }, 1000);
-          this.textContent = '⏸';
-        });
-        document.querySelectorAll('.ex-start-btn').forEach(btn => btn.onclick = function(e) {
-          e.stopPropagation(); const exId = this.dataset.exid; const key = `ex-${exId}`;
-          if (this.textContent==='⏸') { clearInterval(timers[key]); delete timers[key]; this.textContent='▶'; return; }
-          let exercise; for (let d of getCurrentPlan().days) for (let b of d.workoutBlocks) for (let e of b.exercises) if(e.id===exId) exercise=e;
-          if (!exercise) return;
-          let left = exercise.workSec;
-          timers[key] = setInterval(() => {
-            left--;
-            const disp = document.querySelector(`#exTimer-${exId} .timer-display`); if (disp) disp.textContent = formatTime(left);
-            if (left<=0) { clearInterval(timers[key]); delete timers[key]; playBeep(800,0.3); toast('Exercise done!'); this.textContent='▶'; }
-          }, 1000);
-          this.textContent = '⏸';
-        });
-      }
-      function playBeep(f=800,d=0.15) {
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type='square'; o.frequency.value=f; g.gain.value=0.3;
-        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+d);
-      }
-      function parseTimeStr(s) {
-        const m=s.match(/(\d+)\s*min/i), sec=s.match(/(\d+)\s*sec/i);
-        return (m?+m[1]*60:0)+(sec?+sec[1]:0);
-      }
-      function formatTime(s) { const m=Math.floor(s/60), se=Math.floor(s%60); return `${m}:${se.toString().padStart(2,'0')}`; }
-      function toggleAllDays() { allExpanded=!allExpanded; renderTracker(); }
-
-      // --- Updates ---
-      document.addEventListener('input', function(e) {
-        const t = e.target;
-        if (t.matches('.ate-notes, .macro-input, .exercise-input, .day-notes')) {
-          const field = t.dataset.field, di = +t.dataset.day, idx = +t.dataset.index, bi = t.dataset.block ? +t.dataset.block : null;
-          const w = getCurrentWeek(); if (!w) return;
-          if (field === 'ateNotes' || field === 'protein' || field === 'carbs' || field === 'fat') w.plan.days[di].meals[idx][field] = t.value;
-          else if (bi !== null) w.plan.days[di].workoutBlocks[bi].exercises[idx][field] = t.value;
-          else if (field === 'notes') w.plan.days[di].notes = t.value;
-          saveCurrentWeek();
-          if (field === 'protein' || field === 'carbs' || field === 'fat') updateMacroLive(di);
+  // --- RENDER HOME ---
+  function renderHome() {
+    const week = getCurrentWeek();
+    document.getElementById('overviewCard').innerHTML = week ? `
+      <h3>Current Week</h3>
+      <div>Started: ${new Date(week.startDate).toLocaleDateString()}</div>
+      <div>Progress: ${calcProgress(week.plan)}%</div>
+    ` : '<h3>No data loaded</h3><p>Import your first plan!</p>';
+    drawWeightChart();
+  }
+  function drawWeightChart() {
+    const ctx = document.getElementById('homeChart').getContext('2d');
+    const allWeights = [];
+    weekHistory.forEach(w => {
+      w.plan.days.forEach((d, i) => {
+        if (d.dailyWeight) {
+          const date = new Date(w.startDate);
+          date.setDate(date.getDate() + daysOrder.indexOf(d.day));
+          allWeights.push({ x: date.toLocaleDateString(), y: d.dailyWeight });
         }
       });
-      function updateDailyWeight(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].dailyWeight = val? +val:null; saveCurrentWeek(); } }
-      function updateWater(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].waterOz = val; saveCurrentWeek(); } }
-      function updateDayNotes(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].notes = val; saveCurrentWeek(); } }
+    });
+    allWeights.sort((a,b) => new Date(a.x) - new Date(b.x));
+    if (currentChart) currentChart.destroy();
+    currentChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: allWeights.map(p => p.x),
+        datasets: [{ label: 'Weight (lbs)', data: allWeights.map(p => p.y), borderColor: '#0a84ff', tension: 0.3 }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: false } } }
+    });
+  }
 
-      // --- Navigation ---
-      function navigateTo(page) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(page+'Page').classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
-        if (page==='tracker') renderTracker();
-        if (page==='history') renderHistory();
-        if (page==='progress') renderProgress();
-        if (page==='settings') renderSettings();
-      }
-      document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => navigateTo(i.dataset.page));
+  // --- RENDER TRACKER ---
+  function calcProgress(plan) {
+    let total=0, done=0;
+    plan.days.forEach(d => { d.meals.forEach(m => { total++; if(m.completed)done++; }); (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => { total++; if(e.completed)done++; })); });
+    return total ? Math.round(done/total*100) : 0;
+  }
+  function renderTracker() {
+    const plan = getCurrentPlan(); if (!plan) return;
+    document.getElementById('weekProgressCard').innerHTML = `<h3>Progress: ${calcProgress(plan)}%</h3><div class="progress-bar"><div class="progress-fill" style="width:${calcProgress(plan)}%"></div></div>`;
+    document.getElementById('trackerToolbar').innerHTML = `
+      <button class="btn btn-outline btn-sm" id="exportPdfBtn">📄</button>
+      <button class="btn btn-outline btn-sm" id="copyClipBtn">📋</button>
+      <button class="btn btn-outline btn-sm" id="toggleExpandBtn">📅 ${allExpanded?'Collapse':'Expand'}</button>
+      <button class="btn btn-outline btn-sm" id="newWeekBtn">🗑 New</button>`;
+    document.getElementById('exportPdfBtn').onclick = exportPDF;
+    document.getElementById('copyClipBtn').onclick = copyToClipboard;
+    document.getElementById('toggleExpandBtn').onclick = toggleAllDays;
+    document.getElementById('newWeekBtn').onclick = () => document.getElementById('newWeekModal').style.display='flex';
+    const container = document.getElementById('daysContainer'); container.innerHTML = '';
+    plan.days.forEach((day, di) => {
+      const card = document.createElement('div'); card.className = 'card day-card';
+      card.innerHTML = buildDayHTML(day, di);
+      container.appendChild(card);
+      card.querySelector('.day-weight').onchange = e => updateDailyWeight(di, e.target.value);
+      card.querySelector('.water-input').onchange = e => updateWater(di, e.target.value);
+      card.querySelectorAll('.macro-input').forEach(inp => inp.oninput = () => updateMacroLive(di));
+    });
+    updateAllMacroLive();
+    bindCheckListeners();
+    bindTimers();
+  }
+  function buildDayHTML(day, di) {
+    const macros = calcDayMacros(day);
+    return `<div class="day-header" style="display:flex; justify-content:space-between; cursor:pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='none'?'block':'none'">
+      <b>${day.day}</b>
+      <span>${day.meals.filter(m=>m.completed).length}/${day.meals.length} meals · ${exerciseCompletion(day)}</span>
+      <input class="input day-weight" type="number" value="${day.dailyWeight||''}" placeholder="lbs" style="width:70px;">
+      <input class="input water-input" type="number" value="${day.waterOz||''}" placeholder="oz" style="width:60px;">
+    </div>
+    <div class="day-body" style="display:${allExpanded?'block':'none'};">
+      ${day.meals.map((m, mi) => `
+        <div class="check-row meal-row" data-day="${di}" data-type="meal" data-index="${mi}">
+          <div class="check-circle ${m.completed?'done':''}"></div>
+          <span>${m.name} ${m.time||''}</span>
+        </div>
+        <textarea class="input ate-notes" placeholder="What I ate" data-day="${di}" data-index="${mi}" data-field="ateNotes">${m.ateNotes||''}</textarea>
+        <div style="display:flex; gap:4px;">
+          <input class="input macro-input" type="number" placeholder="P(g)" value="${m.protein||''}" data-day="${di}" data-index="${mi}" data-field="protein">
+          <input class="input macro-input" type="number" placeholder="C(g)" value="${m.carbs||''}" data-day="${di}" data-index="${mi}" data-field="carbs">
+          <input class="input macro-input" type="number" placeholder="F(g)" value="${m.fat||''}" data-day="${di}" data-index="${mi}" data-field="fat">
+        </div>`).join('')}
+      <div class="macro-live" id="macroLive${di}">🔥 ${macros.cal} kcal | P:${macros.protein}g C:${macros.carbs}g F:${macros.fat}g</div>
+      ${(day.workoutBlocks||[]).map((block, bi) => `
+        <div class="workout-block" style="background:var(--bg); border-radius:12px; padding:8px; margin:8px 0;">
+          <b>${block.name}</b> ${block.time||''}
+          ${block.isCircuit ? `<button class="timer-btn circuit-start-btn" data-day="${di}" data-block="${bi}">▶</button>` : ''}
+          ${block.exercises.map((ex, ei) => `
+            <div class="check-row exercise-row" data-day="${di}" data-block="${bi}" data-index="${ei}" data-type="exercise">
+              <div class="check-circle ${ex.completed?'done':''}"></div>
+              <span>${ex.name} ${ex.prescribedSetsReps||''} ${ex.prescribedWeight||''}</span>
+              ${!block.isCircuit && ex.workSec ? `<button class="timer-btn ex-start-btn" data-exid="${ex.id}">▶</button>` : ''}
+            </div>
+            <div style="display:flex; gap:4px; margin-left:32px;">
+              <input class="input exercise-input" type="text" placeholder="Weight" value="${ex.weight}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="weight" style="width:80px;">
+              <input class="input exercise-input" type="text" placeholder="Reps" value="${ex.reps}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="reps" style="width:80px;">
+              <input class="input exercise-input" type="number" min="1" max="10" value="${ex.rpe||'5'}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="rpe" style="width:60px;">
+            </div>`).join('')}
+        </div>`).join('')}
+      <textarea class="input day-notes" placeholder="Notes" style="height:40px;">${day.notes||''}</textarea>
+    </div>`;
+  }
+  function calcDayMacros(day) {
+    const p = (day.meals||[]).reduce((s,m) => s + (+m.protein||0), 0);
+    const c = (day.meals||[]).reduce((s,m) => s + (+m.carbs||0), 0);
+    const f = (day.meals||[]).reduce((s,m) => s + (+m.fat||0), 0);
+    return { protein: p.toFixed(0), carbs: c.toFixed(0), fat: f.toFixed(0), cal: (p*4 + c*4 + f*9).toFixed(0) };
+  }
+  function updateMacroLive(di) {
+    const day = getCurrentPlan().days[di], macros = calcDayMacros(day);
+    const el = document.getElementById(`macroLive${di}`);
+    if (el) el.innerHTML = `🔥 ${macros.cal} kcal | P:${macros.protein}g C:${macros.carbs}g F:${macros.fat}g`;
+  }
+  function updateAllMacroLive() { if (getCurrentPlan()) getCurrentPlan().days.forEach((_, i) => updateMacroLive(i)); }
+  function exerciseCompletion(day) { let t=0,d=0; (day.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => { t++; if(e.completed)d++; })); return `${d}/${t} ex`; }
+  function bindCheckListeners() {
+    document.querySelectorAll('.meal-row').forEach(row => row.onclick = function() {
+      const di = +this.dataset.day, mi = +this.dataset.index;
+      getCurrentWeek().plan.days[di].meals[mi].completed = !getCurrentWeek().plan.days[di].meals[mi].completed;
+      saveCurrentWeek(); renderTracker();
+    });
+    document.querySelectorAll('.exercise-row').forEach(row => row.onclick = function() {
+      const di = +this.dataset.day, bi = +this.dataset.block, ei = +this.dataset.index;
+      getCurrentWeek().plan.days[di].workoutBlocks[bi].exercises[ei].completed = !getCurrentWeek().plan.days[di].workoutBlocks[bi].exercises[ei].completed;
+      saveCurrentWeek(); renderTracker();
+    });
+  }
+  let timerIntervals = {};
+  function bindTimers() {
+    document.querySelectorAll('.circuit-start-btn').forEach(btn => btn.onclick = function(e) {
+      e.stopPropagation();
+      const di = +this.dataset.day, bi = +this.dataset.block;
+      const block = getCurrentPlan().days[di].workoutBlocks[bi];
+      const key = `circuit-${di}-${bi}`;
+      if (this.textContent === '⏸') { clearInterval(timerIntervals[key]); delete timerIntervals[key]; this.textContent='▶'; return; }
+      let overall = parseTimeStr(block.time)||99999, station=0, inWork=true, left=block.exercises[0].workSec;
+      this.textContent='⏸';
+      timerIntervals[key] = setInterval(() => {
+        overall--; left--;
+        if (left <= 0) {
+          if (inWork) { playBeep(1000,0.1); inWork=false; left=block.exercises[station].restSec; }
+          else { playBeep(600,0.1); station=(station+1)%block.exercises.length; inWork=true; left=block.exercises[station].workSec; }
+        }
+        if (overall <= 0) { clearInterval(timerIntervals[key]); delete timerIntervals[key]; playBeep(800,0.3); toast('Circuit done!'); this.textContent='▶'; }
+      }, 1000);
+    });
+    document.querySelectorAll('.ex-start-btn').forEach(btn => btn.onclick = function(e) {
+      e.stopPropagation();
+      const exId = this.dataset.exid, key = `ex-${exId}`;
+      if (this.textContent === '⏸') { clearInterval(timerIntervals[key]); delete timerIntervals[key]; this.textContent='▶'; return; }
+      this.textContent='⏸';
+      let left = findExercise(exId).workSec;
+      timerIntervals[key] = setInterval(() => {
+        left--;
+        if (left <= 0) { clearInterval(timerIntervals[key]); delete timerIntervals[key]; playBeep(800,0.3); toast('Done!'); this.textContent='▶'; }
+      }, 1000);
+    });
+  }
+  function findExercise(id) {
+    for (let d of getCurrentPlan().days) for (let b of d.workoutBlocks) for (let e of b.exercises) if (e.id===id) return e;
+  }
+  function playBeep(f=800,d=0.15) {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type='square'; o.frequency.value=f; g.gain.value=0.3;
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+d);
+  }
+  function parseTimeStr(s) { const m=s.match(/(\d+)\s*min/i), sec=s.match(/(\d+)\s*sec/i); return (m?+m[1]*60:0)+(sec?+sec[1]:0); }
+  function toggleAllDays() { allExpanded=!allExpanded; renderTracker(); }
 
-      // --- AI ---
-      function sendToDeepSeek(p) { window.open(`https://chat.deepseek.com/?q=${encodeURIComponent(p)}`, '_blank'); }
-      document.getElementById('sendChatBtn').onclick = () => {
-        const msg = document.getElementById('chatInput').value.trim();
-        if (!msg) return;
-        sendToDeepSeek(msg);
-        document.getElementById('chatInput').value = '';
-      };
-      document.getElementById('aiReportBtn').onclick = () => {
-        const w = getCurrentWeek(); if (!w) return toast('No data');
-        sendToDeepSeek(buildAISummary(w.plan) + '\nProvide a concise weekly debrief.');
-      };
-      document.getElementById('shoppingListBtn').onclick = () => {
-        const w = getCurrentWeek(); if (!w) return toast('No data');
-        const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
-        sendToDeepSeek(`Based on this weekly meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
-      };
-      document.getElementById('aiProgressionBtn').onclick = () => {
-        const w = getCurrentWeek(); if (!w) return toast('No data');
-        sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights, based on progress, injuries, and chat history. Keep meal plan unchanged.`);
-      };
-      function buildAISummary(plan) {
-        return plan.days.map(day => `
+  // --- INPUT UPDATES ---
+  document.addEventListener('change', function(e) {
+    const t = e.target;
+    if (t.matches('.ate-notes, .macro-input, .exercise-input, .day-notes')) {
+      const field = t.dataset.field, di = +t.dataset.day, idx = +t.dataset.index, bi = t.dataset.block ? +t.dataset.block : null;
+      const w = getCurrentWeek(); if (!w) return;
+      if (field==='ateNotes'||field==='protein'||field==='carbs'||field==='fat') w.plan.days[di].meals[idx][field] = t.value;
+      else if (bi !== null) w.plan.days[di].workoutBlocks[bi].exercises[idx][field] = t.value;
+      saveCurrentWeek();
+      if (field==='protein'||field==='carbs'||field==='fat') updateMacroLive(di);
+    }
+  });
+  function updateDailyWeight(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].dailyWeight = val ? +val : null; saveCurrentWeek(); renderHome(); } }
+  function updateWater(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].waterOz = val; saveCurrentWeek(); } }
+
+  // --- NAVIGATION ---
+  function navigateTo(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page+'Page').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    if (page==='home') renderHome();
+    if (page==='tracker') renderTracker();
+    if (page==='history') renderHistory();
+    if (page==='settings') renderSettings();
+  }
+  document.querySelectorAll('.nav-item').forEach(item => item.onclick = () => navigateTo(item.dataset.page));
+
+  // --- AI HELPERS ---
+  function sendToDeepSeek(prompt) { window.open(`https://chat.deepseek.com/?q=${encodeURIComponent(prompt)}`, '_blank'); }
+  function buildAISummary(plan) {
+    return plan.days.map(day => `
 Day: ${day.day}
 Meals: ${day.meals.map(m => `${m.completed?'[x]':'[ ]'} ${m.name} (Ate:${m.ateNotes||''}) P:${m.protein||0} C:${m.carbs||0} F:${m.fat||0}`).join(', ')}
 Workouts: ${(day.workoutBlocks||[]).map(b => b.name + ': ' + b.exercises.map(e => `${e.completed?'[x]':'[ ]'} ${e.name} ${e.prescribedSetsReps} ${e.prescribedWeight||''} (Act: ${e.weight||'-'}x${e.reps||'-'} RPE:${e.rpe||'-'})`).join('; '))}
-Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'} Notes: ${day.notes||''}`).join('\n---\n');
-      }
-      // New Week modal
-      document.getElementById('newWeekPasteBtn').onclick = () => { document.getElementById('newWeekModal').style.display='none'; navigateTo('input'); };
-      document.getElementById('newWeekLinkBtn').onclick = () => { document.getElementById('newWeekModal').style.display='none'; navigateTo('input'); document.getElementById('linkTabBtn').click(); };
-      document.getElementById('autoGenBtn').onclick = () => {
-        const w = getCurrentWeek(); if (!w) return;
-        const np = JSON.parse(JSON.stringify(w.plan));
-        np.days.forEach(d => {
-          (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => {
-            if (e.prescribedWeight) { const n = parseFloat(e.prescribedWeight); if (!isNaN(n)) e.prescribedWeight = (n+5)+' lbs'; }
-            e.completed=false; e.weight=''; e.reps=''; e.rpe='5';
-          }));
-          d.meals.forEach(m => { m.completed=false; m.ateNotes=''; m.protein=''; m.carbs=''; m.fat=''; });
-          d.notes='';
-        });
-        weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: np });
-        currentWeekIndex = weekHistory.length-1; saveHistory(); navigateTo('tracker'); toast('+5 lbs applied');
-      };
-      document.getElementById('aiProgModalBtn').onclick = () => {
-        const w = getCurrentWeek(); if (!w) return;
-        sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) as above.`);
-        document.getElementById('newWeekModal').style.display='none';
-      };
+Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
+  }
+  function aiSmartProgression() {
+    const w = getCurrentWeek(); if (!w) return;
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights, based on progress and chat history. Keep meals unchanged.`);
+    closeModal('newWeekModal');
+  }
+  function autoGenNextWeek() {
+    const w = getCurrentWeek(); if (!w) return;
+    const np = JSON.parse(JSON.stringify(w.plan));
+    np.days.forEach(d => {
+      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => {
+        if (e.prescribedWeight) { const n = parseFloat(e.prescribedWeight); if (!isNaN(n)) e.prescribedWeight = (n+5)+' lbs'; }
+        e.completed=false; e.weight=''; e.reps=''; e.rpe='5';
+      }));
+      d.meals.forEach(m => { m.completed=false; m.ateNotes=''; m.protein=''; m.carbs=''; m.fat=''; });
+      d.notes='';
+    });
+    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: np });
+    currentWeekIndex = weekHistory.length-1; saveHistory();
+    navigateTo('tracker'); toast('+5 lbs applied');
+    closeModal('newWeekModal');
+  }
 
-      // --- Input Page ---
-      document.getElementById('pasteTabBtn').onclick = () => {
-        document.getElementById('pasteTabBtn').classList.add('active'); document.getElementById('linkTabBtn').classList.remove('active');
-        document.getElementById('pasteDiv').style.display='block'; document.getElementById('linkDiv').style.display='none';
-      };
-      document.getElementById('linkTabBtn').onclick = () => {
-        document.getElementById('linkTabBtn').classList.add('active'); document.getElementById('pasteTabBtn').classList.remove('active');
-        document.getElementById('linkDiv').style.display='block'; document.getElementById('pasteDiv').style.display='none';
-      };
-      document.getElementById('parsePasteBtn').onclick = () => {
-        const text = document.getElementById('planText').value.trim();
-        if (!text) return toast('Paste plan');
-        const plan = parsePlan(text);
-        weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
-        currentWeekIndex = weekHistory.length-1; saveHistory();
-        navigateTo('tracker'); toast('Loaded');
-      };
-      document.getElementById('fetchLinkBtn').onclick = async () => {
-        const link = document.getElementById('docLink').value.trim();
-        const m = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
-        if (!m) return toast('Invalid link');
-        try {
-          const r = await fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`);
-          const text = await r.text();
-          const plan = parsePlan(text);
-          weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
-          currentWeekIndex = weekHistory.length-1; saveHistory();
-          navigateTo('tracker'); toast('Fetched');
-        } catch(e) { toast('Error fetching'); }
-      };
+  // --- COACH PAGE ---
+  document.getElementById('sendChatBtn').onclick = () => {
+    const msg = document.getElementById('chatInput').value.trim();
+    if (msg) { sendToDeepSeek(msg); document.getElementById('chatInput').value = ''; }
+  };
+  document.getElementById('aiReportBtn').onclick = () => {
+    const w = getCurrentWeek(); if (!w) return toast('No data');
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`);
+  };
+  document.getElementById('shoppingListBtn').onclick = () => {
+    const w = getCurrentWeek(); if (!w) return;
+    const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
+    sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
+  };
+  document.getElementById('aiProgressionBtn').onclick = () => {
+    const w = getCurrentWeek(); if (!w) return;
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite workout week (SECTION 2) as above.`);
+  };
 
-      // --- Export ---
-      function exportPDF() {
-        const plan = getCurrentPlan(); if (!plan) return;
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF(); let y=20;
-        doc.setFontSize(16); doc.text('Weekly Summary', 20, y); y+=10;
-        plan.days.forEach(d => {
-          doc.text(`=== ${d.day} ===`, 20, y+=6);
-          d.meals.forEach(m => doc.text(`Meal: ${m.name}`, 25, y+=6));
-          (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => doc.text(`Ex: ${e.name}`, 25, y+=6)));
-          if (y>280) { doc.addPage(); y=20; }
-        });
-        doc.save('weekly-summary.pdf');
-        toast('PDF saved');
-      }
-      function copyToClipboard() {
-        const plan = getCurrentPlan(); if (!plan) return;
-        let t='';
-        plan.days.forEach(d => {
-          t += `=== ${d.day} ===\n`;
-          d.meals.forEach(m => t += `${m.name} (P:${m.protein} C:${m.carbs} F:${m.fat})\n`);
-          (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => t += `${e.name} ${e.prescribedSetsReps} W:${e.weight} R:${e.reps}\n`));
-          t += `\n`;
-        });
-        navigator.clipboard.writeText(t).then(()=>toast('Copied'));
-      }
-      function exportWeightCSV() {
-        const plan = getCurrentPlan(); if (!plan) return;
-        let csv='Date,Weight\n';
-        plan.days.forEach(d => { if (d.dailyWeight) {
-          const date = new Date(getCurrentWeek().startDate); date.setDate(date.getDate() + daysOrder.indexOf(d.day));
-          csv += `${date.toISOString().split('T')[0]},${d.dailyWeight}\n`;
-        }});
-        const b = new Blob([csv], {type:'text/csv'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='weight.csv'; a.click();
-        toast('CSV exported');
-      }
+  // --- INPUT PAGE ---
+  document.getElementById('pasteTabBtn').onclick = () => {
+    document.getElementById('pasteTabBtn').classList.add('active'); document.getElementById('linkTabBtn').classList.remove('active');
+    document.getElementById('pasteDiv').style.display='block'; document.getElementById('linkDiv').style.display='none';
+  };
+  document.getElementById('linkTabBtn').onclick = () => {
+    document.getElementById('linkTabBtn').classList.add('active'); document.getElementById('pasteTabBtn').classList.remove('active');
+    document.getElementById('linkDiv').style.display='block'; document.getElementById('pasteDiv').style.display='none';
+  };
+  document.getElementById('parsePasteBtn').onclick = () => {
+    const text = document.getElementById('planText').value.trim();
+    if (!text) return toast('Paste plan');
+    const plan = parsePlan(text);
+    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+    currentWeekIndex = weekHistory.length-1; saveHistory();
+    navigateTo('tracker'); toast('Loaded!');
+  };
+  document.getElementById('fetchLinkBtn').onclick = async () => {
+    const link = document.getElementById('docLink').value.trim();
+    const m = link.match(/\/d\/([a-zA-Z0-9_-]+)/); if (!m) return toast('Invalid link');
+    try {
+      const r = await fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`);
+      const text = await r.text();
+      const plan = parsePlan(text);
+      weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+      currentWeekIndex = weekHistory.length-1; saveHistory();
+      navigateTo('tracker'); toast('Fetched');
+    } catch(e) { toast('Error fetching'); }
+  };
 
-      // --- Settings ---
-      function renderSettings() {
-        document.getElementById('apiKeyInput').value = deepseekKey;
-        document.getElementById('aiModeSelect').value = aiMode;
-        document.getElementById('apiKeySection').style.display = aiMode==='api' ? 'block' : 'none';
-        document.getElementById('saveApiKeyBtn').onclick = () => {
-          deepseekKey = document.getElementById('apiKeyInput').value.trim();
-          localStorage.setItem('deepseekKey', deepseekKey);
-          toast('Key saved');
-        };
-        document.getElementById('aiModeSelect').onchange = function() {
-          aiMode = this.value; localStorage.setItem('aiMode', aiMode);
-          document.getElementById('apiKeySection').style.display = aiMode==='api' ? 'block' : 'none';
-        };
-        document.getElementById('chatHistoryFileInput').onchange = function(e) {
-          const file = e.target.files[0]; if (!file) return;
-          const r = new FileReader(); r.onload = ev => {
-            chatHistory = ev.target.result;
-            localStorage.setItem('deepseekChatHistory', chatHistory);
-            toast('Chat history imported');
-          }; r.readAsText(file);
-        };
-        renderScans();
-      }
-      async function renderScans() {
-        const scans = await getScans();
-        const container = document.getElementById('scansContainer');
-        container.innerHTML = scans.map(s => `
-          <div style="position:relative; display:inline-block;">
-            <img src="${s.image}" style="width:80px; border-radius:8px;" onclick="document.getElementById('scanViewImage').src='${s.image}'; document.getElementById('scanViewModal').style.display='flex';">
-            <button class="btn btn-danger btn-sm" style="position:absolute; top:-5px; right:-5px; padding:2px 6px;" onclick="APP.deleteScan(${s.id})">×</button>
-          </div>`).join('');
-        document.getElementById('analyzeLastScanBtn').onclick = scans.length ? async () => {
-          const last = scans[scans.length-1];
-          const worker = await Tesseract.createWorker('eng');
-          const { data: { text } } = await worker.recognize(last.image);
-          await worker.terminate();
-          sendToDeepSeek(`Analyze this body scan data: ${text}`);
-        } : null;
-      }
-      document.getElementById('addScanBtn').onclick = () => document.getElementById('scanFileInput').click();
-      document.getElementById('scanFileInput').onchange = async function(e) {
-        const files = e.target.files; if (!files.length) return;
-        for (let f of files) {
-          const base64 = await new Promise(res => {
-            const r = new FileReader(); r.onload = ev => res(ev.target.result); r.readAsDataURL(f);
-          });
-          await addScan(base64, new Date().toISOString());
-        }
-        toast(`Added ${files.length} scan(s)`);
-        renderScans();
-      };
+  // --- SETTINGS ---
+  function renderSettings() {
+    document.getElementById('apiKeyInput').value = deepseekKey;
+    document.getElementById('aiModeSelect').value = aiMode;
+    document.getElementById('apiKeySection').style.display = aiMode==='api' ? 'block' : 'none';
+    document.getElementById('saveApiKeyBtn').onclick = () => {
+      deepseekKey = document.getElementById('apiKeyInput').value.trim();
+      localStorage.setItem('deepseekKey', deepseekKey); toast('Key saved');
+    };
+    document.getElementById('aiModeSelect').onchange = function() {
+      aiMode = this.value; localStorage.setItem('aiMode', aiMode);
+      document.getElementById('apiKeySection').style.display = aiMode==='api' ? 'block' : 'none';
+    };
+    renderScans();
+  }
+  async function renderScans() {
+    const scans = await getScans();
+    document.getElementById('scansContainer').innerHTML = scans.map(s => `
+      <div style="display:inline-block; position:relative;">
+        <img src="${s.image}" style="width:60px; border-radius:8px;" onclick="showScan('${s.image}')">
+        <button class="btn btn-sm" style="position:absolute; top:-8px; right:-8px; background:var(--red); color:#fff; border-radius:50%;" onclick="deleteScan(${s.id})">×</button>
+      </div>`).join('');
+    document.getElementById('analyzeLastScanBtn').onclick = async () => {
+      if (scans.length === 0) return toast('No scans');
+      try {
+        const worker = await Tesseract.createWorker('eng');
+        const { data: { text } } = await worker.recognize(scans[scans.length-1].image);
+        await worker.terminate();
+        sendToDeepSeek(`Analyze this body scan data: ${text}`);
+      } catch (e) { toast('OCR failed. Try again.'); }
+    };
+  }
+  document.getElementById('addScanBtn').onclick = () => document.getElementById('scanFileInput').click();
+  document.getElementById('scanFileInput').onchange = async function(e) {
+    const files = e.target.files; if (!files.length) return;
+    for (let f of files) {
+      const base64 = await new Promise(res => { const r = new FileReader(); r.onload = ev => res(ev.target.result); r.readAsDataURL(f); });
+      await addScan(base64, new Date().toISOString());
+    }
+    toast(`Added ${files.length} scan(s)`);
+    renderScans();
+  };
 
-      // --- History ---
-      function renderHistory() {
-        const list = document.getElementById('historyList');
-        list.innerHTML = weekHistory.map((w,i) => `<div style="padding:8px; cursor:pointer;" onclick="APP.loadWeek(${i})">Week ${new Date(w.startDate).toLocaleDateString()} - ${calcProgress(w.plan)}%</div>`).join('');
-        document.getElementById('templateList').innerHTML = templates.map((t,i) => `<span class="btn btn-sm btn-outline" onclick="APP.loadTemplate(${i})">${t.name}</span>`).join(' ');
-      }
-      window.APP = {
-        loadWeek(i) { currentWeekIndex = i; saveHistory(); navigateTo('tracker'); },
-        loadTemplate(i) {
-          const t = templates[i]; if (!t) return;
-          weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(JSON.stringify(t.plan)) });
-          currentWeekIndex = weekHistory.length-1; saveHistory(); navigateTo('tracker');
-        },
-        async deleteScan(id) { await deleteScan(id); renderScans(); }
-      };
-      document.getElementById('saveTemplateBtn').onclick = () => {
-        const plan = getCurrentPlan(); if (!plan) return;
-        const name = prompt('Template name:'); if (!name) return;
-        templates.push({ name, plan });
-        localStorage.setItem('templates', JSON.stringify(templates));
-        renderHistory(); toast('Template saved');
-      };
+  // --- HISTORY ---
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    list.innerHTML = weekHistory.map((w, i) => `<div onclick="loadWeek(${i})" style="padding:8px; cursor:pointer;">Week ${new Date(w.startDate).toLocaleDateString()} - ${calcProgress(w.plan)}%</div>`).join('');
+    document.getElementById('templateList').innerHTML = templates.map((t,i) => `<span class="btn btn-sm" onclick="loadTemplate(${i})">${t.name}</span>`).join(' ');
+  }
+  window.loadWeek = (i) => { currentWeekIndex = i; saveHistory(); navigateTo('tracker'); };
+  window.loadTemplate = (i) => {
+    const t = templates[i]; if (!t) return;
+    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(JSON.stringify(t.plan)) });
+    currentWeekIndex = weekHistory.length-1; saveHistory();
+    navigateTo('tracker');
+  };
+  document.getElementById('saveTemplateBtn').onclick = () => {
+    const plan = getCurrentPlan(); if (!plan) return;
+    const name = prompt('Template name:'); if (!name) return;
+    templates.push({ name, plan });
+    localStorage.setItem('templates', JSON.stringify(templates));
+    renderHistory(); toast('Template saved');
+  };
 
-      // --- Progress ---
-      function renderProgress() {
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        const week = getCurrentWeek(); if (!week) return;
-        const labels = [], weights = [];
-        week.plan.days.forEach(d => { if (d.dailyWeight) { labels.push(d.day); weights.push(d.dailyWeight); } });
-        if (currentChart) currentChart.destroy();
-        currentChart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'Weight', data:weights, borderColor:'#0a84ff' }] }});
-      }
+  // --- CHAT HISTORY IMPORT ---
+  function importChatHistory(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      chatHistory = e.target.result;
+      localStorage.setItem('deepseekChatHistory', chatHistory);
+      toast('Chat history imported!');
+    };
+    reader.readAsText(file);
+  }
+  document.getElementById('chatHistoryFileInputHome').onchange = function(e) { importChatHistory(e.target.files[0]); };
 
-      // --- Help ---
-      document.getElementById('helpBtn').onclick = () => {
-        helpSlide=0; renderHelpSlide();
-        document.getElementById('helpModal').style.display='flex';
-      };
-      function renderHelpSlide() {
-        document.getElementById('helpSlides').innerHTML = `<h2>${helpSlides[helpSlide].title}</h2><p>${helpSlides[helpSlide].text}</p>`;
-        document.getElementById('helpNextBtn').textContent = helpSlide < helpSlides.length-1 ? 'Next →' : 'Done';
-      }
-      document.getElementById('helpNextBtn').onclick = () => {
-        if (helpSlide < helpSlides.length-1) { helpSlide++; renderHelpSlide(); }
-        else { document.getElementById('helpModal').style.display='none'; localStorage.setItem('introCompleted','true'); }
-      };
-      document.getElementById('helpSkipBtn').onclick = () => {
-        document.getElementById('helpModal').style.display='none'; localStorage.setItem('introCompleted','true');
-      };
+  // --- HELP ---
+  document.getElementById('helpBtn').onclick = () => {
+    helpSlide=0; renderHelpSlide();
+    document.getElementById('helpModal').style.display='flex';
+  };
+  function renderHelpSlide() {
+    document.getElementById('helpSlides').innerHTML = `<h2>${helpSlides[helpSlide].title}</h2><p>${helpSlides[helpSlide].text}</p>`;
+    document.getElementById('helpNextBtn').textContent = helpSlide < helpSlides.length-1 ? 'Next →' : 'Done';
+  }
+  document.getElementById('helpNextBtn').onclick = () => {
+    if (helpSlide < helpSlides.length-1) { helpSlide++; renderHelpSlide(); }
+    else { closeModal('helpModal'); localStorage.setItem('introCompleted','true'); }
+  };
 
-      // --- Dark Mode ---
-      document.getElementById('darkModeBtn').onclick = () => {
-        darkMode = !darkMode; localStorage.setItem('darkMode', darkMode);
-        document.body.style.colorScheme = darkMode ? 'dark' : 'light';
-      };
-      if (darkMode) document.body.style.colorScheme = 'dark'; else document.body.style.colorScheme = 'light';
+  // --- EXPORT ---
+  function exportPDF() {
+    const plan = getCurrentPlan(); if (!plan) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF(); let y=20;
+    doc.setFontSize(16); doc.text('Weekly Summary', 20, y); y+=10;
+    plan.days.forEach(d => {
+      doc.text(`=== ${d.day} ===`, 20, y+=6);
+      d.meals.forEach(m => doc.text(`Meal: ${m.name}`, 25, y+=6));
+      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => doc.text(`Ex: ${e.name}`, 25, y+=6)));
+      if (y>280) { doc.addPage(); y=20; }
+    });
+    doc.save('weekly-summary.pdf'); toast('PDF saved');
+  }
+  function copyToClipboard() {
+    const plan = getCurrentPlan(); if (!plan) return;
+    let t='';
+    plan.days.forEach(d => {
+      t += `=== ${d.day} ===\n`;
+      d.meals.forEach(m => t += `${m.name} (P:${m.protein} C:${m.carbs} F:${m.fat})\n`);
+      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => t += `${e.name} ${e.prescribedSetsReps} W:${e.weight} R:${e.reps}\n`));
+      t += '\n';
+    });
+    navigator.clipboard.writeText(t).then(()=>toast('Copied'));
+  }
 
-      // --- Init ---
-      window.addEventListener('DOMContentLoaded', async () => {
-        await openDB();
-        loadHistory();
-        if (!localStorage.getItem('introCompleted')) {
-          helpSlide=0; renderHelpSlide();
-          document.getElementById('helpModal').style.display='flex';
-        }
-        if (weekHistory.length && currentWeekIndex>=0) navigateTo('tracker');
-        else navigateTo('input');
-      });
-    })();
-  </script>
+  // --- MODALS ---
+  function closeModal(id) { document.getElementById(id).style.display='none'; }
+  function newWeekPaste() { closeModal('newWeekModal'); navigateTo('input'); }
+  function newWeekLink() { closeModal('newWeekModal'); navigateTo('input'); document.getElementById('linkTabBtn').click(); }
+
+  // --- INIT ---
+  window.addEventListener('DOMContentLoaded', async () => {
+    await openDB();
+    loadHistory();
+    if (!localStorage.getItem('introCompleted')) {
+      document.getElementById('helpModal').style.display='flex';
+      renderHelpSlide();
+    }
+    if (weekHistory.length && currentWeekIndex >= 0) navigateTo('home');
+    else navigateTo('home');
+    renderHome();
+  });
+})();
+</script>
 </body>
 </html>
