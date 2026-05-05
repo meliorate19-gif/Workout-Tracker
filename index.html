@@ -47,7 +47,7 @@
     .progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin: 12px 0; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
 
-    .day-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 12px; transition: 0.2s; }
+    .day-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 12px; }
     .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; }
     .day-title { font-size: 20px; font-weight: 700; }
     .day-badge { background: var(--border); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
@@ -61,22 +61,31 @@
     .check-label { flex: 1; }
     .check-label.done { text-decoration: line-through; opacity: 0.5; }
 
+    .workout-block { margin: 8px 0; background: var(--bg); border-radius: 12px; padding: 12px; }
+    .block-header { font-weight: 600; font-size: 14px; color: var(--blue); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .block-time { font-size: 13px; color: var(--sub); font-weight: 400; }
+
     .exercise-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
     .exercise-row:last-child { border-bottom: none; }
     .exercise-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .exercise-prescribed { font-size: 13px; color: var(--sub); background: var(--border); padding: 3px 8px; border-radius: 6px; }
     .input-row { display: flex; gap: 8px; margin-left: 38px; }
     .input-row input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; text-align: center; }
-    .input-row input::placeholder { color: #555; }
+
+    .notes-area { margin-top: 12px; }
+    .notes-area textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; height: 60px; resize: vertical; }
 
     .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .toolbar .btn { flex: 1; min-width: 120px; }
+    .toolbar .btn { flex: 1; min-width: 100px; }
 
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: black; padding: 12px 24px; border-radius: 12px; font-weight: 600; opacity: 0; transition: opacity 0.2s; z-index: 100; pointer-events: none; }
     .toast.show { opacity: 1; }
 
     .section-label { font-size: 14px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 4px; }
     .hint { font-size: 12px; color: var(--sub); margin-top: 6px; }
+
+    .history-item { padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; }
+    .history-item:active { background: var(--border); }
   </style>
 </head>
 <body>
@@ -115,22 +124,67 @@
       <button class="btn btn-outline" onclick="exportPDF()">📄 PDF</button>
       <button class="btn btn-outline" onclick="copyToClipboard()">📋 Copy</button>
       <button class="btn btn-outline" onclick="toggleAllDays()">📅 Expand/Collapse</button>
+      <button class="btn btn-outline" onclick="showHistory()">📚 History</button>
     </div>
     <div id="daysContainer"></div>
     <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="resetPlan()">🗑 Reset & Start New Week</button>
   </div>
 
+  <div id="historySection" style="display:none;">
+    <div class="card">
+      <h3 style="margin-bottom:10px;">📚 Past Weeks</h3>
+      <div id="historyList"></div>
+      <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="backToTracker()">← Back to Current Week</button>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // ---------- STATE ----------
-    let weekPlan = { days: [] };
+    // ---------- DATA STRUCTURES ----------
+    let weekHistory = [];           // each: { id, startDate, plan }
+    let currentWeekIndex = -1;     // index in weekHistory, or -1 if none
+    const allDaysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     let allExpanded = true;
 
     // ---------- STORAGE ----------
-    function save() { localStorage.setItem('weekPlan', JSON.stringify(weekPlan)); }
-    function load() {
-      const s = localStorage.getItem('weekPlan');
-      if (s) { weekPlan = JSON.parse(s); showTracker(); } else { showInput(); }
+    function saveHistory() {
+      localStorage.setItem('weekHistory', JSON.stringify(weekHistory));
+      localStorage.setItem('currentWeekIndex', currentWeekIndex);
+    }
+    function loadHistory() {
+      const h = localStorage.getItem('weekHistory');
+      const idx = localStorage.getItem('currentWeekIndex');
+      if (h) {
+        weekHistory = JSON.parse(h);
+        currentWeekIndex = idx !== null ? parseInt(idx) : (weekHistory.length - 1);
+        if (currentWeekIndex < 0 || currentWeekIndex >= weekHistory.length) {
+          currentWeekIndex = weekHistory.length - 1;
+        }
+      } else {
+        // Migrate old single plan
+        const old = localStorage.getItem('weekPlan');
+        if (old) {
+          const plan = JSON.parse(old);
+          weekHistory = [{ id: Date.now().toString(), startDate: new Date().toISOString(), plan }];
+          currentWeekIndex = 0;
+          localStorage.removeItem('weekPlan');
+        } else {
+          weekHistory = [];
+          currentWeekIndex = -1;
+        }
+      }
+      saveHistory();
+    }
+    function getCurrentWeek() {
+      if (weekHistory.length === 0 || currentWeekIndex < 0) return null;
+      return weekHistory[currentWeekIndex];
+    }
+    function saveCurrentWeek() {
+      const week = getCurrentWeek();
+      if (week) {
+        weekHistory[currentWeekIndex] = week;
+        saveHistory();
+      }
     }
 
     // ---------- TOAST ----------
@@ -150,114 +204,144 @@
       document.getElementById('linkDiv').style.display = tab==='link' ? 'block' : 'none';
     }
 
-    // ---------- PARSER (for your new document structure) ----------
+    // ---------- IMPROVED PARSER (with blocks & parts) ----------
     function parsePlan(text) {
-      const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
       const dayMap = {};
-      daysOrder.forEach(d => dayMap[d] = { day: d, meals: [], exercises: [] });
+      allDaysOrder.forEach(d => dayMap[d] = { day: d, meals: [], workoutBlocks: [] });
 
-      // --- Split document into meal and workout sections ---
+      // Split sections
       const mealSec = text.match(/SECTION\s*1\s*:?\s*MEAL\s*PLAN/i);
       const workSec = text.match(/SECTION\s*2\s*:?\s*(WEEKLY\s*)?WORKOUT\s*SCHEDULE/i);
-
       let mealText = '', workoutText = '';
+
       if (mealSec && workSec) {
-        const idxMeal = mealSec.index;
-        const idxWork = workSec.index;
-        // meal text is between meal section start and workout section start
-        mealText = text.substring(idxMeal, idxWork);
-        workoutText = text.substring(idxWork);
+        mealText = text.substring(mealSec.index, workSec.index);
+        workoutText = text.substring(workSec.index);
       } else {
-        // fallback: try to parse whole text as before (simple format)
         return parseSimple(text);
       }
 
-      // ----- Parse meals -----
+      // ---- Parse meals ----
       const mealLines = mealText.split('\n');
       let currentMealDay = null;
       for (let line of mealLines) {
         line = line.trim();
         if (!line) continue;
-        // find day header (e.g., "MONDAY — Randori (Moderate Carb)")
-        const dayMatch = daysOrder.find(d => {
-          const upper = line.toUpperCase();
-          return upper.startsWith(d.toUpperCase()) &&
-                 (line.length === d.length || /[^a-zA-Z]/.test(line[d.length]));
+        const dayMatch = allDaysOrder.find(d => {
+          const u = line.toUpperCase();
+          return u.startsWith(d.toUpperCase()) && (line.length === d.length || /[^a-zA-Z]/.test(line[d.length]));
         });
         if (dayMatch) {
           currentMealDay = dayMatch;
           continue;
         }
-        // collect meal items (bullet points starting with ·)
         if (currentMealDay && line.startsWith('·')) {
           let name = line.replace(/^·\s*/, '').trim();
-          // remove time in parentheses and extra descriptions
           name = name.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
-          // remove trailing numbers or macros like "~2400 kcal" etc (not needed)
           name = name.replace(/\s*~\s*\d+.*$/, '').trim();
           if (name && name.length > 2) {
-            dayMap[currentMealDay].meals.push({
-              id: crypto.randomUUID(),
-              name: name,
-              completed: false
-            });
+            dayMap[currentMealDay].meals.push({ id: crypto.randomUUID(), name, completed: false });
           }
         }
       }
 
-      // ----- Parse workouts -----
+      // ---- Parse workouts ----
       const workLines = workoutText.split('\n');
       let currentWorkDay = null;
-      // skip these non‑exercise lines
-      const skipRegex = /^(Part\s*\d|Post-Workout|Pre-Class|Pre-Workout|Post-Class|Notes|Option|Sunday Meal Prep|Step\s+Exercise|Format|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i;
+      let currentBlock = null;      // { name: string, time: string, exercises: [] }
+      let inBlock = false;
+
+      // Skip lines that are definitely not exercises
+      const skipLine = /^(Part\s*\d|Post-Workout|Pre-Class|Pre-Workout|Post-Class|Notes|Option|Sunday Meal Prep|Step\s+Exercise|Format|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i;
 
       for (let line of workLines) {
         line = line.trim();
         if (!line) continue;
 
-        // day header
-        const dayMatch = daysOrder.find(d => {
-          const upper = line.toUpperCase();
-          return upper.startsWith(d.toUpperCase()) &&
-                 (line.length === d.length || /[^a-zA-Z]/.test(line[d.length]));
+        // Detect day
+        const dayMatch = allDaysOrder.find(d => {
+          const u = line.toUpperCase();
+          return u.startsWith(d.toUpperCase()) && (line.length === d.length || /[^a-zA-Z]/.test(line[d.length]));
         });
         if (dayMatch) {
+          // Save any open block
+          if (currentBlock && currentBlock.exercises.length) {
+            dayMap[currentWorkDay].workoutBlocks.push(currentBlock);
+          }
           currentWorkDay = dayMatch;
+          currentBlock = null;
+          inBlock = false;
+          continue;
+        }
+        if (!currentWorkDay) continue;
+
+        // Detect part/block headers
+        const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
+        const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
+        if (partMatch || circuitMatch) {
+          // Flush previous block
+          if (currentBlock && currentBlock.exercises.length) {
+            dayMap[currentWorkDay].workoutBlocks.push(currentBlock);
+          }
+          currentBlock = { name: '', time: '', exercises: [] };
+          if (partMatch) {
+            currentBlock.name = `Part ${partMatch[1]}: ${partMatch[2].trim()}`;
+          } else {
+            currentBlock.name = circuitMatch[1].trim();
+          }
+          inBlock = true;
           continue;
         }
 
-        if (!currentWorkDay) continue;
-        if (skipRegex.test(line)) continue;
-        // also skip table headers or obvious non‑exercises
+        // Time/format lines that might belong to a block header (e.g., "· Format: 20-min running clock")
+        const inlineTime = line.match(/^·\s*Format\s*:\s*(.*)/i);
+        if (inlineTime && currentBlock) {
+          currentBlock.time = inlineTime[1].trim();
+          continue;
+        }
+
+        // If no block yet, create a default block
+        if (!currentBlock) {
+          currentBlock = { name: 'Main Workout', time: '', exercises: [] };
+        }
+
+        // Skip obvious non-exercise lines
+        if (skipLine.test(line)) continue;
         if (/Exercise\s+Sets\s+Reps/i.test(line)) continue;
         if (/Rest\s+Weight/i.test(line)) continue;
         if (/^Actual/i.test(line)) continue;
+        if (/^Weights Used/i.test(line)) continue;
 
-        // Try to extract exercise name & prescribed sets/reps
+        // Extract time info for density blocks like "1 Chest‑Supported DB Row … 8 min 8‑10 …"
         let exName = null;
         let prescribed = '';
 
-        // Pattern 1: "A: Landmine Single-Arm Press 3 10/side 60 sec ..."
+        // Try to capture exercise with possible time reference
+        // Pattern: "A: Landmine Single-Arm Press 3 10/side 60 sec ..."
         let m = line.match(/^([A-Z]):\s*(.*?)(?:\s+(\d+)\s+(\d+[\/\w]*))?\s+(\d+\s*sec)?/);
         if (m) {
           exName = m[2].trim();
           if (m[3] && m[4]) prescribed = m[3] + 'x' + m[4];
         } else {
-          // Pattern 2: density block "1 Chest‑Supported DB Row … 8 min 8‑10 …"
-          m = line.match(/^\d+\s+(.*?)\s+\d+\s*(?:min|sec)\s+(\d+-?\d+)/i);
+          // Density block: "1 Chest‑Supported DB Row … 8 min 8‑10 …"
+          m = line.match(/^\d+\s+(.*?)\s+(\d+)\s*(?:min|sec)\s+(\d+-?\d*)/i);
           if (m) {
             exName = m[1].trim();
-            prescribed = m[2];
+            prescribed = m[3];
+            // Also capture time for block if it's a density block
+            if (!currentBlock.time) {
+              currentBlock.time = m[2] + ' min';
+            }
           } else {
-            // Pattern 3: generic "Exercise Sets Reps" table row – try to capture name and numbers
-            m = line.match(/^(.+?)\s+(\d+)\s+x\s*(\d+)/i);
+            // Generic table row: "Kneeling Battle Ropes 30 sec 15 sec"
+            m = line.match(/^(.+?)\s+(\d+)\s*(?:sec|min|yds)?\s+(\d+)\s*(?:sec|min|yds)?/i);
             if (m) {
               exName = m[1].trim();
-              prescribed = m[2] + 'x' + m[3];
+              if (m[2] && m[3]) prescribed = m[2] + 'x' + m[3];
             } else {
-              // Pattern 4: fallback – take first meaningful words as name
+              // Fallback: take first few words as name if it's not a header
               const words = line.split(/\s+/);
-              if (words.length > 1 && !/^(Note|Actual|Weight)/i.test(words[0])) {
+              if (words.length > 1 && !/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i.test(words[0])) {
                 exName = words.slice(0, Math.min(4, words.length)).join(' ');
               }
             }
@@ -265,7 +349,7 @@
         }
 
         if (exName && exName.length > 2) {
-          dayMap[currentWorkDay].exercises.push({
+          currentBlock.exercises.push({
             id: crypto.randomUUID(),
             name: exName.charAt(0).toUpperCase() + exName.slice(1),
             prescribedSetsReps: prescribed,
@@ -273,198 +357,345 @@
             weight: '',
             reps: ''
           });
+        } else if (line && !/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i.test(line)) {
+          // If it looks like a set/rep line without name, could be continuation? ignore.
         }
       }
+      // Flush last block
+      if (currentBlock && currentBlock.exercises.length && currentWorkDay) {
+        dayMap[currentWorkDay].workoutBlocks.push(currentBlock);
+      }
 
-      // Assemble days in order
-      const days = daysOrder.map(d => dayMap[d]).filter(d => d.meals.length || d.exercises.length);
+      // Build day objects with notes field
+      const days = allDaysOrder.map(d => ({
+        day: d,
+        meals: dayMap[d].meals,
+        workoutBlocks: dayMap[d].workoutBlocks,
+        notes: ''
+      })).filter(d => d.meals.length || d.workoutBlocks.length);
+
       return { days };
     }
 
-    // fallback simple parser (if document doesn't have the two sections)
+    // Fallback simple parser (if no sections)
     function parseSimple(text) {
-      const days = [];
+      const dayMap = {};
+      allDaysOrder.forEach(d => dayMap[d] = { day: d, meals: [], workoutBlocks: [{ name: 'Main Workout', time: '', exercises: [] }] });
       const lines = text.split('\n');
-      let curDay = '', curSec = '', meals = [], exs = [];
-      const dayRe = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(Workout|Meals):?$/i;
-      function flush() {
-        if (curDay) days.push({ day: curDay, meals, exercises: exs });
-        meals = []; exs = [];
-      }
+      let curDay = '', curSec = '';
       for (let line of lines) {
         line = line.trim();
         if (!line) continue;
-        const dm = line.match(dayRe);
-        if (dm) {
-          flush();
-          curDay = dm[1][0].toUpperCase() + dm[1].slice(1).toLowerCase();
-          curSec = dm[2].toLowerCase();
+        const dayMatch = line.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(Workout|Meals):?$/i);
+        if (dayMatch) {
+          curDay = dayMatch[1].charAt(0).toUpperCase() + dayMatch[1].slice(1).toLowerCase();
+          curSec = dayMatch[2].toLowerCase();
           continue;
         }
         let item = line.replace(/^[-*·•]\s*/, '').trim();
         if (!item) continue;
-        if (curSec === 'meals') {
-          meals.push({ id: crypto.randomUUID(), name: item, completed: false });
-        } else if (curSec === 'workout') {
+        if (curSec === 'meals' && curDay) {
+          dayMap[curDay].meals.push({ id: crypto.randomUUID(), name: item, completed: false });
+        } else if (curSec === 'workout' && curDay) {
           const parts = item.split(/\s+/);
           const last = parts[parts.length-1];
           if (/^\d+x\d+$/i.test(last)) {
-            exs.push({ id: crypto.randomUUID(), name: parts.slice(0,-1).join(' '), prescribedSetsReps: last, completed: false, weight: '', reps: '' });
+            dayMap[curDay].workoutBlocks[0].exercises.push({
+              id: crypto.randomUUID(),
+              name: parts.slice(0,-1).join(' '),
+              prescribedSetsReps: last,
+              completed: false,
+              weight: '',
+              reps: ''
+            });
           } else {
-            exs.push({ id: crypto.randomUUID(), name: item, prescribedSetsReps: '', completed: false, weight: '', reps: '' });
+            dayMap[curDay].workoutBlocks[0].exercises.push({
+              id: crypto.randomUUID(),
+              name: item,
+              prescribedSetsReps: '',
+              completed: false,
+              weight: '',
+              reps: ''
+            });
           }
         }
       }
-      flush();
-      return { days };
+      return { days: allDaysOrder.map(d => ({ ...dayMap[d], notes: '' })).filter(d => d.meals.length || d.workoutBlocks[0].exercises.length) };
     }
 
     // ---------- PROGRESS ----------
-    function updateProgress() {
+    function calcProgress(days) {
       let total = 0, done = 0;
-      weekPlan.days.forEach(d => {
+      days.forEach(d => {
         d.meals.forEach(m => { total++; if (m.completed) done++; });
-        d.exercises.forEach(e => { total++; if (e.completed) done++; });
+        (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => { total++; if (e.completed) done++; }));
       });
-      const pct = total ? Math.round((done/total)*100) : 0;
+      return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+    }
+
+    function updateProgressDisplay() {
+      const week = getCurrentWeek();
+      if (!week) return;
+      const { pct } = calcProgress(week.plan.days);
       document.getElementById('progressPercent').textContent = pct + '%';
       document.getElementById('progressFill').style.width = pct + '%';
     }
 
     // ---------- RENDER ----------
     function renderDays() {
+      const week = getCurrentWeek();
+      if (!week) return;
+      const plan = week.plan;
       const container = document.getElementById('daysContainer');
       container.innerHTML = '';
-      weekPlan.days.forEach((day, di) => {
+      plan.days.forEach((day, di) => {
         const card = document.createElement('div');
         card.className = 'day-card';
+
         const header = document.createElement('div');
         header.className = 'day-header';
-        header.innerHTML = `<span class="day-title">${day.day}</span><span class="day-badge">${day.meals.length} meals · ${day.exercises.length} exercises</span>`;
+        header.innerHTML = `<span class="day-title">${day.day}</span><span class="day-badge">${day.meals.length} meals · ${(day.workoutBlocks||[]).reduce((s,b)=>s+b.exercises.length,0)} exercises</span>`;
         const body = document.createElement('div');
         body.id = 'dayBody'+di;
         if (!allExpanded) body.style.display = 'none';
         header.onclick = () => body.style.display = body.style.display === 'none' ? 'block' : 'none';
         card.appendChild(header);
 
+        // Meals
         if (day.meals.length) {
           const sl = document.createElement('div'); sl.className='section-label'; sl.textContent='🥗 Meals'; body.appendChild(sl);
           day.meals.forEach((meal, mi) => {
             const item = document.createElement('div'); item.className='check-item';
             item.innerHTML = `<div class="check-circle ${meal.completed?'done':''}"></div><span class="check-label ${meal.completed?'done':''}">${meal.name}</span>`;
-            item.onclick = () => { meal.completed = !meal.completed; save(); renderDays(); updateProgress(); if (meal.completed) toast('✅ Meal completed!'); };
+            item.onclick = () => {
+              meal.completed = !meal.completed;
+              saveCurrentWeek();
+              renderDays();
+              if (meal.completed) toast('✅ Meal completed!');
+            };
             body.appendChild(item);
           });
         }
-        if (day.exercises.length) {
-          const sl = document.createElement('div'); sl.className='section-label'; sl.textContent='🏋️ Workout'; body.appendChild(sl);
-          day.exercises.forEach((ex, ei) => {
-            const row = document.createElement('div'); row.className='exercise-row';
+
+        // Workout blocks
+        (day.workoutBlocks||[]).forEach((block, bi) => {
+          const blockDiv = document.createElement('div');
+          blockDiv.className = 'workout-block';
+          let headerStr = `<div class="block-header"><span>🏋️ ${block.name}</span>`;
+          if (block.time) headerStr += `<span class="block-time">⏱ ${block.time}</span>`;
+          headerStr += `</div>`;
+          blockDiv.innerHTML = headerStr;
+
+          block.exercises.forEach((ex, ei) => {
+            const row = document.createElement('div');
+            row.className = 'exercise-row';
             row.innerHTML = `
               <div class="exercise-header">
-                <div class="check-circle ${ex.completed?'done':''}" onclick="event.stopPropagation();toggleExercise(${di},${ei})" style="cursor:pointer;"></div>
+                <div class="check-circle ${ex.completed?'done':''}" onclick="event.stopPropagation();toggleExercise(${di},${bi},${ei})" style="cursor:pointer;"></div>
                 <span style="font-weight:500;">${ex.name}</span>
                 ${ex.prescribedSetsReps ? `<span class="exercise-prescribed">${ex.prescribedSetsReps}</span>` : ''}
               </div>
               <div class="input-row">
-                <input type="text" placeholder="Weight (lbs)" value="${ex.weight}" oninput="updateExercise(${di},${ei},'weight',this.value)">
-                <input type="text" placeholder="Reps" value="${ex.reps}" oninput="updateExercise(${di},${ei},'reps',this.value)">
+                <input type="text" placeholder="Weight (lbs)" value="${ex.weight}" oninput="updateExercise(${di},${bi},${ei},'weight',this.value)">
+                <input type="text" placeholder="Reps" value="${ex.reps}" oninput="updateExercise(${di},${bi},${ei},'reps',this.value)">
               </div>`;
-            body.appendChild(row);
+            blockDiv.appendChild(row);
           });
-        }
+          body.appendChild(blockDiv);
+        });
+
+        // Daily notes
+        const notesDiv = document.createElement('div');
+        notesDiv.className = 'notes-area';
+        notesDiv.innerHTML = `<textarea placeholder="Notes for ${day.day}..." onchange="updateNotes(${di}, this.value)">${day.notes||''}</textarea>`;
+        body.appendChild(notesDiv);
+
         card.appendChild(body);
         container.appendChild(card);
       });
-      updateProgress();
+      updateProgressDisplay();
     }
 
-    function toggleExercise(di, ei) {
-      const ex = weekPlan.days[di].exercises[ei];
+    function toggleExercise(di, bi, ei) {
+      const week = getCurrentWeek();
+      const ex = week.plan.days[di].workoutBlocks[bi].exercises[ei];
       ex.completed = !ex.completed;
-      save(); renderDays(); updateProgress();
+      saveCurrentWeek();
+      renderDays();
       if (ex.completed) toast('💪 Exercise done!');
     }
-    function updateExercise(di, ei, field, val) {
-      weekPlan.days[di].exercises[ei][field] = val;
-      save();
+
+    function updateExercise(di, bi, ei, field, val) {
+      const week = getCurrentWeek();
+      week.plan.days[di].workoutBlocks[bi].exercises[ei][field] = val;
+      saveCurrentWeek();
     }
+
+    function updateNotes(di, val) {
+      const week = getCurrentWeek();
+      week.plan.days[di].notes = val;
+      saveCurrentWeek();
+    }
+
     function toggleAllDays() {
       allExpanded = !allExpanded;
       document.querySelectorAll('[id^="dayBody"]').forEach(el => el.style.display = allExpanded ? 'block' : 'none');
       toast(allExpanded ? '📅 All expanded' : '📅 All collapsed');
     }
 
-    // ---------- LOAD ----------
+    // ---------- LOAD & NEW WEEK ----------
     function loadFromPaste() {
       const text = document.getElementById('planText').value.trim();
-      if (!text) return toast('⚠️ Please paste your plan first');
-      weekPlan = parsePlan(text);
-      save(); showTracker(); toast('✅ Plan loaded!');
+      if (!text) return toast('⚠️ Paste your plan first');
+      const plan = parsePlan(text);
+      startNewWeek(plan);
     }
+
     function loadFromLink() {
       const link = document.getElementById('docLink').value.trim();
-      if (!link) return toast('⚠️ Please enter a link');
+      if (!link) return toast('⚠️ Enter a link');
       const m = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (!m) return toast('⚠️ Invalid Google Doc link');
       fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`)
         .then(r => { if (!r.ok) throw new Error('Status '+r.status); return r.text(); })
         .then(text => {
-          weekPlan = parsePlan(text);
-          save(); showTracker(); toast('✅ Fetched & loaded!');
+          const plan = parsePlan(text);
+          startNewWeek(plan);
         })
         .catch(err => toast('❌ ' + err.message + '\nMake sure doc is public.'));
     }
+
+    function startNewWeek(plan) {
+      const newWeek = {
+        id: Date.now().toString(),
+        startDate: new Date().toISOString(),
+        plan
+      };
+      weekHistory.push(newWeek);
+      currentWeekIndex = weekHistory.length - 1;
+      saveHistory();
+      showTracker();
+      toast('✅ New week started!');
+    }
+
     function resetPlan() {
-      if (confirm('Delete all progress and start fresh?')) {
-        localStorage.removeItem('weekPlan');
-        weekPlan = { days: [] };
-        showInput(); toast('🗑 Plan reset');
+      if (confirm('Archive current week and start a fresh one? You can still view past weeks in History.')) {
+        // Archive is automatic; just create an empty new week
+        const emptyPlan = { days: [] };
+        startNewWeek(emptyPlan);
+        showInput(); // show input to paste again
       }
     }
 
+    // ---------- HISTORY ----------
+    function showHistory() {
+      document.getElementById('trackerSection').style.display = 'none';
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('historySection').style.display = 'block';
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      if (weekHistory.length === 0) {
+        list.innerHTML = '<p style="color:var(--sub);">No past weeks yet.</p>';
+        return;
+      }
+      // Show newest first
+      [...weekHistory].reverse().forEach((week, idx) => {
+        const realIdx = weekHistory.length - 1 - idx;
+        const date = new Date(week.startDate).toLocaleDateString();
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const { pct } = calcProgress(week.plan.days);
+        item.innerHTML = `<span>Week of ${date} – <strong>${pct}% done</strong></span><button class="btn btn-small btn-outline" onclick="event.stopPropagation();deleteWeek(${realIdx})">🗑</button>`;
+        item.onclick = () => loadWeek(realIdx);
+        list.appendChild(item);
+      });
+    }
+
+    function loadWeek(idx) {
+      currentWeekIndex = idx;
+      saveHistory();
+      showTracker();
+    }
+
+    function deleteWeek(idx) {
+      if (!confirm('Delete this week permanently?')) return;
+      weekHistory.splice(idx, 1);
+      if (currentWeekIndex >= weekHistory.length) {
+        currentWeekIndex = weekHistory.length - 1;
+      }
+      if (weekHistory.length === 0) {
+        currentWeekIndex = -1;
+        showInput();
+      } else {
+        saveHistory();
+        showHistory();
+      }
+    }
+
+    function backToTracker() {
+      if (weekHistory.length === 0) {
+        showInput();
+      } else {
+        showTracker();
+      }
+    }
+
+    // ---------- VIEWS ----------
     function showTracker() {
       document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('historySection').style.display = 'none';
       document.getElementById('trackerSection').style.display = 'block';
       renderDays();
     }
     function showInput() {
       document.getElementById('trackerSection').style.display = 'none';
+      document.getElementById('historySection').style.display = 'none';
       document.getElementById('inputSection').style.display = 'block';
     }
 
     // ---------- EXPORT ----------
-    function buildText() {
+    function buildText(plan) {
       let out = '';
-      weekPlan.days.forEach(d => {
+      plan.days.forEach(d => {
         out += `=== ${d.day} ===\n`;
         if (d.meals.length) {
           out += 'Meals:\n';
           d.meals.forEach(m => out += `${m.completed?'[x]':'[ ]'} ${m.name}\n`);
         }
-        if (d.exercises.length) {
-          out += 'Workout:\n';
-          d.exercises.forEach(e => {
+        (d.workoutBlocks||[]).forEach(b => {
+          out += `${b.name}${b.time? ' ('+b.time+')' : ''}:\n`;
+          b.exercises.forEach(e => {
             let l = `${e.completed?'[x]':'[ ]'} ${e.name}`;
             if (e.prescribedSetsReps) l += ` (${e.prescribedSetsReps})`;
             if (e.weight||e.reps) l += ` – Weight: ${e.weight||'-'}, Reps: ${e.reps||'-'}`;
             out += l + '\n';
           });
-        }
+        });
+        if (d.notes) out += `Notes: ${d.notes}\n`;
         out += '\n';
       });
       return out;
     }
+
     function copyToClipboard() {
-      navigator.clipboard.writeText(buildText()).then(() => toast('📋 Copied!')).catch(() => toast('❌ Copy failed'));
+      const week = getCurrentWeek();
+      if (!week) return toast('No plan loaded');
+      navigator.clipboard.writeText(buildText(week.plan)).then(() => toast('📋 Copied!')).catch(() => toast('❌ Copy failed'));
     }
+
     function exportPDF() {
+      const week = getCurrentWeek();
+      if (!week) return toast('No plan loaded');
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       let y=15, m=15, lh=6, ph=doc.internal.pageSize.height;
       doc.setFontSize(16); doc.text('Weekly Summary', m, y); y+=10;
       doc.setFontSize(11);
-      weekPlan.days.forEach(d => {
+      week.plan.days.forEach(d => {
         if (y+6>ph-m) { doc.addPage(); y=m; }
         doc.setFont(undefined,'bold'); doc.text('=== '+d.day+' ===', m, y); y+=lh; doc.setFont(undefined,'normal');
         if (d.meals.length) {
@@ -474,15 +705,21 @@
             doc.text((meal.completed?'[x]':'[ ]')+' '+meal.name, m+5, y); y+=lh;
           });
         }
-        if (d.exercises.length) {
-          doc.text('Workout:', m, y); y+=lh;
-          d.exercises.forEach(e => {
+        (d.workoutBlocks||[]).forEach(b => {
+          let header = b.name + (b.time? ` (${b.time})` : '') + ':';
+          if (y+6>ph-m) { doc.addPage(); y=m; }
+          doc.text(header, m, y); y+=lh;
+          b.exercises.forEach(e => {
             let t = (e.completed?'[x]':'[ ]')+' '+e.name;
             if (e.prescribedSetsReps) t += ' ('+e.prescribedSetsReps+')';
             if (e.weight||e.reps) t += ' - W:'+(e.weight||'-')+' R:'+(e.reps||'-');
             if (y+6>ph-m) { doc.addPage(); y=m; }
             doc.text(t, m+5, y); y+=lh;
           });
+        });
+        if (d.notes) {
+          if (y+6>ph-m) { doc.addPage(); y=m; }
+          doc.text('Notes: '+d.notes, m, y); y+=lh;
         }
         y+=4;
       });
@@ -490,7 +727,15 @@
       toast('📄 PDF downloaded!');
     }
 
-    window.onload = load;
+    // ---------- INIT ----------
+    window.onload = () => {
+      loadHistory();
+      if (weekHistory.length > 0 && currentWeekIndex >= 0) {
+        showTracker();
+      } else {
+        showInput();
+      }
+    };
   </script>
 </body>
 </html>
