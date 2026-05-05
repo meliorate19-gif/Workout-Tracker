@@ -169,7 +169,6 @@
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
-// ==================== COMPLETE APP ====================
 (function() {
   // ---------- STATE ----------
   let weekHistory = [], currentWeekIndex = -1;
@@ -247,15 +246,14 @@
   function getCurrentPlan() { const w = getCurrentWeek(); return w ? w.plan : null; }
   function saveCurrentWeek() { if (getCurrentWeek()) { weekHistory[currentWeekIndex] = getCurrentWeek(); saveHistory(); } }
 
-  // ---------- UNIVERSAL PARSER ----------
+  // ---------- PARSER (FIXED) ----------
   function parsePlan(text) {
-    // First, check for explicit SECTION 1 / 2 format
     const mealSec = text.match(/SECTION\s*1\s*:?\s*MEAL\s*PLAN/i);
     const workSec = text.match(/SECTION\s*2\s*:?\s*(WEEKLY\s*)?WORKOUT\s*SCHEDULE/i);
     if (mealSec && workSec) {
       return parseStructured(text, mealSec.index, workSec.index);
     } else {
-      // Fallback: free‑form parsing
+      // free‑form fallback (if needed)
       return parseFreeform(text);
     }
   }
@@ -270,7 +268,7 @@
     const mealText = text.substring(mealStart, workStart);
     const workoutText = text.substring(workStart);
 
-    // Meals
+    // --- Parse meals ---
     let curMealDay = null;
     mealText.split('\n').forEach(line => {
       line = line.trim(); if (!line) return;
@@ -289,129 +287,22 @@
       }
     });
 
-    // Workouts
-    parseWorkoutSection(workoutText, dayMap);
-    return buildDays(dayMap);
-  }
-
-  function parseFreeform(text) {
-    const dayMap = {};
-    daysOrder.forEach(d => dayMap[d] = { day:d, meals:[], workoutBlocks:[], dailyWeight:null, waterOz:'' });
-    const lines = text.split('\n');
-    let currentDay = null;
-    let afterWorkout = false; // flag to know we've entered the workout part
-
-    for (let line of lines) {
-      line = line.trim();
-      if (!line) continue;
-
-      // Detect day header (e.g., "MONDAY", "monday", "Monday - ...")
-      const dayMatch = daysOrder.find(d => {
-        const up = line.toUpperCase();
-        return up.startsWith(d.toUpperCase()) && (line.length === d.length || /[^a-zA-Z0-9]/.test(line[d.length]));
-      });
-      if (dayMatch) {
-        currentDay = dayMatch;
-        afterWorkout = false;
-        continue;
-      }
-
-      if (!currentDay) continue;
-
-      // Skip the day subtitle like "Randori (Moderate Carb)" etc.
-      if (/^\s*\(.*\)\s*$/.test(line)) continue;
-
-      // Check for workout‑related headers
-      if (/workout|training|circuit|class|density block|pull‑up/i.test(line)) {
-        afterWorkout = true;
-        // Also create a block if it's a Part or Format line
-        const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
-        const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
-        if (partMatch || circuitMatch) {
-          const blockName = partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1];
-          const isCircuit = !!circuitMatch;
-          dayMap[currentDay].workoutBlocks.push({
-            name: blockName, time:'', exercises:[], isCircuit, type:'workout'
-          });
-        }
-        continue;
-      }
-
-      // Class line (bullet or not)
-      const classMatch = line.match(/^·?\s*Class\s*:\s*(.*)/i);
-      if (classMatch) {
-        const times = classMatch[1].match(/(\d{1,2}:\d{2}\s*[APMapm]*)\s*[-–—]\s*(\d{1,2}:\d{2}\s*[APMapm]*)/);
-        let duration = '';
-        if (times) {
-          const start = new Date(`2025-01-01 ${times[1]}`);
-          const end = new Date(`2025-01-01 ${times[2]}`);
-          const mins = (end - start) / 60000;
-          if (mins > 0) duration = String(mins);
-        }
-        dayMap[currentDay].workoutBlocks.push({
-          type:'class', name:'Judo / Class', duration, intensity:50, notes:''
-        });
-        afterWorkout = true;
-        continue;
-      }
-
-      // Skip notes lines
-      if (/^·?\s*Notes/i.test(line)) continue;
-
-      // Handle bullet lines (·, •, -, *)
-      if (/^[·•\-*]\s/.test(line)) {
-        const content = line.replace(/^[·•\-*]\s*/, '').trim();
-
-        if (afterWorkout) {
-          // treat as exercise
-          addExerciseToDay(dayMap[currentDay], content);
-        } else {
-          // Could be meal or exercise; detect using time pattern
-          const timeMatch = content.match(/^.*?\(([^)]+)\)\s*:\s*(.*)/);
-          if (timeMatch) {
-            // meal with time
-            let time = timeMatch[1].trim();
-            let desc = timeMatch[2].trim();
-            desc = desc.replace(/\s*~\s*\d+.*$/,'').trim();
-            if (desc) dayMap[currentDay].meals.push({
-              id: crypto.randomUUID(), name:desc, time, completed:false,
-              ateNotes:'', protein:'', carbs:'', fat:''
-            });
-          } else {
-            // No time, check if it looks like an exercise (contains numbers, sets, reps)
-            if (/\d+\s*x\s*\d+/.test(content) || /\d+\s*(sec|min|yds|lbs?)/.test(content)) {
-              addExerciseToDay(dayMap[currentDay], content);
-            } else {
-              // assume meal
-              dayMap[currentDay].meals.push({
-                id: crypto.randomUUID(), name:content, time:'', completed:false,
-                ateNotes:'', protein:'', carbs:'', fat:''
-              });
-            }
-          }
-        }
-      } else {
-        // Non‑bullet line
-        if (afterWorkout && line.length > 3) {
-          addExerciseToDay(dayMap[currentDay], line);
-        }
-      }
-    }
-    return buildDays(dayMap);
-  }
-
-  function parseWorkoutSection(workoutText, dayMap) {
+    // --- Parse workouts ---
     let curWorkDay = null, curBlock = null;
     workoutText.split('\n').forEach(line => {
       line = line.trim(); if (!line) return;
       const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z]/.test(line[d.length]));
       if (dayMatch) {
-        if (curBlock && (curBlock.exercises.length || curBlock.type === 'class')) dayMap[curWorkDay].workoutBlocks.push(curBlock);
-        curWorkDay = dayMatch; curBlock = null; return;
+        // save previous block
+        if (curBlock && (curBlock.type === 'class' || (curBlock.exercises && curBlock.exercises.length))) dayMap[curWorkDay].workoutBlocks.push(curBlock);
+        curWorkDay = dayMatch;
+        curBlock = null;
+        return;
       }
       if (!curWorkDay) return;
 
-      const classMatch = line.match(/^·?\s*Class\s*:\s*(.*)/i);
+      // ---- Class block ----
+      const classMatch = line.match(/^·\s*Class\s*:\s*(.*)/i);
       if (classMatch) {
         if (curBlock) dayMap[curWorkDay].workoutBlocks.push(curBlock);
         const times = classMatch[1].match(/(\d{1,2}:\d{2}\s*[APMapm]*)\s*[-–—]\s*(\d{1,2}:\d{2}\s*[APMapm]*)/);
@@ -426,8 +317,19 @@
         return;
       }
 
-      if (/^·?\s*Notes/i.test(line)) return;
+      // ---- Class intensity (must be after class creation) ----
+      if (curBlock && curBlock.type === 'class') {
+        if (/^·\s*Intensity/i.test(line)) {
+          const percent = line.match(/(\d+)/);
+          if (percent) curBlock.intensity = parseInt(percent[1]);
+          return;
+        }
+        if (/^·\s*Notes/i.test(line)) return; // skip notes
+        // ignore any other lines for class
+        return;
+      }
 
+      // ---- Part / Circuit headers ----
       const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
       const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
       if (partMatch || circuitMatch) {
@@ -449,7 +351,94 @@
 
       addExerciseToBlock(curBlock, line);
     });
-    if (curBlock) dayMap[curWorkDay].workoutBlocks.push(curBlock);
+    // push final block
+    if (curBlock && (curBlock.type === 'class' || (curBlock.exercises && curBlock.exercises.length))) dayMap[curWorkDay].workoutBlocks.push(curBlock);
+    return buildDays(dayMap);
+  }
+
+  function parseFreeform(text) {
+    const dayMap = {};
+    daysOrder.forEach(d => dayMap[d] = { day:d, meals:[], workoutBlocks:[], dailyWeight:null, waterOz:'' });
+    const lines = text.split('\n');
+    let currentDay = null;
+    let afterWorkout = false;
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line) continue;
+      const dayMatch = daysOrder.find(d => line.toUpperCase().startsWith(d.toUpperCase()) && /[^a-zA-Z0-9]/.test(line[d.length]));
+      if (dayMatch) {
+        currentDay = dayMatch;
+        afterWorkout = false;
+        continue;
+      }
+      if (!currentDay) continue;
+      if (/^\s*\(.*\)\s*$/.test(line)) continue;
+      if (/workout|training|circuit|class|density block/i.test(line)) {
+        afterWorkout = true;
+        const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
+        const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
+        if (partMatch || circuitMatch) {
+          const name = partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1];
+          dayMap[currentDay].workoutBlocks.push({ name, time:'', exercises:[], isCircuit:!!circuitMatch, type:'workout' });
+        }
+        continue;
+      }
+      const classMatch = line.match(/^·?\s*Class\s*:\s*(.*)/i);
+      if (classMatch) {
+        const times = classMatch[1].match(/(\d{1,2}:\d{2}\s*[APMapm]*)\s*[-–—]\s*(\d{1,2}:\d{2}\s*[APMapm]*)/);
+        let duration = '';
+        if (times) {
+          const start = new Date(`2025-01-01 ${times[1]}`);
+          const end = new Date(`2025-01-01 ${times[2]}`);
+          const mins = (end - start) / 60000;
+          if (mins > 0) duration = String(mins);
+        }
+        dayMap[currentDay].workoutBlocks.push({ type:'class', name:'Judo / Class', duration, intensity:50, notes:'' });
+        afterWorkout = true;
+        continue;
+      }
+
+      if (/^·?\s*Intensity/i.test(line) && dayMap[currentDay].workoutBlocks.length && dayMap[currentDay].workoutBlocks[dayMap[currentDay].workoutBlocks.length-1].type === 'class') {
+        const percent = line.match(/(\d+)/);
+        if (percent) dayMap[currentDay].workoutBlocks[dayMap[currentDay].workoutBlocks.length-1].intensity = parseInt(percent[1]);
+        continue;
+      }
+
+      if (/^·?\s*Notes/i.test(line)) continue;
+
+      if (/^[·•\-*]\s/.test(line)) {
+        const content = line.replace(/^[·•\-*]\s*/, '').trim();
+        if (afterWorkout) {
+          addExerciseToDay(dayMap[currentDay], content);
+        } else {
+          const timeMatch = content.match(/^.*?\(([^)]+)\)\s*:\s*(.*)/);
+          if (timeMatch) {
+            let time = timeMatch[1].trim();
+            let desc = timeMatch[2].trim();
+            desc = desc.replace(/\s*~\s*\d+.*$/,'').trim();
+            if (desc) dayMap[currentDay].meals.push({
+              id: crypto.randomUUID(), name:desc, time, completed:false,
+              ateNotes:'', protein:'', carbs:'', fat:''
+            });
+          } else {
+            if (/\d+\s*x\s*\d+/.test(content) || /\d+\s*(sec|min|yds|lbs?)/.test(content)) {
+              addExerciseToDay(dayMap[currentDay], content);
+            } else {
+              dayMap[currentDay].meals.push({
+                id: crypto.randomUUID(), name:content, time:'', completed:false,
+                ateNotes:'', protein:'', carbs:'', fat:''
+              });
+            }
+          }
+        }
+      } else {
+        if (afterWorkout && line.length > 3) {
+          addExerciseToDay(dayMap[currentDay], line);
+        }
+      }
+    }
+    return buildDays(dayMap);
   }
 
   function addExerciseToDay(dayObj, line) {
@@ -494,7 +483,7 @@
     }
   }
 
-  // ---------- HELPERS ----------
+  // ---------- HELPERS (same as before) ----------
   function calcProgress(plan) {
     let total=0, done=0;
     plan.days.forEach(d => {
@@ -529,7 +518,7 @@
   function formatMinutes(mins) { return formatSeconds(parseInt(mins)*60); }
   function parseTimeToSecs(str) { const mins = str.match(/(\d+)\s*min/); return mins ? +mins[1]*60 : 0; }
 
-  // ---------- TRACKER RENDER ----------
+  // ---------- TRACKER RENDER (unchanged) ----------
   function renderTracker() {
     const plan = getCurrentPlan();
     if (!plan) return;
@@ -722,15 +711,10 @@
 
   function toggleAllDays() { allExpanded = !allExpanded; renderTracker(); }
   function goToToday() {
-    const todayIdx = (new Date().getDay() + 6) % 7; // Monday=0
+    const todayIdx = (new Date().getDay() + 6) % 7;
     const today = daysOrder[todayIdx];
     const headers = document.querySelectorAll('.day-header b');
-    for (let h of headers) {
-      if (h.textContent === today) {
-        h.closest('.card').scrollIntoView({behavior:'smooth'});
-        break;
-      }
-    }
+    for (let h of headers) if (h.textContent === today) { h.closest('.card').scrollIntoView({behavior:'smooth'}); break; }
   }
 
   // ---------- NAVIGATION ----------
@@ -773,10 +757,7 @@
     if (allWeights.length === 0) return;
     currentChart = new Chart(ctx, {
       type:'line',
-      data:{
-        labels: allWeights.map(p => p.x),
-        datasets:[{ label:'Weight (lbs)', data:allWeights.map(p => p.y), borderColor:'#0a84ff', tension:0.3 }]
-      },
+      data:{ labels: allWeights.map(p => p.x), datasets:[{ label:'Weight (lbs)', data:allWeights.map(p => p.y), borderColor:'#0a84ff', tension:0.3 }] },
       options:{ responsive:true, scales:{ y:{ beginAtZero:false } } }
     });
   }
@@ -790,20 +771,9 @@ Meals: ${day.meals.map(m => `${m.completed?'[x]':'[ ]'} ${m.name} (Ate:${m.ateNo
 Workouts: ${(day.workoutBlocks||[]).map(b => b.type==='class' ? `Class: ${b.name} (${b.duration} min, intensity ${b.intensity}%)` : b.name + ': ' + b.exercises.map(e => `${e.completed?'[x]':'[ ]'} ${e.name} ${e.prescribedSetsReps} ${e.prescribedWeight||''} (Act: ${e.weight||'-'}x${e.reps||'-'} RPE:${e.rpe||'-'})`).join('; '))}
 Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   }
-  function aiWeeklyReport() {
-    const w = getCurrentWeek(); if (!w) return toast('No data');
-    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`);
-  }
-  function aiShoppingList() {
-    const w = getCurrentWeek(); if (!w) return;
-    const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
-    sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
-  }
-  function aiSmartProgression() {
-    const w = getCurrentWeek(); if (!w) return;
-    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights based on progress, injuries, and chat history. Keep meals unchanged.`);
-    document.getElementById('newWeekModal').style.display='none';
-  }
+  function aiWeeklyReport() { const w = getCurrentWeek(); if (!w) return toast('No data'); sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`); }
+  function aiShoppingList() { const w = getCurrentWeek(); if (!w) return; const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n'); sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`); }
+  function aiSmartProgression() { const w = getCurrentWeek(); if (!w) return; sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights based on progress, injuries, and chat history. Keep meals unchanged.`); document.getElementById('newWeekModal').style.display='none'; }
   function autoGenNextWeek() {
     const w = getCurrentWeek(); if (!w) return;
     const np = JSON.parse(JSON.stringify(w.plan));
@@ -830,15 +800,12 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       chatHistory = text;
       localStorage.setItem('deepseekChatHistory', chatHistory);
       toast('Chat history saved!');
-      const hasPlan = text.includes('SECTION 1: MEAL PLAN') || text.includes('MEAL PLAN') || daysOrder.some(d => text.toUpperCase().includes(d.toUpperCase()));
-      if (hasPlan) {
-        const plan = parsePlan(text);
-        if (plan.days.length && confirm('Plan found in chat. Load it as current week?')) {
-          weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
-          currentWeekIndex = weekHistory.length-1;
-          saveHistory();
-          navigateTo('tracker');
-        }
+      const plan = parsePlan(text);
+      if (plan.days.length && confirm('Plan found in chat. Load it as current week?')) {
+        weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+        currentWeekIndex = weekHistory.length-1;
+        saveHistory();
+        navigateTo('tracker');
       } else { toast('No plan found in chat.'); }
     };
     reader.readAsText(file);
@@ -851,11 +818,7 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     document.getElementById('apiKeyInput').value = deepseekKey;
     renderScans();
   }
-  function saveApiKey() {
-    deepseekKey = document.getElementById('apiKeyInput').value.trim();
-    localStorage.setItem('deepseekKey', deepseekKey);
-    toast('API key saved');
-  }
+  function saveApiKey() { deepseekKey = document.getElementById('apiKeyInput').value.trim(); localStorage.setItem('deepseekKey', deepseekKey); toast('API key saved'); }
   async function renderScans() {
     const scans = await getScans();
     document.getElementById('scansContainer').innerHTML = scans.map(s => `
@@ -873,11 +836,7 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     toast(`Added ${files.length} scan(s)`);
     renderScans();
   }
-  async function deleteScanFromDB(id) {
-    await deleteScan(id);
-    toast('Scan deleted');
-    renderScans();
-  }
+  async function deleteScanFromDB(id) { await deleteScan(id); toast('Scan deleted'); renderScans(); }
   async function analyzeLastScan() {
     const scans = await getScans();
     if (!scans.length) return toast('No scans');
@@ -887,20 +846,10 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       const { data: { text } } = await tesseractWorker.recognize(scans[scans.length-1].image);
       toast('Analysis ready. Opening DeepSeek.');
       sendToDeepSeek(`Analyze this body scan data: ${text}`);
-    } catch(e) {
-      toast('OCR failed. Please try again.');
-    }
+    } catch(e) { toast('OCR failed. Please try again.'); }
   }
-  function toggleTheme() {
-    darkMode = !darkMode;
-    localStorage.setItem('darkMode', darkMode);
-    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
-  }
-  function showHelp() {
-    helpSlide = 0;
-    renderHelpSlide();
-    document.getElementById('helpModal').style.display = 'flex';
-  }
+  function toggleTheme() { darkMode = !darkMode; localStorage.setItem('darkMode', darkMode); document.body.style.colorScheme = darkMode ? 'dark' : 'light'; }
+  function showHelp() { helpSlide = 0; renderHelpSlide(); document.getElementById('helpModal').style.display = 'flex'; }
   function renderHelpSlide() {
     document.getElementById('helpSlides').innerHTML = `<h2>${helpSlides[helpSlide].title}</h2><p>${helpSlides[helpSlide].text}</p>`;
     document.getElementById('helpNextBtn').textContent = helpSlide < helpSlides.length-1 ? 'Next →' : 'Done';
@@ -917,19 +866,8 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     document.getElementById('templateList').innerHTML = templates.map((t,i) => `<span class="btn btn-sm" onclick="loadTemplate(${i})">${t.name}</span>`).join(' ');
   }
   function loadWeek(i) { currentWeekIndex = i; saveHistory(); navigateTo('tracker'); }
-  function loadTemplate(i) {
-    if (!templates[i]) return;
-    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(JSON.stringify(templates[i].plan)) });
-    currentWeekIndex = weekHistory.length-1; saveHistory();
-    navigateTo('tracker');
-  }
-  function saveTemplate() {
-    const plan = getCurrentPlan(); if (!plan) return;
-    const name = prompt('Template name:'); if (!name) return;
-    templates.push({ name, plan });
-    localStorage.setItem('templates', JSON.stringify(templates));
-    renderHistory(); toast('Template saved');
-  }
+  function loadTemplate(i) { if (!templates[i]) return; weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(JSON.stringify(templates[i].plan)) }); currentWeekIndex = weekHistory.length-1; saveHistory(); navigateTo('tracker'); }
+  function saveTemplate() { const plan = getCurrentPlan(); if (!plan) return; const name = prompt('Template name:'); if (!name) return; templates.push({ name, plan }); localStorage.setItem('templates', JSON.stringify(templates)); renderHistory(); toast('Template saved'); }
 
   // ---------- EXPORT ----------
   function exportPDF() {
@@ -945,25 +883,15 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     });
     doc.save('weekly-summary.pdf'); toast('PDF saved');
   }
-  function copyToClipboard() {
-    const plan = getCurrentPlan(); if (!plan) return;
-    let t='';
-    plan.days.forEach(d => {
-      t += `=== ${d.day} ===\n`;
-      d.meals.forEach(m => t += `${m.name} (P:${m.protein} C:${m.carbs} F:${m.fat})\n`);
-      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => t += `${e.name} ${e.prescribedSetsReps} W:${e.weight} R:${e.reps}\n`));
-      t += '\n';
-    });
-    navigator.clipboard.writeText(t).then(()=>toast('Copied'));
-  }
+  function copyToClipboard() { const plan = getCurrentPlan(); if (!plan) return; let t=''; plan.days.forEach(d => { t += `=== ${d.day} ===\n`; d.meals.forEach(m => t += `${m.name} (P:${m.protein} C:${m.carbs} F:${m.fat})\n`); (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => t += `${e.name} ${e.prescribedSetsReps} W:${e.weight} R:${e.reps}\n`)); t += '\n'; }); navigator.clipboard.writeText(t).then(()=>toast('Copied')); }
 
-  // ---------- INPUT PAGE ACTIONS ----------
+  // ---------- INPUT ACTIONS ----------
   function loadFromPaste() {
     const text = document.getElementById('planText').value.trim();
     if (!text) return toast('Paste your plan');
     try {
       const plan = parsePlan(text);
-      if (!plan.days.length) return toast('No plan found. Check the text and try again.');
+      if (!plan.days.length) return toast('No plan found. Make sure both sections are present.');
       weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
       currentWeekIndex = weekHistory.length-1; saveHistory();
       navigateTo('tracker'); toast('Plan loaded!');
@@ -977,7 +905,7 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       const res = await fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`);
       const text = await res.text();
       const plan = parsePlan(text);
-      if (!plan.days.length) return toast('No plan found. Make sure the doc has meal and workout info.');
+      if (!plan.days.length) return toast('No plan found in the doc.');
       weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
       currentWeekIndex = weekHistory.length-1; saveHistory();
       navigateTo('tracker'); toast('Fetched & loaded');
@@ -1041,7 +969,7 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   window.updateDayNotes = updateDayNotes;
   window.saveCurrentWeek = saveCurrentWeek;
 
-  // ---------- INIT (NO AUTO HELP) ----------
+  // ---------- INIT ----------
   window.addEventListener('DOMContentLoaded', async () => {
     await openDB();
     loadHistory();
