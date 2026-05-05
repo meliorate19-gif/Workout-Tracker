@@ -158,7 +158,7 @@
   <div class="modal-box">
     <div id="helpSlides"></div>
     <div style="display:flex; gap:10px; margin-top:16px;">
-      <button class="btn btn-outline" onclick="document.getElementById('helpModal').style.display='none'">Skip</button>
+      <button class="btn btn-outline" onclick="document.getElementById('helpModal').style.display='none'">Close</button>
       <button class="btn btn-primary" id="helpNextBtn" onclick="nextHelpSlide()">Next →</button>
     </div>
   </div>
@@ -169,8 +169,9 @@
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
+// ==================== COMPLETE APP ====================
 (function() {
-  // ----- STATE -----
+  // ---------- STATE ----------
   let weekHistory = [], currentWeekIndex = -1;
   const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   let allExpanded = true;
@@ -198,7 +199,7 @@
     clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 2000);
   }
 
-  // ----- INDEXEDDB -----
+  // ---------- INDEXEDDB ----------
   async function openDB() {
     return new Promise((res,rej) => {
       const req = indexedDB.open(DB_NAME, 1);
@@ -231,7 +232,7 @@
     });
   }
 
-  // ----- STORAGE -----
+  // ---------- STORAGE ----------
   function saveHistory() { localStorage.setItem('weekHistory', JSON.stringify(weekHistory)); localStorage.setItem('currentWeekIndex', currentWeekIndex); }
   function loadHistory() {
     const h = localStorage.getItem('weekHistory');
@@ -246,18 +247,21 @@
   function getCurrentPlan() { const w = getCurrentWeek(); return w ? w.plan : null; }
   function saveCurrentWeek() { if (getCurrentWeek()) { weekHistory[currentWeekIndex] = getCurrentWeek(); saveHistory(); } }
 
-  // ----- UNIVERSAL PARSER (handles any format) -----
+  // ---------- UNIVERSAL PARSER ----------
   function parsePlan(text) {
-    // First, try to find explicit section headers (SECTION 1 / SECTION 2)
+    // First, check for explicit SECTION 1 / 2 format
     const mealSec = text.match(/SECTION\s*1\s*:?\s*MEAL\s*PLAN/i);
     const workSec = text.match(/SECTION\s*2\s*:?\s*(WEEKLY\s*)?WORKOUT\s*SCHEDULE/i);
     if (mealSec && workSec) {
-      // structured format
       return parseStructured(text, mealSec.index, workSec.index);
     } else {
-      // unstructured: look for day headers anywhere
+      // Fallback: free‑form parsing
       return parseFreeform(text);
     }
+  }
+
+  function buildDays(dayMap) {
+    return { days: daysOrder.map(d => ({ ...dayMap[d], notes:'' })).filter(d => d.meals.length || d.workoutBlocks.length) };
   }
 
   function parseStructured(text, mealStart, workStart) {
@@ -285,8 +289,8 @@
       }
     });
 
-    // Workouts (same as before)
-    parseWorkoutLines(workoutText, dayMap);
+    // Workouts
+    parseWorkoutSection(workoutText, dayMap);
     return buildDays(dayMap);
   }
 
@@ -295,7 +299,7 @@
     daysOrder.forEach(d => dayMap[d] = { day:d, meals:[], workoutBlocks:[], dailyWeight:null, waterOz:'' });
     const lines = text.split('\n');
     let currentDay = null;
-    let afterMeals = false; // simple heuristic: after seeing a line with "workout" we'll treat subsequent lines as workouts
+    let afterWorkout = false; // flag to know we've entered the workout part
 
     for (let line of lines) {
       line = line.trim();
@@ -308,34 +312,65 @@
       });
       if (dayMatch) {
         currentDay = dayMatch;
-        afterMeals = false; // reset
+        afterWorkout = false;
         continue;
       }
 
-      if (!currentDay) continue; // skip until we hit a day
+      if (!currentDay) continue;
 
-      // Skip the day's subtitle like "Randori (Moderate Carb)" etc.
+      // Skip the day subtitle like "Randori (Moderate Carb)" etc.
       if (/^\s*\(.*\)\s*$/.test(line)) continue;
 
-      // Check if line looks like workout heading
-      if (/workout|training|circuit|exercise|density block|class/i.test(line)) {
-        afterMeals = true;
+      // Check for workout‑related headers
+      if (/workout|training|circuit|class|density block|pull‑up/i.test(line)) {
+        afterWorkout = true;
+        // Also create a block if it's a Part or Format line
+        const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
+        const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
+        if (partMatch || circuitMatch) {
+          const blockName = partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1];
+          const isCircuit = !!circuitMatch;
+          dayMap[currentDay].workoutBlocks.push({
+            name: blockName, time:'', exercises:[], isCircuit, type:'workout'
+          });
+        }
         continue;
       }
 
-      // Bullet line (starts with ·, •, -, *)
+      // Class line (bullet or not)
+      const classMatch = line.match(/^·?\s*Class\s*:\s*(.*)/i);
+      if (classMatch) {
+        const times = classMatch[1].match(/(\d{1,2}:\d{2}\s*[APMapm]*)\s*[-–—]\s*(\d{1,2}:\d{2}\s*[APMapm]*)/);
+        let duration = '';
+        if (times) {
+          const start = new Date(`2025-01-01 ${times[1]}`);
+          const end = new Date(`2025-01-01 ${times[2]}`);
+          const mins = (end - start) / 60000;
+          if (mins > 0) duration = String(mins);
+        }
+        dayMap[currentDay].workoutBlocks.push({
+          type:'class', name:'Judo / Class', duration, intensity:50, notes:''
+        });
+        afterWorkout = true;
+        continue;
+      }
+
+      // Skip notes lines
+      if (/^·?\s*Notes/i.test(line)) continue;
+
+      // Handle bullet lines (·, •, -, *)
       if (/^[·•\-*]\s/.test(line)) {
         const content = line.replace(/^[·•\-*]\s*/, '').trim();
 
-        if (afterMeals) {
+        if (afterWorkout) {
           // treat as exercise
-          addExerciseFromLine(dayMap[currentDay], content);
+          addExerciseToDay(dayMap[currentDay], content);
         } else {
-          // could be meal or workout, try to detect meal pattern : time in parentheses
+          // Could be meal or exercise; detect using time pattern
           const timeMatch = content.match(/^.*?\(([^)]+)\)\s*:\s*(.*)/);
           if (timeMatch) {
             // meal with time
-            const time = timeMatch[1].trim();
+            let time = timeMatch[1].trim();
             let desc = timeMatch[2].trim();
             desc = desc.replace(/\s*~\s*\d+.*$/,'').trim();
             if (desc) dayMap[currentDay].meals.push({
@@ -343,44 +378,29 @@
               ateNotes:'', protein:'', carbs:'', fat:''
             });
           } else {
-            // no time: could still be a meal if it doesn't contain sets/reps
-            if (!/\d+\s*x\s*\d+/.test(content) && !/\d+\s*(sec|min|yds)/.test(content)) {
+            // No time, check if it looks like an exercise (contains numbers, sets, reps)
+            if (/\d+\s*x\s*\d+/.test(content) || /\d+\s*(sec|min|yds|lbs?)/.test(content)) {
+              addExerciseToDay(dayMap[currentDay], content);
+            } else {
               // assume meal
               dayMap[currentDay].meals.push({
                 id: crypto.randomUUID(), name:content, time:'', completed:false,
                 ateNotes:'', protein:'', carbs:'', fat:''
               });
-            } else {
-              addExerciseFromLine(dayMap[currentDay], content);
             }
           }
         }
       } else {
-        // Non-bullet lines: could be exercise without bullet, or part/circuit header
-        const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
-        const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
-        if (partMatch || circuitMatch) {
-          startNewBlock(dayMap[currentDay], partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1], !!circuitMatch);
-          afterMeals = true;
-          continue;
-        }
-        // Class block
-        const classMatch = line.match(/^·\s*Class\s*:\s*(.*)/i) || line.match(/^Class\s*:\s*(.*)/i);
-        if (classMatch) {
-          addClassBlock(dayMap[currentDay], classMatch[1]);
-          afterMeals = true;
-          continue;
-        }
-        // If afterMeals is true, attempt to parse as exercise
-        if (afterMeals && line.length > 3) {
-          addExerciseFromLine(dayMap[currentDay], line);
+        // Non‑bullet line
+        if (afterWorkout && line.length > 3) {
+          addExerciseToDay(dayMap[currentDay], line);
         }
       }
     }
     return buildDays(dayMap);
   }
 
-  function parseWorkoutLines(workoutText, dayMap) {
+  function parseWorkoutSection(workoutText, dayMap) {
     let curWorkDay = null, curBlock = null;
     workoutText.split('\n').forEach(line => {
       line = line.trim(); if (!line) return;
@@ -391,72 +411,56 @@
       }
       if (!curWorkDay) return;
 
-      const classMatch = line.match(/^·\s*Class\s*:\s*(.*)/i);
+      const classMatch = line.match(/^·?\s*Class\s*:\s*(.*)/i);
       if (classMatch) {
         if (curBlock) dayMap[curWorkDay].workoutBlocks.push(curBlock);
-        curBlock = { type:'class', name:'Judo / Class', duration:'', intensity:50, notes:'' };
         const times = classMatch[1].match(/(\d{1,2}:\d{2}\s*[APMapm]*)\s*[-–—]\s*(\d{1,2}:\d{2}\s*[APMapm]*)/);
+        let duration = '';
         if (times) {
           const start = new Date(`2025-01-01 ${times[1]}`);
           const end = new Date(`2025-01-01 ${times[2]}`);
           const mins = (end - start) / 60000;
-          if (mins > 0) curBlock.duration = String(mins);
+          if (mins > 0) duration = String(mins);
         }
+        curBlock = { type:'class', name:'Judo / Class', duration, intensity:50, notes:'' };
         return;
       }
-      if (/^·\s*Notes/i.test(line)) return;
 
-      const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/);
-      const circuitMatch = line.match(/^Format\s*:\s*(.*)/);
+      if (/^·?\s*Notes/i.test(line)) return;
+
+      const partMatch = line.match(/^Part\s*(\d+)\s*:\s*(.*)/i);
+      const circuitMatch = line.match(/^Format\s*:\s*(.*)/i);
       if (partMatch || circuitMatch) {
         if (curBlock) dayMap[curWorkDay].workoutBlocks.push(curBlock);
-        curBlock = {
-          name: partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1],
-          time:'', exercises:[], isCircuit: !!circuitMatch, type:'workout'
-        };
+        const name = partMatch ? `Part ${partMatch[1]}: ${partMatch[2]}` : circuitMatch[1];
+        const isCircuit = !!circuitMatch;
+        let time = '';
         if (circuitMatch) {
           const t = circuitMatch[1].match(/(\d+)\s*-\s*min/);
-          if (t) curBlock.time = t[1] + ' min';
+          if (t) time = t[1] + ' min';
         }
+        curBlock = { name, time, exercises:[], isCircuit, type:'workout' };
         return;
       }
+
       if (!curBlock) curBlock = { name:'Main Workout', time:'', exercises:[], isCircuit:false, type:'workout' };
       if (/^(Post-Workout|Pre-Class|Pre-Workout|Post-Class|Step\s+Exercise)/i.test(line)) return;
       if (/Exercise\s+Sets\s+Reps/i.test(line) || /^Actual/i.test(line) || /^Weights Used/i.test(line)) return;
 
-      addExerciseFromLineToBlock(curBlock, line);
+      addExerciseToBlock(curBlock, line);
     });
     if (curBlock) dayMap[curWorkDay].workoutBlocks.push(curBlock);
   }
 
-  function addExerciseFromLine(dayObj, line) {
-    // Add to the latest block (or create one)
+  function addExerciseToDay(dayObj, line) {
     if (!dayObj.workoutBlocks.length || dayObj.workoutBlocks[dayObj.workoutBlocks.length-1].type !== 'workout') {
       dayObj.workoutBlocks.push({ name:'Main Workout', time:'', exercises:[], isCircuit:false, type:'workout' });
     }
     const block = dayObj.workoutBlocks[dayObj.workoutBlocks.length-1];
-    addExerciseFromLineToBlock(block, line);
+    addExerciseToBlock(block, line);
   }
 
-  function addClassBlock(dayObj, classString) {
-    const block = { type:'class', name:'Judo / Class', duration:'', intensity:50, notes:'' };
-    const times = classString.match(/(\d{1,2}:\d{2}\s*[APMapm]*)\s*[-–—]\s*(\d{1,2}:\d{2}\s*[APMapm]*)/);
-    if (times) {
-      const start = new Date(`2025-01-01 ${times[1]}`);
-      const end = new Date(`2025-01-01 ${times[2]}`);
-      const mins = (end - start) / 60000;
-      if (mins > 0) block.duration = String(mins);
-    }
-    dayObj.workoutBlocks.push(block);
-  }
-
-  function startNewBlock(dayObj, name, isCircuit) {
-    dayObj.workoutBlocks.push({
-      name, time:'', exercises:[], isCircuit, type:'workout'
-    });
-  }
-
-  function addExerciseFromLineToBlock(block, line) {
+  function addExerciseToBlock(block, line) {
     let exName=null, prescribed='', workSec=0, restSec=0, prescribedWeight='', sets='';
     const stationMatch = line.match(/^(.+?)\s+(\d+)\s*sec\s+(\d+)\s*sec/i);
     if (stationMatch && block.isCircuit) {
@@ -490,11 +494,7 @@
     }
   }
 
-  function buildDays(dayMap) {
-    return { days: daysOrder.map(d => ({ ...dayMap[d], notes:'' })).filter(d => d.meals.length || d.workoutBlocks.length) };
-  }
-
-  // ----- HELPER FUNCTIONS (same as before) -----
+  // ---------- HELPERS ----------
   function calcProgress(plan) {
     let total=0, done=0;
     plan.days.forEach(d => {
@@ -529,7 +529,7 @@
   function formatMinutes(mins) { return formatSeconds(parseInt(mins)*60); }
   function parseTimeToSecs(str) { const mins = str.match(/(\d+)\s*min/); return mins ? +mins[1]*60 : 0; }
 
-  // ----- TRACKER RENDER (unchanged) -----
+  // ---------- TRACKER RENDER ----------
   function renderTracker() {
     const plan = getCurrentPlan();
     if (!plan) return;
@@ -547,11 +547,510 @@
     updateAllMacroLive();
   }
 
-  // buildDayHTML, renderMeals, renderWorkouts, state updates, timers, etc. are identical to previous version
-  // ... (I will include them in the final file, but to save space I'm noting that they are unchanged)
+  function buildDayHTML(day, di) {
+    const macros = calcDayMacros(day);
+    return `
+      <div class="day-header" style="display:flex; justify-content:space-between; cursor:pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='none'?'block':'none'">
+        <b>${day.day}</b>
+        <span>${day.meals.filter(m=>m.completed).length}/${day.meals.length} meals · ${exerciseCount(day)} ex</span>
+        <input class="input day-weight" type="number" value="${day.dailyWeight||''}" placeholder="lbs" style="width:70px;">
+        <input class="input water-input" type="number" value="${day.waterOz||''}" placeholder="oz" style="width:60px;">
+      </div>
+      <div class="day-body" style="display:${allExpanded?'block':'none'};">
+        ${renderMeals(day, di)}
+        ${renderWorkouts(day, di)}
+        <textarea class="input day-notes" placeholder="Day notes" style="height:40px;" onchange="updateDayNotes(${di}, this.value)">${day.notes||''}</textarea>
+      </div>`;
+  }
 
-  // The rest of the code is exactly the same as the previous fully working version (global exposures, init, etc.)
-  // I will provide the complete file with all functions.
+  function renderMeals(day, di) {
+    if (!day.meals.length) return '';
+    const macros = calcDayMacros(day);
+    let html = `<div class="section-title" style="font-weight:700; color:var(--blue); margin-top:10px;">🥗 Meals</div>`;
+    day.meals.forEach((m, mi) => {
+      html += `
+        <div class="meal-row">
+          <div class="check-circle ${m.completed?'done':''}" onclick="event.stopPropagation(); toggleMeal(${di},${mi})"></div>
+          <span>${m.name} ${m.time ? `<small style="color:var(--sub);">${m.time}</small>` : ''}</span>
+          <div class="macro-chips">
+            <input class="input macro-input" type="number" placeholder="P" value="${m.protein||''}" data-day="${di}" data-index="${mi}" data-field="protein" style="width:45px; padding:4px;">
+            <input class="input macro-input" type="number" placeholder="C" value="${m.carbs||''}" data-day="${di}" data-index="${mi}" data-field="carbs" style="width:45px; padding:4px;">
+            <input class="input macro-input" type="number" placeholder="F" value="${m.fat||''}" data-day="${di}" data-index="${mi}" data-field="fat" style="width:45px; padding:4px;">
+            <button class="macro-quick" onclick="event.stopPropagation(); macroQuickAdd(${di},${mi},'protein',10)">+10P</button>
+            <button class="macro-quick" onclick="macroQuickAdd(${di},${mi},'carbs',25)">+25C</button>
+            <button class="macro-quick" onclick="macroQuickAdd(${di},${mi},'fat',10)">+10F</button>
+          </div>
+        </div>
+        <textarea class="input ate-notes" placeholder="What I ate" data-day="${di}" data-index="${mi}" data-field="ateNotes" style="margin-left:34px; width:calc(100% - 34px);" onchange="saveCurrentWeek()">${m.ateNotes||''}</textarea>`;
+    });
+    html += `<div class="macro-live" id="macroLive${di}">🔥 ${macros.cal} kcal | 🥩 ${macros.protein}g | 🌾 ${macros.carbs}g | 🥑 ${macros.fat}g</div>`;
+    return html;
+  }
+
+  function renderWorkouts(day, di) {
+    if (!day.workoutBlocks.length) return '';
+    let html = `<div class="section-title" style="font-weight:700; color:var(--blue); margin-top:10px;">🏋️ Workout</div>`;
+    day.workoutBlocks.forEach((block, bi) => {
+      if (block.type === 'class') {
+        html += `
+          <div class="class-block">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <b>🥋 ${block.name}</b>
+              <div style="display:flex; gap:4px; align-items:center;">
+                <span class="timer-display" id="classTimer-${di}-${bi}">${block.duration ? formatMinutes(parseInt(block.duration)) : '--:--'}</span>
+                <button class="timer-big" id="classStart-${di}-${bi}" onclick="startClassTimer(${di},${bi})">▶ Start</button>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <label>Intensity: <span id="classIntensityLabel-${di}-${bi}">${block.intensity}%</span></label>
+              <input type="range" min="0" max="100" value="${block.intensity}" oninput="updateClassIntensity(${di},${bi}, this.value)">
+              <div class="intensity-bar"><div class="intensity-fill" id="classIntensityBar-${di}-${bi}" style="width:${block.intensity}%;"></div></div>
+            </div>
+            <textarea class="input" placeholder="Class notes" style="height:40px;" onchange="saveCurrentWeek()">${block.notes||''}</textarea>
+          </div>`;
+      } else {
+        html += `<div style="background:var(--bg); border-radius:12px; padding:12px; margin:8px 0;">
+          <div style="display:flex; justify-content:space-between;"><b>${block.name}</b><span>${block.time||''}</span></div>`;
+        block.exercises.forEach((ex, ei) => {
+          html += `
+            <div class="exercise-row">
+              <div class="exercise-header">
+                <div class="check-circle ${ex.completed?'done':''}" onclick="event.stopPropagation(); toggleExercise(${di},${bi},${ei})"></div>
+                <span>${ex.name} <small>${ex.prescribedSetsReps || ''}</small> ${ex.prescribedWeight ? `<small style="color:var(--orange)">${ex.prescribedWeight}</small>` : ''}</span>
+                ${ex.workSec && !block.isCircuit ? `<span class="timer-display" id="exTimer-${ex.id}">${formatSeconds(ex.workSec)}</span><button class="timer-big" id="exStart-${ex.id}" onclick="startExTimer('${ex.id}', this)">▶</button>` : ''}
+                ${block.isCircuit ? `<span class="timer-display" id="circuitExTimer-${di}-${bi}-${ei}">${ex.workSec}s</span>` : ''}
+              </div>
+              <div style="display:flex; gap:4px; margin-left:34px; margin-top:4px;">
+                <input class="input exercise-input" type="number" placeholder="Sets" value="${ex.sets||''}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="sets" style="width:60px;">
+                <input class="input exercise-input" type="text" placeholder="Weight" value="${ex.weight}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="weight" style="width:70px;">
+                <input class="input exercise-input" type="text" placeholder="Reps" value="${ex.reps}" data-day="${di}" data-block="${bi}" data-index="${ei}" data-field="reps" style="width:60px;">
+                <input class="input exercise-input" type="number" min="1" max="10" value="${ex.rpe||'5'}" data-field="rpe" data-day="${di}" data-block="${bi}" data-index="${ei}" style="width:50px; color:${rpeColor(ex.rpe||5)};">
+              </div>
+            </div>`;
+        });
+        if (block.isCircuit) {
+          html += `<div style="display:flex; justify-content:center; margin-top:8px; gap:10px;">
+            <button class="timer-big" id="circuitStart-${di}-${bi}" onclick="startCircuitTimer(${di},${bi}, this)">▶ Start Circuit</button>
+            <span class="timer-display" id="circuitOverall-${di}-${bi}">${block.time ? formatMinutes(parseTimeToSecs(block.time)) : '--:--'}</span>
+          </div>`;
+        }
+        html += `</div>`;
+      }
+    });
+    return html;
+  }
+
+  // ---------- STATE UPDATES ----------
+  function toggleMeal(di, mi) { const w = getCurrentWeek(); w.plan.days[di].meals[mi].completed = !w.plan.days[di].meals[mi].completed; saveCurrentWeek(); renderTracker(); }
+  function toggleExercise(di, bi, ei) { const w = getCurrentWeek(); w.plan.days[di].workoutBlocks[bi].exercises[ei].completed = !w.plan.days[di].workoutBlocks[bi].exercises[ei].completed; saveCurrentWeek(); renderTracker(); }
+  function updateDailyWeight(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].dailyWeight = val ? +val : null; saveCurrentWeek(); renderHome(); } }
+  function updateWater(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].waterOz = val; saveCurrentWeek(); } }
+  function updateDayNotes(di, val) { const w=getCurrentWeek(); if(w){ w.plan.days[di].notes = val; saveCurrentWeek(); } }
+  function updateClassIntensity(di, bi, val) {
+    const w = getCurrentWeek(); if(w) w.plan.days[di].workoutBlocks[bi].intensity = +val;
+    document.getElementById(`classIntensityLabel-${di}-${bi}`).textContent = val + '%';
+    document.getElementById(`classIntensityBar-${di}-${bi}`).style.width = val + '%';
+    saveCurrentWeek();
+  }
+  function macroQuickAdd(di, mi, field, amount) {
+    const w = getCurrentWeek();
+    const meal = w.plan.days[di].meals[mi];
+    const cur = parseFloat(meal[field]) || 0;
+    meal[field] = (cur + amount).toFixed(0);
+    saveCurrentWeek();
+    updateMacroLive(di);
+  }
+  function updateMacroLive(di) {
+    const day = getCurrentPlan().days[di];
+    const macros = calcDayMacros(day);
+    const el = document.getElementById(`macroLive${di}`);
+    if (el) el.innerHTML = `🔥 ${macros.cal} kcal | 🥩 ${macros.protein}g | 🌾 ${macros.carbs}g | 🥑 ${macros.fat}g`;
+  }
+  function updateAllMacroLive() { const p=getCurrentPlan(); if(p) p.days.forEach((_,i) => updateMacroLive(i)); }
+
+  // ---------- TIMERS ----------
+  function startClassTimer(di, bi) {
+    const block = getCurrentPlan().days[di].workoutBlocks[bi];
+    const duration = parseInt(block.duration);
+    if (!duration) return;
+    const key = `class-${di}-${bi}`;
+    const btn = document.getElementById(`classStart-${di}-${bi}`);
+    if (activeTimers[key]) { clearInterval(activeTimers[key].id); delete activeTimers[key]; btn.innerHTML = '▶ Start'; return; }
+    let remaining = duration * 60;
+    const display = document.getElementById(`classTimer-${di}-${bi}`);
+    btn.innerHTML = '⏸ Pause';
+    activeTimers[key] = { id: setInterval(() => {
+      remaining--;
+      display.textContent = formatSeconds(remaining);
+      if (remaining <= 0) { clearInterval(activeTimers[key].id); delete activeTimers[key]; btn.innerHTML = '▶ Start'; playBeep(800,0.3); }
+    }, 1000) };
+  }
+  function startExTimer(exId, btn) {
+    const exercise = findExercise(exId);
+    if (!exercise || !exercise.workSec) return;
+    const key = `ex-${exId}`;
+    if (activeTimers[key]) { clearInterval(activeTimers[key].id); delete activeTimers[key]; btn.innerHTML = '▶'; return; }
+    let remaining = exercise.workSec;
+    const display = document.getElementById(`exTimer-${exId}`);
+    btn.innerHTML = '⏸';
+    activeTimers[key] = { id: setInterval(() => {
+      remaining--;
+      if (display) display.textContent = formatSeconds(remaining);
+      if (remaining <= 0) { clearInterval(activeTimers[key].id); delete activeTimers[key]; btn.innerHTML = '▶'; playBeep(800,0.15); }
+    }, 1000) };
+  }
+  function findExercise(id) { for (let d of getCurrentPlan().days) for (let b of d.workoutBlocks) for (let e of b.exercises) if(e.id===id) return e; }
+  function startCircuitTimer(di, bi, btn) {
+    const block = getCurrentPlan().days[di].workoutBlocks[bi];
+    const key = `circuit-${di}-${bi}`;
+    if (activeTimers[key]) { clearInterval(activeTimers[key].id); delete activeTimers[key]; btn.innerHTML = '▶ Start'; return; }
+    let total = parseTimeToSecs(block.time) || 99999, station=0, inWork=true, left=block.exercises[0].workSec;
+    btn.innerHTML = '⏸ Pause';
+    activeTimers[key] = { id: setInterval(() => {
+      total--; left--;
+      document.getElementById(`circuitOverall-${di}-${bi}`).textContent = formatSeconds(total);
+      const exDisplay = document.getElementById(`circuitExTimer-${di}-${bi}-${station}`);
+      if (exDisplay) exDisplay.textContent = inWork ? `Work ${formatSeconds(left)}` : `Rest ${formatSeconds(left)}`;
+      if (left <= 0) {
+        if (inWork) { inWork = false; left = block.exercises[station].restSec || 0; }
+        else { inWork = true; station = (station+1)%block.exercises.length; left = block.exercises[station].workSec; }
+      }
+      if (total <= 0) { clearInterval(activeTimers[key].id); delete activeTimers[key]; btn.innerHTML = '▶ Start'; playBeep(800,0.3); }
+    }, 1000) };
+  }
+  function playBeep(f=800,d=0.15) { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(),g=ctx.createGain(); o.type='square'; o.frequency.value=f; g.gain.value=0.3; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+d); }
+
+  function toggleAllDays() { allExpanded = !allExpanded; renderTracker(); }
+  function goToToday() {
+    const todayIdx = (new Date().getDay() + 6) % 7; // Monday=0
+    const today = daysOrder[todayIdx];
+    const headers = document.querySelectorAll('.day-header b');
+    for (let h of headers) {
+      if (h.textContent === today) {
+        h.closest('.card').scrollIntoView({behavior:'smooth'});
+        break;
+      }
+    }
+  }
+
+  // ---------- NAVIGATION ----------
+  function navigateTo(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page+'Page').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (activeNav) activeNav.classList.add('active');
+    if (page === 'home') renderHome();
+    if (page === 'tracker') renderTracker();
+    if (page === 'history') renderHistory();
+    if (page === 'settings') renderSettings();
+  }
+
+  // ---------- HOME ----------
+  function renderHome() {
+    const week = getCurrentWeek();
+    document.getElementById('overviewCard').innerHTML = week ? `
+      <h3>Current Week</h3>
+      <div>Started: ${new Date(week.startDate).toLocaleDateString()}</div>
+      <div>Progress: ${calcProgress(week.plan)}%</div>
+    ` : '<h3>No data loaded</h3><p>Import your first plan!</p>';
+    drawWeightChart();
+  }
+  function drawWeightChart() {
+    const ctx = document.getElementById('homeChart').getContext('2d');
+    const allWeights = [];
+    weekHistory.forEach(w => {
+      w.plan.days.forEach((d, i) => {
+        if (d.dailyWeight) {
+          const date = new Date(w.startDate);
+          date.setDate(date.getDate() + daysOrder.indexOf(d.day));
+          allWeights.push({ x: date.toLocaleDateString(), y: d.dailyWeight });
+        }
+      });
+    });
+    allWeights.sort((a,b) => new Date(a.x) - new Date(b.x));
+    if (currentChart) currentChart.destroy();
+    if (allWeights.length === 0) return;
+    currentChart = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels: allWeights.map(p => p.x),
+        datasets:[{ label:'Weight (lbs)', data:allWeights.map(p => p.y), borderColor:'#0a84ff', tension:0.3 }]
+      },
+      options:{ responsive:true, scales:{ y:{ beginAtZero:false } } }
+    });
+  }
+
+  // ---------- AI ----------
+  function sendToDeepSeek(prompt) { window.open(`https://chat.deepseek.com/?q=${encodeURIComponent(prompt)}`, '_blank'); }
+  function buildAISummary(plan) {
+    return plan.days.map(day => `
+Day: ${day.day}
+Meals: ${day.meals.map(m => `${m.completed?'[x]':'[ ]'} ${m.name} (Ate:${m.ateNotes||''}) P:${m.protein||0} C:${m.carbs||0} F:${m.fat||0}`).join(', ')}
+Workouts: ${(day.workoutBlocks||[]).map(b => b.type==='class' ? `Class: ${b.name} (${b.duration} min, intensity ${b.intensity}%)` : b.name + ': ' + b.exercises.map(e => `${e.completed?'[x]':'[ ]'} ${e.name} ${e.prescribedSetsReps} ${e.prescribedWeight||''} (Act: ${e.weight||'-'}x${e.reps||'-'} RPE:${e.rpe||'-'})`).join('; '))}
+Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
+  }
+  function aiWeeklyReport() {
+    const w = getCurrentWeek(); if (!w) return toast('No data');
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`);
+  }
+  function aiShoppingList() {
+    const w = getCurrentWeek(); if (!w) return;
+    const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
+    sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
+  }
+  function aiSmartProgression() {
+    const w = getCurrentWeek(); if (!w) return;
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite my entire workout week (SECTION 2) adjusting exercises, sets, reps, weights based on progress, injuries, and chat history. Keep meals unchanged.`);
+    document.getElementById('newWeekModal').style.display='none';
+  }
+  function autoGenNextWeek() {
+    const w = getCurrentWeek(); if (!w) return;
+    const np = JSON.parse(JSON.stringify(w.plan));
+    np.days.forEach(d => {
+      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => {
+        if (e.prescribedWeight) { const n = parseFloat(e.prescribedWeight); if (!isNaN(n)) e.prescribedWeight = (n+5)+' lbs'; }
+        e.completed=false; e.weight=''; e.reps=''; e.rpe='5';
+      }));
+      d.meals.forEach(m => { m.completed=false; m.ateNotes=''; m.protein=''; m.carbs=''; m.fat=''; });
+      d.notes='';
+    });
+    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: np });
+    currentWeekIndex = weekHistory.length-1; saveHistory();
+    navigateTo('tracker'); toast('+5 lbs applied');
+    document.getElementById('newWeekModal').style.display='none';
+  }
+
+  // ---------- CHAT IMPORT ----------
+  function importChatFromHome(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      chatHistory = text;
+      localStorage.setItem('deepseekChatHistory', chatHistory);
+      toast('Chat history saved!');
+      const hasPlan = text.includes('SECTION 1: MEAL PLAN') || text.includes('MEAL PLAN') || daysOrder.some(d => text.toUpperCase().includes(d.toUpperCase()));
+      if (hasPlan) {
+        const plan = parsePlan(text);
+        if (plan.days.length && confirm('Plan found in chat. Load it as current week?')) {
+          weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+          currentWeekIndex = weekHistory.length-1;
+          saveHistory();
+          navigateTo('tracker');
+        }
+      } else { toast('No plan found in chat.'); }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- SETTINGS / SCANS ----------
+  function renderSettings() {
+    document.getElementById('aiModeSelect').value = aiMode;
+    document.getElementById('apiKeySection').style.display = aiMode === 'api' ? 'block' : 'none';
+    document.getElementById('apiKeyInput').value = deepseekKey;
+    renderScans();
+  }
+  function saveApiKey() {
+    deepseekKey = document.getElementById('apiKeyInput').value.trim();
+    localStorage.setItem('deepseekKey', deepseekKey);
+    toast('API key saved');
+  }
+  async function renderScans() {
+    const scans = await getScans();
+    document.getElementById('scansContainer').innerHTML = scans.map(s => `
+      <div style="display:inline-block; position:relative; margin:4px;">
+        <img src="${s.image}" style="width:80px; border-radius:8px;" onclick="window.open('${s.image}')">
+        <button class="btn btn-sm" style="position:absolute; top:-8px; right:-8px; background:var(--red); color:#fff; border-radius:50%;" onclick="deleteScanFromDB(${s.id})">×</button>
+      </div>`).join('');
+  }
+  async function handleScanUpload(files) {
+    if (!files.length) return;
+    for (let f of files) {
+      const base64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(f); });
+      await addScan(base64, new Date().toISOString());
+    }
+    toast(`Added ${files.length} scan(s)`);
+    renderScans();
+  }
+  async function deleteScanFromDB(id) {
+    await deleteScan(id);
+    toast('Scan deleted');
+    renderScans();
+  }
+  async function analyzeLastScan() {
+    const scans = await getScans();
+    if (!scans.length) return toast('No scans');
+    toast('Analyzing...');
+    try {
+      if (!tesseractWorker) tesseractWorker = await Tesseract.createWorker('eng');
+      const { data: { text } } = await tesseractWorker.recognize(scans[scans.length-1].image);
+      toast('Analysis ready. Opening DeepSeek.');
+      sendToDeepSeek(`Analyze this body scan data: ${text}`);
+    } catch(e) {
+      toast('OCR failed. Please try again.');
+    }
+  }
+  function toggleTheme() {
+    darkMode = !darkMode;
+    localStorage.setItem('darkMode', darkMode);
+    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
+  }
+  function showHelp() {
+    helpSlide = 0;
+    renderHelpSlide();
+    document.getElementById('helpModal').style.display = 'flex';
+  }
+  function renderHelpSlide() {
+    document.getElementById('helpSlides').innerHTML = `<h2>${helpSlides[helpSlide].title}</h2><p>${helpSlides[helpSlide].text}</p>`;
+    document.getElementById('helpNextBtn').textContent = helpSlide < helpSlides.length-1 ? 'Next →' : 'Done';
+  }
+  function nextHelpSlide() {
+    if (helpSlide < helpSlides.length-1) { helpSlide++; renderHelpSlide(); }
+    else { document.getElementById('helpModal').style.display='none'; }
+  }
+
+  // ---------- HISTORY / TEMPLATES ----------
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    list.innerHTML = weekHistory.map((w,i) => `<div onclick="loadWeek(${i})" style="padding:8px; cursor:pointer;">Week ${new Date(w.startDate).toLocaleDateString()} – ${calcProgress(w.plan)}%</div>`).join('');
+    document.getElementById('templateList').innerHTML = templates.map((t,i) => `<span class="btn btn-sm" onclick="loadTemplate(${i})">${t.name}</span>`).join(' ');
+  }
+  function loadWeek(i) { currentWeekIndex = i; saveHistory(); navigateTo('tracker'); }
+  function loadTemplate(i) {
+    if (!templates[i]) return;
+    weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan: JSON.parse(JSON.stringify(templates[i].plan)) });
+    currentWeekIndex = weekHistory.length-1; saveHistory();
+    navigateTo('tracker');
+  }
+  function saveTemplate() {
+    const plan = getCurrentPlan(); if (!plan) return;
+    const name = prompt('Template name:'); if (!name) return;
+    templates.push({ name, plan });
+    localStorage.setItem('templates', JSON.stringify(templates));
+    renderHistory(); toast('Template saved');
+  }
+
+  // ---------- EXPORT ----------
+  function exportPDF() {
+    const plan = getCurrentPlan(); if (!plan) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF(); let y=20;
+    doc.setFontSize(16); doc.text('Weekly Summary', 20, y); y+=10;
+    plan.days.forEach(d => {
+      doc.text(`=== ${d.day} ===`, 20, y+=6);
+      d.meals.forEach(m => doc.text(`Meal: ${m.name}`, 25, y+=6));
+      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => doc.text(`Ex: ${e.name}`, 25, y+=6)));
+      if (y>280) { doc.addPage(); y=20; }
+    });
+    doc.save('weekly-summary.pdf'); toast('PDF saved');
+  }
+  function copyToClipboard() {
+    const plan = getCurrentPlan(); if (!plan) return;
+    let t='';
+    plan.days.forEach(d => {
+      t += `=== ${d.day} ===\n`;
+      d.meals.forEach(m => t += `${m.name} (P:${m.protein} C:${m.carbs} F:${m.fat})\n`);
+      (d.workoutBlocks||[]).forEach(b => b.exercises.forEach(e => t += `${e.name} ${e.prescribedSetsReps} W:${e.weight} R:${e.reps}\n`));
+      t += '\n';
+    });
+    navigator.clipboard.writeText(t).then(()=>toast('Copied'));
+  }
+
+  // ---------- INPUT PAGE ACTIONS ----------
+  function loadFromPaste() {
+    const text = document.getElementById('planText').value.trim();
+    if (!text) return toast('Paste your plan');
+    try {
+      const plan = parsePlan(text);
+      if (!plan.days.length) return toast('No plan found. Check the text and try again.');
+      weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+      currentWeekIndex = weekHistory.length-1; saveHistory();
+      navigateTo('tracker'); toast('Plan loaded!');
+    } catch(e) { toast('Error parsing plan.'); }
+  }
+  async function loadFromLink() {
+    const link = document.getElementById('docLink').value.trim();
+    const m = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (!m) return toast('Invalid link');
+    try {
+      const res = await fetch(`https://docs.google.com/document/d/${m[1]}/export?format=txt`);
+      const text = await res.text();
+      const plan = parsePlan(text);
+      if (!plan.days.length) return toast('No plan found. Make sure the doc has meal and workout info.');
+      weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+      currentWeekIndex = weekHistory.length-1; saveHistory();
+      navigateTo('tracker'); toast('Fetched & loaded');
+    } catch(e) { toast('Error fetching document.'); }
+  }
+
+  // ---------- MODALS ----------
+  function newWeekPaste() { document.getElementById('newWeekModal').style.display='none'; navigateTo('input'); }
+  function newWeekLink() { document.getElementById('newWeekModal').style.display='none'; navigateTo('input'); document.getElementById('linkTabBtn').click(); }
+
+  // ---------- TABS ----------
+  document.getElementById('pasteTabBtn').addEventListener('click', ()=>{
+    document.getElementById('pasteTabBtn').classList.add('active');
+    document.getElementById('linkTabBtn').classList.remove('active');
+    document.getElementById('pasteDiv').style.display='block';
+    document.getElementById('linkDiv').style.display='none';
+  });
+  document.getElementById('linkTabBtn').addEventListener('click', ()=>{
+    document.getElementById('linkTabBtn').classList.add('active');
+    document.getElementById('pasteTabBtn').classList.remove('active');
+    document.getElementById('linkDiv').style.display='block';
+    document.getElementById('pasteDiv').style.display='none';
+  });
+
+  // ---------- GLOBAL EXPOSURES ----------
+  window.navigateTo = navigateTo;
+  window.loadFromPaste = loadFromPaste;
+  window.loadFromLink = loadFromLink;
+  window.toggleMeal = toggleMeal;
+  window.toggleExercise = toggleExercise;
+  window.macroQuickAdd = macroQuickAdd;
+  window.startClassTimer = startClassTimer;
+  window.startExTimer = startExTimer;
+  window.startCircuitTimer = startCircuitTimer;
+  window.updateClassIntensity = updateClassIntensity;
+  window.exportPDF = exportPDF;
+  window.copyToClipboard = copyToClipboard;
+  window.toggleAllDays = toggleAllDays;
+  window.goToToday = goToToday;
+  window.saveTemplate = saveTemplate;
+  window.importChatFromHome = importChatFromHome;
+  window.sendChat = () => {
+    const msg = document.getElementById('chatInput').value.trim();
+    if (msg) { sendToDeepSeek(msg); document.getElementById('chatInput').value = ''; }
+  };
+  window.aiWeeklyReport = aiWeeklyReport;
+  window.aiShoppingList = aiShoppingList;
+  window.aiSmartProgression = aiSmartProgression;
+  window.autoGenNextWeek = autoGenNextWeek;
+  window.newWeekPaste = newWeekPaste;
+  window.newWeekLink = newWeekLink;
+  window.saveApiKey = saveApiKey;
+  window.toggleTheme = toggleTheme;
+  window.showHelp = showHelp;
+  window.nextHelpSlide = nextHelpSlide;
+  window.handleScanUpload = handleScanUpload;
+  window.analyzeLastScan = analyzeLastScan;
+  window.deleteScanFromDB = deleteScanFromDB;
+  window.loadWeek = loadWeek;
+  window.loadTemplate = loadTemplate;
+  window.updateDayNotes = updateDayNotes;
+  window.saveCurrentWeek = saveCurrentWeek;
+
+  // ---------- INIT (NO AUTO HELP) ----------
+  window.addEventListener('DOMContentLoaded', async () => {
+    await openDB();
+    loadHistory();
+    if (weekHistory.length && currentWeekIndex >= 0) navigateTo('tracker');
+    else navigateTo('home');
+    renderHome();
+    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
+  });
+})();
 </script>
 </body>
 </html>
