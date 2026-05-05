@@ -44,6 +44,7 @@
     .btn-primary { background: var(--blue); color: #fff; width: 100%; justify-content: center; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--blue); }
     .btn-sm { padding: 8px 16px; font-size: 14px; }
+    .btn-accent { background: var(--accent); color: #000; }
     .input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 16px; }
     .progress-bar { height: 8px; background: var(--border); border-radius: 4px; margin: 8px 0; }
     .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; }
@@ -70,15 +71,15 @@
       <canvas id="homeChart" height="200"></canvas>
     </div>
     <div class="home-grid">
-      <div class="home-tile" onclick="navigateTo('input')"><span style="font-size:28px;">📋</span><br>Import Plan</div>
-      <div class="home-tile" onclick="document.getElementById('chatHistoryFileInputHome').click()"><span style="font-size:28px;">💬</span><br>Load Chat History</div>
-      <input type="file" accept=".txt" id="chatHistoryFileInputHome" style="display:none;" onchange="importChatFromHome(this.files[0])">
-      <div class="home-tile" onclick="navigateTo('coach')"><span style="font-size:28px;">🧠</span><br>Coach</div>
-      <div class="home-tile" onclick="navigateTo('settings')"><span style="font-size:28px;">⚙️</span><br>Settings</div>
+      <div class="home-tile" id="tileImportPlan"><span style="font-size:28px;">📋</span><br>Import Plan</div>
+      <div class="home-tile" id="tileLoadChat"><span style="font-size:28px;">💬</span><br>Load Chat / Extract Plan</div>
+      <input type="file" accept=".txt" id="chatHistoryFileInputHome" style="display:none;">
+      <div class="home-tile" id="tileCoach"><span style="font-size:28px;">🧠</span><br>Coach</div>
+      <div class="home-tile" id="tileSettings"><span style="font-size:28px;">⚙️</span><br>Settings</div>
     </div>
   </div>
 
-  <!-- INPUT PAGE (for pasting/linking) -->
+  <!-- INPUT PAGE -->
   <div id="inputPage" class="page">
     <button class="btn btn-outline btn-sm" onclick="navigateTo('home')">← Back</button>
     <div class="tabs" style="display:flex; gap:2px; background:var(--card-bg); border-radius:12px; padding:4px; margin:16px 0;">
@@ -320,7 +321,7 @@
       <h3>Current Week</h3>
       <div>Started: ${new Date(week.startDate).toLocaleDateString()}</div>
       <div>Progress: ${calcProgress(week.plan)}%</div>
-    ` : '<h3>No data loaded</h3><p>Import your first plan!</p>';
+    ` : '<h3>No data loaded</h3><p>Import your first plan or load a chat history!</p>';
     drawWeightChart();
   }
   function drawWeightChart() {
@@ -337,6 +338,7 @@
     });
     allWeights.sort((a,b) => new Date(a.x) - new Date(b.x));
     if (currentChart) currentChart.destroy();
+    if (allWeights.length === 0) return;
     currentChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -514,6 +516,12 @@
   }
   document.querySelectorAll('.nav-item').forEach(item => item.onclick = () => navigateTo(item.dataset.page));
 
+  // --- HOME TILES (fixed with JS) ---
+  document.getElementById('tileImportPlan').onclick = () => navigateTo('input');
+  document.getElementById('tileLoadChat').onclick = () => document.getElementById('chatHistoryFileInputHome').click();
+  document.getElementById('tileCoach').onclick = () => navigateTo('coach');
+  document.getElementById('tileSettings').onclick = () => navigateTo('settings');
+
   // --- AI HELPERS ---
   function sendToDeepSeek(prompt) { window.open(`https://chat.deepseek.com/?q=${encodeURIComponent(prompt)}`, '_blank'); }
   function buildAISummary(plan) {
@@ -545,23 +553,40 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     closeModal('newWeekModal');
   }
 
-  // --- COACH PAGE ---
-  document.getElementById('sendChatBtn').onclick = () => {
-    const msg = document.getElementById('chatInput').value.trim();
-    if (msg) { sendToDeepSeek(msg); document.getElementById('chatInput').value = ''; }
-  };
-  document.getElementById('aiReportBtn').onclick = () => {
-    const w = getCurrentWeek(); if (!w) return toast('No data');
-    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`);
-  };
-  document.getElementById('shoppingListBtn').onclick = () => {
-    const w = getCurrentWeek(); if (!w) return;
-    const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
-    sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
-  };
-  document.getElementById('aiProgressionBtn').onclick = () => {
-    const w = getCurrentWeek(); if (!w) return;
-    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite workout week (SECTION 2) as above.`);
+  // --- CHAT HISTORY IMPORT (NOW WITH PLAN EXTRACTION) ---
+  function importChatHistory(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      // Save chat history for future prompts
+      chatHistory = text;
+      localStorage.setItem('deepseekChatHistory', chatHistory);
+      toast('Chat history saved!');
+
+      // Try to extract a plan from the chat
+      const hasPlanSection1 = text.includes('SECTION 1: MEAL PLAN') || text.includes('SECTION 1: MEAL');
+      const hasPlanSection2 = text.includes('SECTION 2: WORKOUT SCHEDULE') || text.includes('SECTION 2: WORKOUT');
+      if (hasPlanSection1 && hasPlanSection2) {
+        const plan = parsePlan(text);
+        if (plan.days.length > 0) {
+          if (confirm('This chat contains a full meal & workout plan. Load it as your current week?')) {
+            weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
+            currentWeekIndex = weekHistory.length - 1;
+            saveHistory();
+            navigateTo('tracker');
+            toast('Plan extracted from chat!');
+            return;
+          }
+        }
+      } else {
+        toast('No plan found in chat. History saved.');
+      }
+    };
+    reader.readAsText(file);
+  }
+  document.getElementById('chatHistoryFileInputHome').onchange = function(e) {
+    importChatHistory(e.target.files[0]);
   };
 
   // --- INPUT PAGE ---
@@ -592,6 +617,25 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       currentWeekIndex = weekHistory.length-1; saveHistory();
       navigateTo('tracker'); toast('Fetched');
     } catch(e) { toast('Error fetching'); }
+  };
+
+  // --- COACH PAGE ---
+  document.getElementById('sendChatBtn').onclick = () => {
+    const msg = document.getElementById('chatInput').value.trim();
+    if (msg) { sendToDeepSeek(msg); document.getElementById('chatInput').value = ''; }
+  };
+  document.getElementById('aiReportBtn').onclick = () => {
+    const w = getCurrentWeek(); if (!w) return toast('No data');
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nProvide a concise weekly debrief.`);
+  };
+  document.getElementById('shoppingListBtn').onclick = () => {
+    const w = getCurrentWeek(); if (!w) return;
+    const meals = w.plan.days.map(d => `${d.day}: ${d.meals.map(m=>m.name).join(', ')}`).join('\n');
+    sendToDeepSeek(`Based on this meal plan:\n${meals}\n\nGenerate a grocery list grouped by day.`);
+  };
+  document.getElementById('aiProgressionBtn').onclick = () => {
+    const w = getCurrentWeek(); if (!w) return;
+    sendToDeepSeek(`${buildAISummary(w.plan)}\n\nRewrite workout week (SECTION 2) as above.`);
   };
 
   // --- SETTINGS ---
@@ -626,6 +670,10 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       } catch (e) { toast('OCR failed. Try again.'); }
     };
   }
+  window.showScan = (image) => {
+    const w = window.open('', '_blank');
+    w.document.write(`<img src="${image}" style="max-width:100%;">`);
+  };
   document.getElementById('addScanBtn').onclick = () => document.getElementById('scanFileInput').click();
   document.getElementById('scanFileInput').onchange = async function(e) {
     const files = e.target.files; if (!files.length) return;
@@ -657,19 +705,6 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     localStorage.setItem('templates', JSON.stringify(templates));
     renderHistory(); toast('Template saved');
   };
-
-  // --- CHAT HISTORY IMPORT ---
-  function importChatHistory(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      chatHistory = e.target.result;
-      localStorage.setItem('deepseekChatHistory', chatHistory);
-      toast('Chat history imported!');
-    };
-    reader.readAsText(file);
-  }
-  document.getElementById('chatHistoryFileInputHome').onchange = function(e) { importChatHistory(e.target.files[0]); };
 
   // --- HELP ---
   document.getElementById('helpBtn').onclick = () => {
@@ -715,6 +750,11 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   function closeModal(id) { document.getElementById(id).style.display='none'; }
   function newWeekPaste() { closeModal('newWeekModal'); navigateTo('input'); }
   function newWeekLink() { closeModal('newWeekModal'); navigateTo('input'); document.getElementById('linkTabBtn').click(); }
+  window.newWeekPaste = newWeekPaste;
+  window.newWeekLink = newWeekLink;
+  window.closeModal = closeModal;
+  window.autoGenNextWeek = autoGenNextWeek;
+  window.aiSmartProgression = aiSmartProgression;
 
   // --- INIT ---
   window.addEventListener('DOMContentLoaded', async () => {
