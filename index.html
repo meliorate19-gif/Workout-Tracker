@@ -378,7 +378,7 @@
     plan.days.forEach(d => {
       d.meals.forEach(m => { total++; if(m.completed) done++; });
       (d.workoutBlocks||[]).forEach(b => {
-        if (b.type === 'class') return; // class doesn't count as multiple
+        if (b.type === 'class') return;
         b.exercises.forEach(e => { total++; if(e.completed) done++; });
       });
     });
@@ -417,7 +417,6 @@
       const card = document.createElement('div'); card.className = 'card day-card';
       card.innerHTML = buildDayHTML(day, di);
       container.appendChild(card);
-      // Attach event listeners
       card.querySelector('.day-weight').onchange = e => updateDailyWeight(di, e.target.value);
       card.querySelector('.water-input').onchange = e => updateWater(di, e.target.value);
       card.querySelectorAll('.macro-input').forEach(inp => inp.oninput = () => updateMacroLive(di));
@@ -602,7 +601,7 @@
 
   function toggleAllDays() { allExpanded = !allExpanded; renderTracker(); }
   function goToToday() {
-    const today = daysOrder[new Date().getDay() - 1] || daysOrder[0]; // approximate
+    const today = daysOrder[new Date().getDay() - 1] || daysOrder[0];
     const card = [...document.querySelectorAll('.day-header')].find(h => h.querySelector('b').textContent === today);
     if (card) card.scrollIntoView({behavior:'smooth'});
   }
@@ -709,7 +708,6 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       chatHistory = text;
       localStorage.setItem('deepseekChatHistory', chatHistory);
       toast('Chat history saved!');
-      // Try to extract plan
       const hasPlan = text.includes('SECTION 1: MEAL PLAN') && text.includes('SECTION 2: WORKOUT SCHEDULE');
       if (hasPlan) {
         const plan = parsePlan(text);
@@ -860,8 +858,8 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
       const plan = parsePlan(text);
       weekHistory.push({ id: Date.now().toString(), startDate: new Date().toISOString(), plan });
       currentWeekIndex = weekHistory.length-1; saveHistory();
-      navigateTo('tracker'); toast('Fetched');
-    } catch(e) { toast('Error fetching'); }
+      navigateTo('tracker'); toast('Fetched & loaded');
+    } catch(e) { toast('Error fetching document'); }
   }
 
   // ---------- MODALS ----------
@@ -882,19 +880,10 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
     document.getElementById('pasteDiv').style.display='none';
   });
 
-  // ---------- INIT ----------
-  window.addEventListener('DOMContentLoaded', async () => {
-    await openDB();
-    loadHistory();
-    if (!localStorage.getItem('introCompleted')) showHelp();
-    if (weekHistory.length && currentWeekIndex >= 0) navigateTo('tracker');
-    else navigateTo('home');
-    renderHome();
-    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
-  });
-
-  // Expose some functions to global scope for inline handlers
+  // ---------- GLOBAL EXPOSURES (FIXED) ----------
   window.navigateTo = navigateTo;
+  window.loadFromPaste = loadFromPaste;
+  window.loadFromLink = loadFromLink;
   window.toggleMeal = toggleMeal;
   window.toggleExercise = toggleExercise;
   window.macroQuickAdd = macroQuickAdd;
@@ -907,8 +896,6 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   window.toggleAllDays = toggleAllDays;
   window.goToToday = goToToday;
   window.saveTemplate = saveTemplate;
-  window.loadFromPaste = loadFromPaste;
-  window.loadFromLink = loadFromLink;
   window.importChatFromHome = importChatFromHome;
   window.sendChat = () => {
     const msg = document.getElementById('chatInput').value.trim();
@@ -929,6 +916,18 @@ Weight: ${day.dailyWeight||'-'} Water: ${day.waterOz||'-'}`).join('\n---\n');
   window.deleteScanFromDB = deleteScanFromDB;
   window.loadWeek = loadWeek;
   window.loadTemplate = loadTemplate;
+
+  // ---------- INIT ----------
+  window.addEventListener('DOMContentLoaded', async () => {
+    await openDB();
+    loadHistory();
+    if (!localStorage.getItem('introCompleted')) showHelp();
+    if (weekHistory.length && currentWeekIndex >= 0) navigateTo('tracker');
+    else navigateTo('home');
+    renderHome();
+    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
+  });
+
 })();
 </script>
 </body>
