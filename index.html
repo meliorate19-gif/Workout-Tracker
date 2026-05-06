@@ -140,7 +140,7 @@
         <div class="input-group"><label>Muscle (lbs)</label><input type="number" id="bcMuscle" step="0.1" placeholder="110.6"></div>
         <div class="input-group"><label>Visceral Fat cm²</label><input type="number" id="bcVFat" step="0.1" placeholder="101"></div>
       </div>
-      <div class="input-group"><label>Scan Image</label><input type="file" id="bcImage" accept="image/*"></div>
+      <div class="input-group"><label>Upload Scan Image</label><input type="file" id="bcImage" accept="image/*"></div>
       <div class="input-group"><label>Notes</label><textarea id="bcNotes" rows="2"></textarea></div>
       <button class="btn btn-accent btn-block" onclick="addBodyCompEntry()">➕ Log Measurement</button>
     </div>
@@ -260,13 +260,12 @@
 
 <script>
 // -----------------------------------------------------------------------------
-// FULLY FUNCTIONAL APP — ALL HANDLERS ARE GLOBAL
+// COMPLETE APP — ALL HANDLERS GLOBAL
 // -----------------------------------------------------------------------------
 (function() {
-  // PDF.js worker
   if (typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  // ---------- HARDCODED WEEKLY PLAN (exercises + meals) ----------
+  // ---------- ENHANCED WEEKLY PLAN (now includes all loggable exercises) ----------
   const WEEKLY_PLAN = {
     Monday: {
       type: 'Judo (Technical)',
@@ -277,11 +276,17 @@
     Tuesday: {
       type: 'Upper Pull + Pull-Up Rescue',
       exercises: [
-        { name:'Chest‑Supported DB Row', time:8, reps:'8‑10', weight:'65 lbs', cue:'Chest glued to pad' },
-        { name:'Cable Face Pull', time:8, reps:'12‑15', weight:'50 lbs', cue:'Pull to forehead' },
-        { name:'Dead Bug', time:6, reps:'8/side', weight:'BW or 5lb', cue:'Back imprints floor' }
+        // Density Blocks
+        { name:'Chest‑Supported DB Row (Neutral, Thumbless)', time:8, reps:'8‑10', weight:'65 lbs', cue:'Chest glued to pad' },
+        { name:'Cable Face Pull (Triceps Rope)', time:8, reps:'12‑15', weight:'50 lbs', cue:'Pull to forehead, rotate' },
+        { name:'Dead Bug', time:6, reps:'8/side', weight:'BW or 5 lb', cue:'Back imprints floor' },
+        // Pull-Up Rescue Protocol (now separate steps)
+        { name:'Ring Rows (Feet Elevated)', sets:'3', reps:'8‑10', weight:'Bodyweight / assist', cue:'Control tempo' },
+        { name:'Eccentric Pull-Up Negatives', sets:'3', reps:'3‑5', weight:'Band assist / bodyweight', cue:'5‑sec lower' },
+        { name:'Scapular Pull-Ups', sets:'3', reps:'8‑10', weight:'Bodyweight', cue:'Move only shoulder blades' },
+        { name:'Ring Dead Hang (Open Palm)', sets:'2', reps:'30 sec', weight:'Bodyweight', cue:'Spinal decompression' }
       ],
-      details: 'Pull‑Up Rescue: Ring Rows 3x8‑10, Eccentric Negatives 3x3‑5, Scap Pull‑Ups 3x8‑10, Ring Hang 2x30s.'
+      details: 'Rest 60 sec between Pull‑Up Rescue rounds. Post‑workout: Contrast therapy (Sauna 15 min → Cold Plunge 3 min) ×2, END COLD.'
     },
     Wednesday: {
       type: 'Judo (Newaza)',
@@ -289,25 +294,26 @@
       intensity: true
     },
     Thursday: {
-      type: 'Aerobic Power Circuit',
+      type: 'Aerobic Power Circuit + Bike Finisher',
       exercises: [
-        { name:'Kneeling Battle Ropes', work:30, rest:15, weight:'—' },
-        { name:'Suitcase Carry', work:30, rest:15, weight:'55‑60 lbs' },
-        { name:'Med Ball Slam', reps:15, rest:30, weight:'20‑40 lbs' }
+        { name:'Kneeling Battle Ropes', work:30, rest:15, weight:'—', cue:'Pad under knees' },
+        { name:'Suitcase Carry (alternate hands)', work:30, rest:15, weight:'55‑60 lbs', cue:'Walk 15 yds out/back' },
+        { name:'Med Ball Slam (catch on bounce)', reps:15, rest:30, weight:'20‑40 lbs', cue:'Don’t deadlift ball' },
+        { name:'Assault Bike Finisher (steady state)', work:300, rest:0, weight:'—', cue:'5 min hard but sustainable, open hands' }
       ],
-      details: '15‑min AMRAP, then 5‑min Assault Bike finisher.'
+      details: 'Block A: 15‑min AMRAP of first 3 stations. Block B: 5‑min Assault Bike finisher after circuit.'
     },
     Friday: {
       type: 'Power + Push',
       exercises: [
-        { name:'Landmine Press', sets:'3', reps:'10/side', weight:'45 lbs', cue:'45° angle' },
-        { name:'Belt Squat (or Goblet)', sets:'3', reps:'12', weight:'50 lbs', cue:'Box at parallel' },
-        { name:'Pallof Press', sets:'3', reps:'12/side', weight:'25 lbs' }
+        { name:'Landmine Single‑Arm Press', sets:'3', reps:'10/side', weight:'45 lbs', cue:'45° angle, no R shoulder pain' },
+        { name:'Belt Squat (or Goblet Squat to Box)', sets:'3', reps:'12', weight:'50 lbs (Goblet)', cue:'Box at parallel' },
+        { name:'Pallof Press', sets:'3', reps:'12/side', weight:'25 lbs', cue:'Core braced, zero rotation' }
       ]
     },
     Saturday: {
       type: 'Active Recovery',
-      details: '45‑60 min walk HR<130, 20 min sauna. Optional: Gi Hang 5x30s, Plate Pinch 3x max.'
+      details: '45‑60 min walk HR<130, 20 min sauna. Optional: Gi Hang 5×30s, Plate Pinch 3×max.'
     },
     Sunday: {
       type: 'Full Rest',
@@ -317,10 +323,10 @@
 
   const MEAL_PLAN = {
     Monday: [
-      { time:'7:30 AM', planned:'4 egg whites + 2 whole eggs, 1 Ezekiel toast, spinach, black coffee' },
+      { time:'7:30 AM', planned:'4 egg whites + 2 whole eggs, Ezekiel toast, spinach, black coffee' },
       { time:'12:00 PM', planned:'7 oz grilled chicken breast, large salad, 2 Tbsp olive oil, ½ avocado' },
       { time:'5:30 PM', planned:'½ scoop whey + ¼ cup blueberries + 1 Tbsp almond butter' },
-      { time:'9:00 PM', planned:'8 oz chicken thigh (skinless), 1 cup roasted broccoli, 1 Tbsp olive oil' }
+      { time:'9:00 PM', planned:'8 oz chicken thigh (skinless), broccoli, 1 Tbsp olive oil' }
     ],
     Tuesday: [
       { time:'7:30 AM', planned:'3 whole eggs + 3 whites, mushrooms, black coffee' },
@@ -344,10 +350,10 @@
       { time:'7:30 AM', planned:'3 eggs + 3 whites, Ezekiel toast, coffee' },
       { time:'12:00 PM', planned:'7 oz chicken, ½ cup brown rice, broccoli' },
       { time:'4:30 PM', planned:'1 rice cake + 1 tsp honey (optional)' },
-      { time:'6:30 PM', planned:'Cheat window: 12-14 oz ribeye + butter, side salad' }
+      { time:'6:30 PM', planned:'Cheat window: 12‑14 oz ribeye + butter, side salad' }
     ],
     Saturday: [
-      { time:'10:00 AM', planned:'4-egg omelet, spinach, 2 oz feta, ½ avocado' },
+      { time:'10:00 AM', planned:'4‑egg omelet, spinach, 2 oz feta, ½ avocado' },
       { time:'5:00 PM', planned:'8 oz salmon or chicken thigh, Brussels sprouts, ½ cup quinoa' }
     ],
     Sunday: [
@@ -358,7 +364,7 @@
   };
 
   // ---------- STATE ----------
-  const STORAGE_KEY = 'jadetracker_v5';
+  const STORAGE_KEY = 'jadetracker_v6';
   let appData = {
     bodyComp: [],
     meals: [],
@@ -479,7 +485,7 @@
         <td>${b.fatPercentage ?? '--'}%</td>
         <td>${b.skeletalMuscle ?? '--'}</td>
         <td>${b.visceralFat ?? '--'}</td>
-        <td>${b.imageData ? `<img src="${b.imageData}" width="30" height="30" style="border-radius:4px;">` : '--'}</td>
+        <td>${b.imageData ? `<img src="${b.imageData}" width="30" height="30" style="border-radius:4px;" onclick="window.open('${b.imageData}')">` : '--'}</td>
         <td><button class="btn btn-sm btn-danger" onclick="deleteBodyComp('${b.id}')">✕</button></td>
       </tr>`
     ).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text2);">No entries yet.</td></tr>';
@@ -614,7 +620,7 @@
         </div>
         <div style="font-size:0.75rem;color:var(--text2);">Planned: ${p.planned}</div>
         <div class="input-row" style="margin-top:6px;">
-          <div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${p.time}" value="${saved.actual || ''}" placeholder="What you ate"></div>
+          <div class="input-group"><label>What I Actually Ate</label><input type="text" class="meal-actual" data-time="${p.time}" value="${saved.actual || ''}" placeholder="If different from planned"></div>
           <div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${p.time}" value="${saved.notes || ''}" placeholder="e.g., felt good"></div>
         </div>
       </div>`;
@@ -641,7 +647,6 @@
         _timestamp: new Date().toISOString()
       });
     });
-    // Remove old entries for this day+week
     appData.meals = appData.meals.filter(m => !(m.day === day && m.weekStart === weekStart));
     appData.meals.push(...newMeals);
     saveData();
@@ -676,17 +681,18 @@
     if (plan.exercises && plan.exercises.length) {
       plan.exercises.forEach((ex, i) => {
         const savedEx = saved.exercises?.[i] || {};
+        const repLabel = ex.time ? `Time: ${ex.time} min` : (ex.sets ? `Sets: ${ex.sets}` : '');
         html += `<div class="workout-exercise-card">
           <strong>${ex.name}</strong>
           <div style="font-size:0.7rem;color:var(--text2);">
-            ${ex.time ? `Time: ${ex.time} min` : ''} ${ex.sets ? `Sets: ${ex.sets}` : ''} Reps: ${ex.reps || ex.work || ''} | Recommended: ${ex.weight || ''}
+            ${repLabel} ${ex.reps ? `Reps: ${ex.reps}` : (ex.work ? `Work: ${ex.work}s` : '')} | Recommended: ${ex.weight || '—'}
             ${ex.cue ? `<br><small style="color:var(--accent);">${ex.cue}</small>` : ''}
           </div>
           <div class="input-row">
-            <div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps" data-idx="${i}" value="${savedEx.actualReps || ''}" placeholder="e.g., 10,10,8"></div>
+            <div class="input-group"><label>Actual Reps / Sets</label><input type="text" class="ex-reps" data-idx="${i}" value="${savedEx.actualReps || ''}" placeholder="e.g., 10,10,8 or 3 rounds"></div>
             <div class="input-group"><label>Weight Used (lbs)</label><input type="text" class="ex-weight" data-idx="${i}" value="${savedEx.actualWeight || ''}" placeholder="lbs"></div>
           </div>
-          <div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx="${i}" value="${savedEx.notes || ''}" placeholder="e.g., easy, chest stable"></div>
+          <div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx="${i}" value="${savedEx.notes || ''}" placeholder="e.g., chest stable, easy"></div>
         </div>`;
       });
     }
@@ -713,7 +719,6 @@
       }));
     }
     appData.dayWorkouts[`${day}-${date}`] = workout;
-    // Also add to general workout log
     appData.workouts.push({
       id: uid(),
       date,
@@ -802,7 +807,7 @@
     return `${m}:${s}`;
   }
 
-  // ---------- DOCUMENT PARSING (IMPROVED INJURY DETECTION) ----------
+  // ---------- DOCUMENT PARSING ----------
   window.handleDocUpload = function(input) {
     const file = input.files[0];
     if (!file) return;
@@ -843,11 +848,9 @@
   };
 
   function parseDocumentText(text, source) {
-    // Extract injuries from SECTION 1
     const injurySectionMatch = text.match(/SECTION\s*1:?\s*COMPLETE\s*INJURY\s*LIST[\s\S]*?(?=SECTION\s*2|$)/i);
     if (injurySectionMatch) {
       const section = injurySectionMatch[0];
-      // Split by lines that start with "Spine:", "Left Knee:", etc.
       const injuryLines = section.split(/\n/).filter(line => /^\s*(Spine|Left\s*Knee|Biceps|Elbows|Wrists|Right\s*Shoulder)[:\s]/i.test(line));
       injuryLines.forEach(line => {
         const name = line.replace(/^[•\-\s]+/, '').trim();
@@ -857,7 +860,6 @@
       });
     }
 
-    // Also extract stop rules from SECTION 7
     const stopSectionMatch = text.match(/SECTION\s*7:?\s*NON-NEGOTIABLE\s*STOP\s*RULES[\s\S]*?(?=SECTION\s*8|$)/i);
     if (stopSectionMatch) {
       const lines = stopSectionMatch[0].split(/\n/).filter(l => /^\d+[\.\)]/.test(l.trim()));
@@ -928,7 +930,6 @@
     let y = 20;
     doc.text('JADE PARKER — WEEKLY REPORT', 20, y); y += 10;
     doc.text(`Week: ${weekLabel} | ${new Date().toLocaleDateString()}`, 20, y); y += 8;
-    // Add basic summary (full dossier can be extended)
     doc.save('jadetracker-weekly-report.pdf');
     showToast('PDF generated!');
   };
@@ -983,7 +984,7 @@
     }
   };
 
-  // ---------- INITIALIZE ----------
+  // ---------- INIT ----------
   function init() {
     loadData();
     document.getElementById('bcDate').valueAsDate = new Date();
