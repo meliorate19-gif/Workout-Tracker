@@ -1,912 +1,855 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="JadeTracker">
-    <meta name="theme-color" content="#0f172a">
-    <title>JadeTracker — Daily Plan & Log</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <style>
-        *{box-sizing:border-box;margin:0;padding:0}
-        :root{
-            --bg:#0f172a;--surface:#1e293b;--surface2:#273549;--border:#334155;
-            --text:#e2e8f0;--text2:#94a3b8;--accent:#22d3bb;--accent2:#14b8a6;
-            --red:#ef4444;--orange:#f59e0b;--green:#22c55e;
-            --radius:16px;--radius-sm:10px;
-            --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
-            --tab-height:72px;--header-height:56px;--safe-bottom:env(safe-area-inset-bottom,16px);
-        }
-        html{font-size:15px;-webkit-tap-highlight-color:transparent}
-        body{
-            font-family:var(--font);background:var(--bg);color:var(--text);
-            min-height:100vh;min-height:-webkit-fill-available;
-            padding-bottom:calc(var(--tab-height) + var(--safe-bottom) + 16px);padding-top:var(--header-height);
-            user-select:none;-webkit-user-select:none;overflow-x:hidden;
-        }
-        .header{
-            position:fixed;top:0;left:0;right:0;z-index:100;height:var(--header-height);
-            background:rgba(15,23,42,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-            display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--border);
-        }
-        .header-title{font-weight:700;font-size:1.2rem}
-        .header-badge{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:3px 12px;border-radius:20px;font-weight:700}
-        .tab-bar{
-            position:fixed;bottom:0;left:0;right:0;z-index:100;
-            background:rgba(30,41,59,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-            border-top:1px solid var(--border);display:flex;padding:6px 8px var(--safe-bottom);gap:4px;height:calc(var(--tab-height) + var(--safe-bottom))
-        }
-        .tab-btn{
-            flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-            background:none;border:none;color:var(--text2);font-size:0.65rem;font-weight:500;cursor:pointer;
-            border-radius:var(--radius-sm);transition:all 0.2s;font-family:var(--font);padding:4px 2px;letter-spacing:-0.1px
-        }
-        .tab-btn.active{color:var(--accent);font-weight:600}
-        .tab-icon{font-size:1.35rem;line-height:1}
-        .main-content{padding:12px 14px;max-width:600px;margin:0 auto}
-        .view{display:none;animation:fadeSlide 0.3s ease}
-        .view.active{display:block}
-        @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        .card{background:var(--surface);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-        .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-        .card-title{font-weight:700;font-size:0.95rem}
-        .btn{
-            display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;
-            border-radius:50px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;font-family:var(--font);
-            transition:all 0.2s;white-space:nowrap
-        }
-        .btn:active{transform:scale(0.96)}
-        .btn-accent{background:var(--accent);color:#0f172a}
-        .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
-        .btn-sm{padding:6px 14px;font-size:0.75rem}
-        .btn-danger{background:var(--red);color:#fff}
-        .btn-block{width:100%}
-        input,textarea,select{
-            width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);
-            background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.9rem;transition:border-color 0.2s;
-            -webkit-appearance:none;appearance:none
-        }
-        input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,187,0.15)}
-        textarea{min-height:80px;resize:vertical}
-        label{font-size:0.7rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block}
-        .input-group{margin:0 0 10px}
-        .input-row{display:flex;gap:8px}
-        .input-row>*{flex:1}
-        .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-        .stat-card{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border)}
-        .stat-value{font-size:1.6rem;font-weight:800;letter-spacing:-1px;color:var(--accent)}
-        .stat-label{font-size:0.65rem;color:var(--text2);text-transform:uppercase;margin-top:2px}
-        .trend{font-size:0.7rem;margin-top:2px}
-        .timer-display{font-size:4.5rem;font-weight:900;text-align:center;letter-spacing:-3px;font-family:'SF Mono',monospace;color:var(--accent);padding:10px 0}
-        .timer-label{text-align:center;font-size:0.85rem;color:var(--text2);font-weight:600}
-        .timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-        .progress-bar{height:6px;background:var(--surface2);border-radius:3px;margin:8px 0;overflow:hidden}
-        .progress-fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s}
-        .graph-container{position:relative;width:100%;height:280px;margin:8px 0}
-        .chip{display:inline-block;padding:5px 12px;border-radius:16px;font-size:0.7rem;font-weight:600;margin:2px 3px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:all 0.2s}
-        .chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent)}
-        .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);margin-bottom:8px}
-        .toast{
-            position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;background:var(--accent);color:#0f172a;
-            padding:10px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;opacity:0;pointer-events:none;
-            transition:opacity 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);white-space:nowrap
-        }
-        .toast.show{opacity:1;pointer-events:auto}
-        .toast.error{background:var(--red);color:#fff}
-        .injury-badge{display:flex;align-items:center;gap:4px;background:rgba(239,68,68,0.15);border-left:3px solid var(--red);padding:6px 10px;border-radius:0 8px 8px 0;margin:4px 0;font-size:0.8rem;justify-content:space-between}
-        .injury-resolved{border-left-color:var(--green);opacity:0.7}
-        .workout-exercise-card{background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:8px}
-        .intensity-slider{width:100%;margin:10px 0;accent-color:var(--accent)}
-        .thumbnail-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-        .thumbnail{width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JadeTracker">
+  <meta name="theme-color" content="#0f172a">
+  <title>JadeTracker — Daily Plan & Log</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0f172a;--surface:#1e293b;--surface2:#273549;--border:#334155;
+      --text:#e2e8f0;--text2:#94a3b8;--accent:#22d3bb;--accent2:#14b8a6;
+      --red:#ef4444;--orange:#f59e0b;--green:#22c55e;
+      --radius:16px;--radius-sm:10px;
+      --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+      --tab-height:72px;--header-height:56px;--safe-bottom:env(safe-area-inset-bottom,16px);
+    }
+    html{font-size:15px;-webkit-tap-highlight-color:transparent}
+    body{
+      font-family:var(--font);background:var(--bg);color:var(--text);
+      min-height:100vh;min-height:-webkit-fill-available;
+      padding-bottom:calc(var(--tab-height) + var(--safe-bottom) + 16px);padding-top:var(--header-height);
+      user-select:none;-webkit-user-select:none;overflow-x:hidden;
+    }
+    .header{
+      position:fixed;top:0;left:0;right:0;z-index:100;height:var(--header-height);
+      background:rgba(15,23,42,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--border);
+    }
+    .header-title{font-weight:700;font-size:1.2rem}
+    .header-badge{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:3px 12px;border-radius:20px;font-weight:700}
+    .tab-bar{
+      position:fixed;bottom:0;left:0;right:0;z-index:100;
+      background:rgba(30,41,59,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-top:1px solid var(--border);display:flex;padding:6px 8px var(--safe-bottom);gap:4px;height:calc(var(--tab-height) + var(--safe-bottom))
+    }
+    .tab-btn{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      background:none;border:none;color:var(--text2);font-size:0.65rem;font-weight:500;cursor:pointer;
+      border-radius:var(--radius-sm);transition:all 0.2s;font-family:var(--font);padding:4px 2px;letter-spacing:-0.1px
+    }
+    .tab-btn.active{color:var(--accent);font-weight:600}
+    .tab-icon{font-size:1.35rem;line-height:1}
+    .main-content{padding:12px 14px;max-width:600px;margin:0 auto}
+    .view{display:none;animation:fadeSlide 0.3s ease}
+    .view.active{display:block}
+    @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:var(--surface);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .card-title{font-weight:700;font-size:0.95rem}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;
+      border-radius:50px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;font-family:var(--font);
+      transition:all 0.2s;white-space:nowrap
+    }
+    .btn:active{transform:scale(0.96)}
+    .btn-accent{background:var(--accent);color:#0f172a}
+    .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+    .btn-sm{padding:6px 14px;font-size:0.75rem}
+    .btn-danger{background:var(--red);color:#fff}
+    .btn-block{width:100%}
+    input,textarea,select{
+      width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);
+      background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.9rem;transition:border-color 0.2s;
+      -webkit-appearance:none;appearance:none
+    }
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,187,0.15)}
+    textarea{min-height:80px;resize:vertical}
+    label{font-size:0.7rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block}
+    .input-group{margin:0 0 10px}
+    .input-row{display:flex;gap:8px}
+    .input-row>*{flex:1}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .stat-card{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border)}
+    .stat-value{font-size:1.6rem;font-weight:800;letter-spacing:-1px;color:var(--accent)}
+    .stat-label{font-size:0.65rem;color:var(--text2);text-transform:uppercase;margin-top:2px}
+    .trend{font-size:0.7rem;margin-top:2px}
+    .timer-display{font-size:4.5rem;font-weight:900;text-align:center;letter-spacing:-3px;font-family:'SF Mono',monospace;color:var(--accent);padding:10px 0}
+    .timer-label{text-align:center;font-size:0.85rem;color:var(--text2);font-weight:600}
+    .timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+    .progress-bar{height:6px;background:var(--surface2);border-radius:3px;margin:8px 0;overflow:hidden}
+    .progress-fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s}
+    .graph-container{position:relative;width:100%;height:280px;margin:8px 0}
+    .chip{display:inline-block;padding:5px 12px;border-radius:16px;font-size:0.7rem;font-weight:600;margin:2px 3px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:all 0.2s}
+    .chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent)}
+    .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);margin-bottom:8px}
+    .toast{
+      position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;background:var(--accent);color:#0f172a;
+      padding:10px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;opacity:0;pointer-events:none;
+      transition:opacity 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);white-space:nowrap
+    }
+    .toast.show{opacity:1;pointer-events:auto}
+    .toast.error{background:var(--red);color:#fff}
+    .injury-badge{display:flex;align-items:center;gap:4px;background:rgba(239,68,68,0.15);border-left:3px solid var(--red);padding:6px 10px;border-radius:0 8px 8px 0;margin:4px 0;font-size:0.8rem;justify-content:space-between}
+    .injury-resolved{border-left-color:var(--green);opacity:0.7}
+    .workout-exercise-card{background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:8px}
+    .intensity-slider{width:100%;margin:10px 0;accent-color:var(--accent)}
+    .thumbnail-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+    .thumbnail{width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+  </style>
 </head>
 <body>
 <div class="header">
-    <span class="header-title">🏷️ JadeTracker</span>
-    <span class="header-badge" id="headerDate">Week 1</span>
+  <span class="header-title">🏷️ JadeTracker</span>
+  <span class="header-badge" id="headerDate">Week 1</span>
 </div>
 <div class="toast" id="toast"></div>
 <div class="main-content" id="mainContent">
 
-    <!-- Dashboard -->
-    <div class="view active" id="view-dashboard">
-        <div class="card"><div class="card-header"><span class="card-title">📊 Latest Body Metrics</span></div><div class="stats-grid" id="dashStats"></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">⚠️ Active Injuries</span></div><div id="dashInjuries"></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">🍽️ Weekly Meal Adherence</span></div><div id="dashMealAdherence"></div></div>
-        <button class="btn btn-accent btn-block" onclick="switchView('view-export')">📄 Weekly PDF for DeepSeek</button>
-    </div>
+  <!-- Dashboard -->
+  <div class="view active" id="view-dashboard">
+    <div class="card"><div class="card-header"><span class="card-title">📊 Latest Body Metrics</span></div><div class="stats-grid" id="dashStats"></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">⚠️ Active Injuries</span></div><div id="dashInjuries"></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🍽️ Weekly Meal Adherence</span></div><div id="dashMealAdherence"></div></div>
+    <button class="btn btn-accent btn-block" onclick="switchView('view-export')">📄 Weekly PDF for DeepSeek</button>
+  </div>
 
-    <!-- Body Comp -->
-    <div class="view" id="view-bodycomp">
-        <div class="card">
-            <div class="card-header"><span class="card-title">📸 Log Body Comp (Scan & Auto-Analyze)</span></div>
-            <div class="input-group"><label>Date</label><input type="date" id="bcDate"></div>
-            <div class="input-group"><label>Upload Body Scan Images</label><input type="file" id="bcImages" accept="image/*" multiple onchange="previewImages()"><div class="thumbnail-row" id="imagePreviews"></div></div>
-            <div class="input-row">
-                <div class="input-group"><label>Weight (lbs)</label><input type="number" id="bcWeight" step="0.1" placeholder="Auto‑detected"></div>
-                <div class="input-group"><label>Body Fat %</label><input type="number" id="bcFat" step="0.1" placeholder="Auto‑detected"></div>
-            </div>
-            <div class="input-row">
-                <div class="input-group"><label>Muscle (lbs)</label><input type="number" id="bcMuscle" step="0.1" placeholder="Auto‑detected"></div>
-                <div class="input-group"><label>Visceral Fat cm²</label><input type="number" id="bcVFat" step="0.1" placeholder="Auto‑detected"></div>
-            </div>
-            <div class="input-group"><label>Notes</label><textarea id="bcNotes" rows="2"></textarea></div>
-            <button class="btn btn-accent btn-block" onclick="scanAndLogImages()">🔍 Scan Images & Log</button>
-            <button class="btn btn-outline btn-block" style="margin-top:6px;" onclick="addBodyCompEntry()">➕ Log Manually</button>
-        </div>
-        <div class="card"><div class="card-header"><span class="card-title">📈 Trends</span></div><div class="graph-container"><canvas id="bodyCompChart"></canvas></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">📋 History</span></div><table class="data-table" id="bcTable"><thead><tr><th>Date</th><th>Wt</th><th>BF%</th><th>Musc</th><th>VFat</th><th>Img</th><th>Del</th></tr></thead><tbody></tbody></table></div>
+  <!-- Body Comp -->
+  <div class="view" id="view-bodycomp">
+    <div class="card">
+      <div class="card-header"><span class="card-title">📸 Log Body Comp (Scan & Auto-Analyze)</span></div>
+      <div class="input-group"><label>Date</label><input type="date" id="bcDate"></div>
+      <div class="input-group"><label>Upload Body Scan Images</label><input type="file" id="bcImages" accept="image/*" multiple onchange="previewImages()"><div class="thumbnail-row" id="imagePreviews"></div></div>
+      <div class="input-row">
+        <div class="input-group"><label>Weight (lbs)</label><input type="number" id="bcWeight" step="0.1" placeholder="Auto‑detected"></div>
+        <div class="input-group"><label>Body Fat %</label><input type="number" id="bcFat" step="0.1" placeholder="Auto‑detected"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-group"><label>Muscle (lbs)</label><input type="number" id="bcMuscle" step="0.1" placeholder="Auto‑detected"></div>
+        <div class="input-group"><label>Visceral Fat cm²</label><input type="number" id="bcVFat" step="0.1" placeholder="Auto‑detected"></div>
+      </div>
+      <div class="input-group"><label>Notes</label><textarea id="bcNotes" rows="2"></textarea></div>
+      <button class="btn btn-accent btn-block" onclick="window.scanAndLogImages()">🔍 Scan Images & Log</button>
+      <button class="btn btn-outline btn-block" style="margin-top:6px;" onclick="window.addBodyCompEntry()">➕ Log Manually</button>
     </div>
+    <div class="card"><div class="card-header"><span class="card-title">📈 Trends</span></div><div class="graph-container"><canvas id="bodyCompChart"></canvas></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 History</span></div><table class="data-table" id="bcTable"><thead><tr><th>Date</th><th>Wt</th><th>BF%</th><th>Musc</th><th>VFat</th><th>Img</th><th>Del</th></tr></thead><tbody></tbody></table></div>
+  </div>
 
-    <!-- Meals -->
-    <div class="view" id="view-meals">
-        <div class="card">
-            <div class="card-header"><span class="card-title">🍽️ Daily Meal Logger</span></div>
-            <div class="input-row">
-                <div class="input-group"><label>Day</label><select id="mealDaySelect" onchange="loadDayMealPlan()"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
-                <div class="input-group"><label>Week of</label><input type="date" id="mealWeekStart" onchange="loadDayMealPlan()"></div>
-            </div>
-            <div id="dailyMealPlanContainer"></div>
-            <button class="btn btn-accent btn-block" onclick="saveDayMeals()">💾 Save Meals</button>
-        </div>
+  <!-- Meals -->
+  <div class="view" id="view-meals">
+    <div class="card">
+      <div class="card-header"><span class="card-title">🍽️ Daily Meal Logger</span></div>
+      <div class="input-row">
+        <div class="input-group"><label>Day</label><select id="mealDaySelect" onchange="window.loadDayMealPlan()"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+        <div class="input-group"><label>Week of</label><input type="date" id="mealWeekStart" onchange="window.loadDayMealPlan()"></div>
+      </div>
+      <div id="dailyMealPlanContainer"></div>
+      <button class="btn btn-accent btn-block" onclick="window.saveDayMeals()">💾 Save Meals</button>
     </div>
+  </div>
 
-    <!-- Workouts -->
-    <div class="view" id="view-workouts">
-        <div class="card">
-            <div class="card-header"><span class="card-title">🏋️ Daily Workout Logger</span></div>
-            <div class="input-row">
-                <div class="input-group"><label>Day</label><select id="woDaySelect" onchange="loadDayWorkoutPlan()"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
-                <div class="input-group"><label>Date</label><input type="date" id="woDate" onchange="loadDayWorkoutPlan()"></div>
-            </div>
-            <div id="dailyWorkoutPlanContainer"></div>
-            <button class="btn btn-accent btn-block" onclick="saveDayWorkout()">💾 Save Workout</button>
-        </div>
-        <div class="card">
-            <div class="card-header"><span class="card-title">⏱️ Workout Timer</span></div>
-            <div style="display:flex;gap:6px;margin-bottom:12px;" id="timerModeChips">
-                <span class="chip active" data-mode="density" onclick="setTimerMode('density')">Density</span>
-                <span class="chip" data-mode="circuit" onclick="setTimerMode('circuit')">Circuit</span>
-                <span class="chip" data-mode="stopwatch" onclick="setTimerMode('stopwatch')">Stopwatch</span>
-            </div>
-            <div id="timerConfigDensity">
-                <div class="input-row">
-                    <div class="input-group"><label>Block (min)</label><input type="number" id="densityDuration" value="8" min="1"></div>
-                    <div class="input-group"><label>Exercise</label><input type="text" id="densityExercise" placeholder="e.g., DB Row"></div>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" id="densityFill"></div></div>
-            </div>
-            <div id="timerConfigCircuit" style="display:none;">
-                <div class="input-row"><div class="input-group"><label>Work (sec)</label><input type="number" id="circuitWork" value="30" min="5"></div><div class="input-group"><label>Rest (sec)</label><input type="number" id="circuitRest" value="15" min="0"></div></div>
-            </div>
-            <div class="timer-label" id="timerPhaseLabel">READY</div>
-            <div class="timer-display" id="timerDisplay">00:00</div>
-            <div class="timer-controls">
-                <button class="btn btn-accent" id="timerStartBtn" onclick="toggleTimer()">▶ Start</button>
-                <button class="btn btn-outline" onclick="resetTimer()">↺ Reset</button>
-                <button class="btn btn-outline btn-sm" onclick="lapTimer()">🏁 Lap</button>
-            </div>
-            <div id="timerLaps" style="margin-top:8px;font-size:0.75rem;color:var(--text2);max-height:100px;overflow-y:auto;"></div>
-        </div>
-        <div class="card"><div class="card-header"><span class="card-title">📋 Recent Workout History</span></div><div id="woLog" style="max-height:300px;overflow-y:auto;"></div></div>
+  <!-- Workouts -->
+  <div class="view" id="view-workouts">
+    <div class="card">
+      <div class="card-header"><span class="card-title">🏋️ Daily Workout Logger</span></div>
+      <div class="input-row">
+        <div class="input-group"><label>Day</label><select id="woDaySelect" onchange="window.loadDayWorkoutPlan()"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+        <div class="input-group"><label>Date</label><input type="date" id="woDate" onchange="window.loadDayWorkoutPlan()"></div>
+      </div>
+      <div id="dailyWorkoutPlanContainer"></div>
+      <button class="btn btn-accent btn-block" onclick="window.saveDayWorkout()">💾 Save Workout</button>
     </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">⏱️ Workout Timer</span></div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;" id="timerModeChips">
+        <span class="chip active" data-mode="density" onclick="window.setTimerMode('density')">Density</span>
+        <span class="chip" data-mode="circuit" onclick="window.setTimerMode('circuit')">Circuit</span>
+        <span class="chip" data-mode="stopwatch" onclick="window.setTimerMode('stopwatch')">Stopwatch</span>
+      </div>
+      <div id="timerConfigDensity">
+        <div class="input-row">
+          <div class="input-group"><label>Block (min)</label><input type="number" id="densityDuration" value="8" min="1"></div>
+          <div class="input-group"><label>Exercise</label><input type="text" id="densityExercise" placeholder="e.g., DB Row"></div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="densityFill"></div></div>
+      </div>
+      <div id="timerConfigCircuit" style="display:none;">
+        <div class="input-row"><div class="input-group"><label>Work (sec)</label><input type="number" id="circuitWork" value="30" min="5"></div><div class="input-group"><label>Rest (sec)</label><input type="number" id="circuitRest" value="15" min="0"></div></div>
+      </div>
+      <div class="timer-label" id="timerPhaseLabel">READY</div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-controls">
+        <button class="btn btn-accent" id="timerStartBtn" onclick="window.toggleTimer()">▶ Start</button>
+        <button class="btn btn-outline" onclick="window.resetTimer()">↺ Reset</button>
+        <button class="btn btn-outline btn-sm" onclick="window.lapTimer()">🏁 Lap</button>
+      </div>
+      <div id="timerLaps" style="margin-top:8px;font-size:0.75rem;color:var(--text2);max-height:100px;overflow-y:auto;"></div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 Recent Workout History</span></div><div id="woLog" style="max-height:300px;overflow-y:auto;"></div></div>
+  </div>
 
-    <!-- Documents -->
-    <div class="view" id="view-documents">
-        <!-- Section 1: Replace Plan -->
-        <div class="card">
-            <div class="card-header"><span class="card-title">📥 Load/Replace Full Plan (Meals & Workouts)</span></div>
-            <p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px;">Upload your latest dossier PDF or paste text to replace the daily meal & workout templates.</p>
-            <div class="upload-zone" onclick="document.getElementById('planFile').click()"><div style="font-size:2rem;">📄</div><p>Tap to upload PDF/TXT for plan update</p></div>
-            <input type="file" id="planFile" accept=".pdf,.txt" style="display:none;" onchange="handlePlanUpload(this)">
-            <textarea id="planPaste" rows="3" placeholder="Or paste dossier text here..." style="margin-top:6px;"></textarea>
-            <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="loadFullPlanFromPaste()">🔃 Replace My Plan</button>
-        </div>
-        <!-- Section 2: Extract Injuries -->
-        <div class="card">
-            <div class="card-header"><span class="card-title">⚠️ Extract Injuries & Stop Rules</span></div>
-            <p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px;">Upload older reports or paste text to add injuries without changing your current plan.</p>
-            <div class="upload-zone" onclick="document.getElementById('docFile').click()"><div style="font-size:2rem;">📄</div><p>Tap to upload PDF/TXT (injuries only)</p></div>
-            <input type="file" id="docFile" accept=".pdf,.txt" style="display:none;" onchange="handleDocUpload(this)">
-            <textarea id="docPaste" rows="3" placeholder="Or paste text..." style="margin-top:6px;"></textarea>
-            <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="parsePastedText()">🔍 Extract Injuries</button>
-        </div>
-        <div class="card">
-            <div class="card-header"><span class="card-title">⚠️ Injuries & Stop Rules</span></div>
-            <div id="injuryList"></div>
-            <button class="btn btn-sm btn-outline" onclick="addManualInjury()">➕ Add Manually</button>
-        </div>
+  <!-- Documents -->
+  <div class="view" id="view-documents">
+    <!-- Section 1: Replace Plan -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">📥 Load/Replace Full Plan (Meals & Workouts)</span></div>
+      <p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px;">Upload your latest dossier PDF or paste text to replace the daily meal & workout templates.</p>
+      <div class="upload-zone" onclick="document.getElementById('planFile').click()"><div style="font-size:2rem;">📄</div><p>Tap to upload PDF/TXT for plan update</p></div>
+      <input type="file" id="planFile" accept=".pdf,.txt" style="display:none;" onchange="window.handlePlanUpload(this)">
+      <textarea id="planPaste" rows="3" placeholder="Or paste dossier text here..." style="margin-top:6px;"></textarea>
+      <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="window.loadFullPlanFromPaste()">🔃 Replace My Plan</button>
     </div>
+    <!-- Section 2: Extract Injuries -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">⚠️ Extract Injuries & Stop Rules</span></div>
+      <p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px;">Upload older reports or paste text to add injuries without changing your current plan.</p>
+      <div class="upload-zone" onclick="document.getElementById('docFile').click()"><div style="font-size:2rem;">📄</div><p>Tap to upload PDF/TXT (injuries only)</p></div>
+      <input type="file" id="docFile" accept=".pdf,.txt" style="display:none;" onchange="window.handleDocUpload(this)">
+      <textarea id="docPaste" rows="3" placeholder="Or paste text..." style="margin-top:6px;"></textarea>
+      <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="window.parsePastedText()">🔍 Extract Injuries</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">⚠️ Injuries & Stop Rules</span></div>
+      <div id="injuryList"></div>
+      <button class="btn btn-sm btn-outline" onclick="window.addManualInjury()">➕ Add Manually</button>
+    </div>
+  </div>
 
-    <!-- Export -->
-    <div class="view" id="view-export">
-        <div class="card">
-            <div class="card-header"><span class="card-title">📄 Weekly PDF Export</span></div>
-            <div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel" placeholder="e.g., Week 2"></div>
-            <button class="btn btn-accent btn-block" onclick="generateWeeklyPDF()">📥 Generate PDF</button>
-            <button class="btn btn-outline btn-block" onclick="printWeeklySummary()">🖨️ Print View</button>
-        </div>
-        <div class="card">
-            <div class="card-header"><span class="card-title">💾 Backup & Restore</span></div>
-            <button class="btn btn-outline btn-block" onclick="exportAllData()">📦 Export JSON Backup</button>
-            <button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON Backup</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importAllData(this)">
-            <button class="btn btn-danger btn-block" onclick="resetAllData()">🗑️ Reset All</button>
-        </div>
+  <!-- Export -->
+  <div class="view" id="view-export">
+    <div class="card">
+      <div class="card-header"><span class="card-title">📄 Weekly PDF Export</span></div>
+      <div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel" placeholder="e.g., Week 2"></div>
+      <button class="btn btn-accent btn-block" onclick="window.generateWeeklyPDF()">📥 Generate PDF</button>
+      <button class="btn btn-outline btn-block" onclick="window.printWeeklySummary()">🖨️ Print View</button>
     </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">💾 Backup & Restore</span></div>
+      <button class="btn btn-outline btn-block" onclick="window.exportAllData()">📦 Export JSON Backup</button>
+      <button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON Backup</button>
+      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="window.importAllData(this)">
+      <button class="btn btn-danger btn-block" onclick="window.resetAllData()">🗑️ Reset All</button>
+    </div>
+  </div>
 </div>
 
 <!-- Tab Bar -->
 <div class="tab-bar">
-    <button class="tab-btn active" data-view="view-dashboard" onclick="switchView('view-dashboard')"><span class="tab-icon">📊</span>Home</button>
-    <button class="tab-btn" data-view="view-bodycomp" onclick="switchView('view-bodycomp')"><span class="tab-icon">📈</span>Body</button>
-    <button class="tab-btn" data-view="view-meals" onclick="switchView('view-meals')"><span class="tab-icon">🍽️</span>Meals</button>
-    <button class="tab-btn" data-view="view-workouts" onclick="switchView('view-workouts')"><span class="tab-icon">⏱️</span>Train</button>
-    <button class="tab-btn" data-view="view-documents" onclick="switchView('view-documents')"><span class="tab-icon">📄</span>Docs</button>
-    <button class="tab-btn" data-view="view-export" onclick="switchView('view-export')"><span class="tab-icon">📤</span>Export</button>
+  <button class="tab-btn active" data-view="view-dashboard" onclick="window.switchView('view-dashboard')"><span class="tab-icon">📊</span>Home</button>
+  <button class="tab-btn" data-view="view-bodycomp" onclick="window.switchView('view-bodycomp')"><span class="tab-icon">📈</span>Body</button>
+  <button class="tab-btn" data-view="view-meals" onclick="window.switchView('view-meals')"><span class="tab-icon">🍽️</span>Meals</button>
+  <button class="tab-btn" data-view="view-workouts" onclick="window.switchView('view-workouts')"><span class="tab-icon">⏱️</span>Train</button>
+  <button class="tab-btn" data-view="view-documents" onclick="window.switchView('view-documents')"><span class="tab-icon">📄</span>Docs</button>
+  <button class="tab-btn" data-view="view-export" onclick="window.switchView('view-export')"><span class="tab-icon">📤</span>Export</button>
 </div>
 
 <script>
 (function() {
+  // ---------- DEFAULTS ----------
+  const DEFAULT_MEAL_PLAN = {
+    Monday:[
+      {time:'7:30 AM',planned:'4 egg whites + 2 eggs, Ezekiel toast, spinach, black coffee'},
+      {time:'12:00 PM',planned:'7 oz grilled chicken breast, large salad, 2 Tbsp olive oil, ½ avocado'},
+      {time:'5:30 PM',planned:'½ scoop whey + ¼ cup blueberries + 1 Tbsp almond butter'},
+      {time:'9:00 PM',planned:'8 oz chicken thigh (skinless), broccoli, 1 Tbsp olive oil'}
+    ],
+    Tuesday:[
+      {time:'7:30 AM',planned:'3 eggs + 3 whites, mushrooms, black coffee'},
+      {time:'12:00 PM',planned:'7 oz 93/7 ground beef, green beans, ¼ cup quinoa'},
+      {time:'4:30 PM',planned:'Black coffee + 1 Tbsp MCT oil + pinch salt'},
+      {time:'6:30 PM',planned:'8 oz flank steak, arugula salad, 4 oz sweet potato'}
+    ],
+    Wednesday:[
+      {time:'7:30 AM',planned:'4 whites + 2 eggs, Ezekiel toast, coffee'},
+      {time:'12:00 PM',planned:'7 oz ground turkey, zucchini, ½ avocado'},
+      {time:'5:30 PM',planned:'½ scoop whey + 1 Tbsp almond butter'},
+      {time:'9:00 PM',planned:'7 oz chicken breast, asparagus, olive oil'}
+    ],
+    Thursday:[
+      {time:'7:30 AM',planned:'4 eggs, 2 turkey bacon, black coffee'},
+      {time:'12:00 PM',planned:'8 oz chicken breast, mixed greens, 1 Tbsp olive oil'},
+      {time:'4:30 PM',planned:'Black coffee + pinch salt'},
+      {time:'6:30 PM',planned:'8 oz ground beef patty, spinach, ¼ cup sauerkraut'}
+    ],
+    Friday:[
+      {time:'7:30 AM',planned:'3 eggs + 3 whites, Ezekiel toast, coffee'},
+      {time:'12:00 PM',planned:'7 oz chicken, ½ cup brown rice, broccoli'},
+      {time:'4:30 PM',planned:'1 rice cake + 1 tsp honey (optional)'},
+      {time:'6:30 PM',planned:'Cheat window: 12‑14 oz ribeye + butter, side salad'}
+    ],
+    Saturday:[
+      {time:'10:00 AM',planned:'4‑egg omelet, spinach, 2 oz feta, ½ avocado'},
+      {time:'5:00 PM',planned:'8 oz salmon or chicken thigh, Brussels sprouts, ½ cup quinoa'}
+    ],
+    Sunday:[
+      {time:'9:00 AM',planned:'4 whites + 2 eggs, kale, black coffee'},
+      {time:'1:00 PM',planned:'7 oz lean ground beef, salad, olive oil'},
+      {time:'5:00 PM',planned:'8 oz chicken breast, cauliflower, 1 Tbsp pesto'}
+    ]
+  };
+  const DEFAULT_WORKOUT_PLAN = {
+    Monday:{type:'Judo (Technical)',details:'Class 7:00–8:30 PM. Ashi‑waza, pistol grip, light newaza.',intensity:true,exercises:[]},
+    Tuesday:{type:'Upper Pull + Pull‑Up Rescue',exercises:[
+        {name:'Chest‑Supported DB Row',time:8,reps:'8‑10',weight:'65 lbs',cue:'Chest glued to pad'},
+        {name:'Cable Face Pull',time:8,reps:'12‑15',weight:'50 lbs',cue:'Pull to forehead'},
+        {name:'Dead Bug',time:6,reps:'8/side',weight:'BW or 5lb',cue:'Back imprints floor'},
+        {name:'Ring Rows',sets:'3',reps:'8‑10',weight:'BW/assist'},
+        {name:'Eccentric Pull‑Up Negatives',sets:'3',reps:'3‑5',weight:'Band assist',cue:'5‑sec lower'},
+        {name:'Scapular Pull‑Ups',sets:'3',reps:'8‑10',weight:'BW'},
+        {name:'Ring Dead Hang',sets:'2',reps:'30 sec',weight:'BW'}
+      ],details:'Pull‑Up Rescue: 60s rest between rounds.'},
+    Wednesday:{type:'Judo (Newaza)',details:'Class 7:00–8:30 PM. Guard work, sweeps.',intensity:true},
+    Thursday:{type:'Aerobic Power Circuit',exercises:[
+        {name:'Kneeling Battle Ropes',work:30,rest:15,weight:'—'},
+        {name:'Suitcase Carry',work:30,rest:15,weight:'55‑60 lbs'},
+        {name:'Med Ball Slam',reps:15,rest:30,weight:'20‑40 lbs'},
+        {name:'Assault Bike Finisher',work:300,weight:'—',cue:'5 min steady'}
+      ],details:'15‑min AMRAP, then 5‑min bike.'},
+    Friday:{type:'Power + Push',exercises:[
+        {name:'Landmine Press',sets:'3',reps:'10/side',weight:'45 lbs',cue:'45° angle'},
+        {name:'Belt Squat (or Goblet)',sets:'3',reps:'12',weight:'50 lbs',cue:'Box at parallel'},
+        {name:'Pallof Press',sets:'3',reps:'12/side',weight:'25 lbs'}
+      ]},
+    Saturday:{type:'Active Recovery',details:'45‑60 min walk HR<130, sauna.'},
+    Sunday:{type:'Full Rest',details:'Legs up wall, meal prep.'}
+  };
+
+  // ---------- STATE ----------
+  const STORAGE_KEY = 'jadetracker_v14';
+  let appData = {
+    bodyComp:[], meals:[], workouts:[], injuries:[], documents:[], dayWorkouts:{},
+    activeMealPlan: null,
+    activeWorkoutPlan: null,
+    settings:{weekLabel:'Week 1',mealWeekStart:''}
+  };
+  let bodyCompChart = null;
+  let timerInterval = null, timerMode = 'density', timerRunning = false, timerSeconds = 0, timerLaps = [];
+
+  // ---------- PERSISTENCE & HELPERS ----------
+  function loadData() {
     try {
-        if (typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) { const parsed = JSON.parse(raw); appData = { ...appData, ...parsed }; }
+    } catch(e) {}
+  }
+  function saveData() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
+  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function showToast(msg, isError=false) {
+    const t = document.getElementById('toast'); if(!t) return;
+    t.textContent = msg; t.className = 'toast ' + (isError?'error':'') + ' show';
+    clearTimeout(t._timeout); t._timeout = setTimeout(() => { if(t) t.className = 'toast'; }, 3000);
+  }
+  function getActiveMealPlan() { return appData.activeMealPlan || DEFAULT_MEAL_PLAN; }
+  function getActiveWorkoutPlan() { return appData.activeWorkoutPlan || DEFAULT_WORKOUT_PLAN; }
 
-        // ---------- DEFAULT PLANS ----------
-        const DEFAULT_MEAL_PLAN = {
-            Monday:[
-                {time:'7:30 AM',planned:'4 egg whites + 2 eggs, Ezekiel toast, spinach, black coffee'},
-                {time:'12:00 PM',planned:'7 oz grilled chicken breast, large salad, 2 Tbsp olive oil, ½ avocado'},
-                {time:'5:30 PM',planned:'½ scoop whey + ¼ cup blueberries + 1 Tbsp almond butter'},
-                {time:'9:00 PM',planned:'8 oz chicken thigh (skinless), broccoli, 1 Tbsp olive oil'}
-            ],
-            Tuesday:[
-                {time:'7:30 AM',planned:'3 eggs + 3 whites, mushrooms, black coffee'},
-                {time:'12:00 PM',planned:'7 oz 93/7 ground beef, green beans, ¼ cup quinoa'},
-                {time:'4:30 PM',planned:'Black coffee + 1 Tbsp MCT oil + pinch salt'},
-                {time:'6:30 PM',planned:'8 oz flank steak, arugula salad, 4 oz sweet potato'}
-            ],
-            Wednesday:[
-                {time:'7:30 AM',planned:'4 whites + 2 eggs, Ezekiel toast, coffee'},
-                {time:'12:00 PM',planned:'7 oz ground turkey, zucchini, ½ avocado'},
-                {time:'5:30 PM',planned:'½ scoop whey + 1 Tbsp almond butter'},
-                {time:'9:00 PM',planned:'7 oz chicken breast, asparagus, olive oil'}
-            ],
-            Thursday:[
-                {time:'7:30 AM',planned:'4 eggs, 2 turkey bacon, black coffee'},
-                {time:'12:00 PM',planned:'8 oz chicken breast, mixed greens, 1 Tbsp olive oil'},
-                {time:'4:30 PM',planned:'Black coffee + pinch salt'},
-                {time:'6:30 PM',planned:'8 oz ground beef patty, spinach, ¼ cup sauerkraut'}
-            ],
-            Friday:[
-                {time:'7:30 AM',planned:'3 eggs + 3 whites, Ezekiel toast, coffee'},
-                {time:'12:00 PM',planned:'7 oz chicken, ½ cup brown rice, broccoli'},
-                {time:'4:30 PM',planned:'1 rice cake + 1 tsp honey (optional)'},
-                {time:'6:30 PM',planned:'Cheat window: 12‑14 oz ribeye + butter, side salad'}
-            ],
-            Saturday:[
-                {time:'10:00 AM',planned:'4‑egg omelet, spinach, 2 oz feta, ½ avocado'},
-                {time:'5:00 PM',planned:'8 oz salmon or chicken thigh, Brussels sprouts, ½ cup quinoa'}
-            ],
-            Sunday:[
-                {time:'9:00 AM',planned:'4 whites + 2 eggs, kale, black coffee'},
-                {time:'1:00 PM',planned:'7 oz lean ground beef, salad, olive oil'},
-                {time:'5:00 PM',planned:'8 oz chicken breast, cauliflower, 1 Tbsp pesto'}
-            ]
-        };
+  // ---------- VIEW SWITCH ----------
+  window.switchView = function(viewId) {
+    try {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.tab-btn[data-view="${viewId}"]`).classList.add('active');
+      if (viewId === 'view-bodycomp') { renderBodyCompTable(); renderBodyCompChart(); }
+      if (viewId === 'view-dashboard') renderDashboard();
+      if (viewId === 'view-meals') { setMealWeekStart(); loadDayMealPlan(); }
+      if (viewId === 'view-workouts') { setWoDate(); loadDayWorkoutPlan(); renderWorkoutHistory(); }
+      if (viewId === 'view-documents') renderInjuries();
+      if (viewId === 'view-export') document.getElementById('exportWeekLabel').value = appData.settings.weekLabel || '';
+      window.scrollTo({top:0,behavior:'smooth'});
+    } catch(e) {}
+  };
 
-        const DEFAULT_WORKOUT_PLAN = {
-            Monday:{type:'Judo (Technical)',details:'Class 7:00–8:30 PM. Ashi‑waza, pistol grip, light newaza.',intensity:true,exercises:[]},
-            Tuesday:{type:'Upper Pull + Pull‑Up Rescue',exercises:[
-                {name:'Chest‑Supported DB Row',time:8,reps:'8‑10',weight:'65 lbs',cue:'Chest glued to pad'},
-                {name:'Cable Face Pull',time:8,reps:'12‑15',weight:'50 lbs',cue:'Pull to forehead'},
-                {name:'Dead Bug',time:6,reps:'8/side',weight:'BW or 5lb',cue:'Back imprints floor'},
-                {name:'Ring Rows',sets:'3',reps:'8‑10',weight:'BW/assist'},
-                {name:'Eccentric Pull‑Up Negatives',sets:'3',reps:'3‑5',weight:'Band assist',cue:'5‑sec lower'},
-                {name:'Scapular Pull‑Ups',sets:'3',reps:'8‑10',weight:'BW'},
-                {name:'Ring Dead Hang',sets:'2',reps:'30 sec',weight:'BW'}
-            ],details:'Pull‑Up Rescue: 60s rest between rounds.'},
-            Wednesday:{type:'Judo (Newaza)',details:'Class 7:00–8:30 PM. Guard work, sweeps.',intensity:true},
-            Thursday:{type:'Aerobic Power Circuit',exercises:[
-                {name:'Kneeling Battle Ropes',work:30,rest:15,weight:'—'},
-                {name:'Suitcase Carry',work:30,rest:15,weight:'55‑60 lbs'},
-                {name:'Med Ball Slam',reps:15,rest:30,weight:'20‑40 lbs'},
-                {name:'Assault Bike Finisher',work:300,weight:'—',cue:'5 min steady'}
-            ],details:'15‑min AMRAP, then 5‑min bike.'},
-            Friday:{type:'Power + Push',exercises:[
-                {name:'Landmine Press',sets:'3',reps:'10/side',weight:'45 lbs',cue:'45° angle'},
-                {name:'Belt Squat (or Goblet)',sets:'3',reps:'12',weight:'50 lbs',cue:'Box at parallel'},
-                {name:'Pallof Press',sets:'3',reps:'12/side',weight:'25 lbs'}
-            ]},
-            Saturday:{type:'Active Recovery',details:'45‑60 min walk HR<130, sauna.'},
-            Sunday:{type:'Full Rest',details:'Legs up wall, meal prep.'}
-        };
+  // ---------- DASHBOARD ----------
+  function renderDashboard() {
+    const bc = appData.bodyComp, l=bc.length?bc[bc.length-1]:null, p=bc.length>1?bc[bc.length-2]:null;
+    const trend=(v,pv,u)=>{if(v==null||pv==null)return'';const d=(v-pv).toFixed(1);return d>0?`▲${d}${u}`:d<0?`▼${Math.abs(d)}${u}`:'➖0';};
+    document.getElementById('dashStats').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight (lbs)</div><div class="trend">${trend(l?.weight,p?.weight,' lbs')}</div></div>
+      <div class="stat-card"><div class="stat-value">${l?.fatPercentage!=null?l.fatPercentage.toFixed(1)+'%':'--'}</div><div class="stat-label">Body Fat %</div><div class="trend">${trend(l?.fatPercentage,p?.fatPercentage,'%')}</div></div>
+      <div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle (lbs)</div><div class="trend">${trend(l?.skeletalMuscle,p?.skeletalMuscle,' lbs')}</div></div>
+      <div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">Visceral Fat cm²</div><div class="trend">${trend(l?.visceralFat,p?.visceralFat,' cm²')}</div></div>
+    `;
+    const active = appData.injuries.filter(i=>i.status!=='Resolved');
+    document.getElementById('dashInjuries').innerHTML = active.length ? active.map(i=>`<div class="injury-badge">⚠️ ${i.name}</div>`).join('') : '<p style="color:var(--text2);">No active injuries.</p>';
+    const weekMeals = getMealsForWeek();
+    const done = weekMeals.filter(m=>m.completed).length;
+    document.getElementById('dashMealAdherence').innerHTML = weekMeals.length ? `<p>${done}/${weekMeals.length} meals completed (${Math.round(done/Math.max(1,weekMeals.length)*100)}%)</p>` : '<p style="color:var(--text2);">No meals logged this week.</p>';
+  }
 
-        // ---------- STATE ----------
-        const STORAGE_KEY = 'jadetracker_v13';
-        let appData = {
-            bodyComp:[], meals:[], workouts:[], injuries:[], documents:[], dayWorkouts:{},
-            activeMealPlan: null,
-            activeWorkoutPlan: null,
-            settings:{weekLabel:'Week 1',mealWeekStart:''}
+  // ---------- BODY COMP (with Medlana OCR) ----------
+  function renderBodyCompTable() {
+    const tbody = document.querySelector('#bcTable tbody');
+    if (!tbody) return;
+    const data = [...appData.bodyComp].reverse();
+    tbody.innerHTML = data.length ? data.map(b=>`
+      <tr><td>${b.date}</td><td>${b.weight!=null?b.weight.toFixed(1):'--'}</td><td>${b.fatPercentage!=null?b.fatPercentage.toFixed(1)+'%':'--'}</td><td>${b.skeletalMuscle!=null?b.skeletalMuscle.toFixed(1):'--'}</td><td>${b.visceralFat!=null?b.visceralFat.toFixed(1):'--'}</td><td>${b.imageData?`<img src="${b.imageData}" width="30" height="30" style="border-radius:4px;" onclick="window.open('${b.imageData}')">`:'--'}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteBodyComp('${b.id}')">✕</button></td></tr>
+    `).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text2);">No entries yet.</td></tr>';
+  }
+  window.deleteBodyComp = function(id) {
+    appData.bodyComp = appData.bodyComp.filter(b=>b.id!==id);
+    saveData(); renderBodyCompTable(); renderBodyCompChart(); renderDashboard();
+  };
+  function renderBodyCompChart() {
+    const canvas = document.getElementById('bodyCompChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (bodyCompChart) bodyCompChart.destroy();
+    const data = appData.bodyComp;
+    if (!data.length) return;
+    const labels = data.map(d=>d.date);
+    const datasets = [];
+    if (data.some(d=>d.weight!=null)) datasets.push({label:'Weight (lbs)',data:data.map(d=>d.weight),borderColor:'#22d3bb',tension:0.3});
+    if (data.some(d=>d.fatPercentage!=null)) datasets.push({label:'Body Fat %',data:data.map(d=>d.fatPercentage),borderColor:'#ef4444',tension:0.3});
+    if (data.some(d=>d.skeletalMuscle!=null)) datasets.push({label:'Muscle (lbs)',data:data.map(d=>d.skeletalMuscle),borderColor:'#3b82f6',tension:0.3});
+    if (data.some(d=>d.visceralFat!=null)) datasets.push({label:'Visceral Fat cm²',data:data.map(d=>d.visceralFat),borderColor:'#f59e0b',tension:0.3,yAxisID:'y1'});
+    bodyCompChart = new Chart(ctx, {type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:false},y1:{position:'right',grid:{drawOnChartArea:false}}}}});
+  }
+  window.previewImages = function() {
+    const files = document.getElementById('bcImages').files;
+    const container = document.getElementById('imagePreviews');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i=0;i<files.length;i++) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.src = e.target.result; img.className = 'thumbnail'; container.appendChild(img);
+      };
+      reader.readAsDataURL(files[i]);
+    }
+  };
+  function extractMedlanaMetrics(lines) {
+    const result = { weight: null, fat: null, muscle: null, vfat: null };
+    const getNum = (line) => { const m = line.match(/(-?\d+\.?\d*)/); return m ? parseFloat(m[1]) : null; };
+    for (let i=0; i<lines.length; i++) {
+      const line = lines[i].replace(/[*#]/g,'').trim();
+      if (/weight/i.test(line) && /current/i.test(line)) { const n = getNum(line); if (n && n>50) { result.weight = n; break; } }
+      if (/total\s*body\s*weight/i.test(line)) { const n = getNum(line); if (n) { result.weight = n; break; } }
+    }
+    for (let i=0; i<lines.length; i++) {
+      const line = lines[i].replace(/[*#]/g,'').trim();
+      if (/skeletal\s*muscle/i.test(line)) {
+        let n = getNum(line); if (!n && i+1<lines.length) n = getNum(lines[i+1]);
+        if (n && n>20) { result.muscle = n; break; }
+      }
+    }
+    for (let i=0; i<lines.length; i++) {
+      const line = lines[i].replace(/[*#]/g,'').trim();
+      if (/visceral\s*fat\s*area|vfat\s*area/i.test(line)) {
+        let n = getNum(line); if (!n && i+1<lines.length) n = getNum(lines[i+1]);
+        if (n && n<500) { result.vfat = n; break; }
+      }
+    }
+    for (let i=0; i<lines.length; i++) {
+      const line = lines[i].replace(/[*#]/g,'').trim();
+      if (/body\s*fat\s*percentage|fat\s*percentage/i.test(line)) {
+        const m = line.match(/(\d+\.?\d*)\s*%/); if (m) { const val = parseFloat(m[1]); if (val<50) { result.fat = val; break; } }
+      }
+    }
+    return result;
+  }
+  window.scanAndLogImages = async function() {
+    const files = document.getElementById('bcImages').files;
+    if (!files.length) { showToast('Select at least one image','error'); return; }
+    const date = document.getElementById('bcDate').value || new Date().toISOString().split('T')[0];
+    let combined = { weight: null, fat: null, muscle: null, vfat: null };
+    let firstImg = null;
+    for (let i=0; i<files.length; i++) {
+      const file = files[i];
+      try {
+        const dataUrl = await resizeImage(file, 1200);
+        const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng');
+        const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+        const metrics = extractMedlanaMetrics(lines);
+        if (combined.weight == null && metrics.weight != null) combined.weight = metrics.weight;
+        if (combined.fat == null && metrics.fat != null) combined.fat = metrics.fat;
+        if (combined.muscle == null && metrics.muscle != null) combined.muscle = metrics.muscle;
+        if (combined.vfat == null && metrics.vfat != null) combined.vfat = metrics.vfat;
+        if (!firstImg) firstImg = dataUrl;
+      } catch(e) { showToast(`Image ${i+1} failed`, 'error'); }
+    }
+    if (combined.weight == null && combined.fat == null && combined.muscle == null && combined.vfat == null) {
+      showToast('No metrics extracted. Try manual entry.', 'error');
+      return;
+    }
+    const entry = { id: uid(), date, weight: combined.weight, fatPercentage: combined.fat, skeletalMuscle: combined.muscle, visceralFat: combined.vfat, imageData: firstImg, notes: `Combined from ${files.length} scan(s).`, _timestamp: new Date().toISOString() };
+    appData.bodyComp.push(entry);
+    appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    saveData(); renderBodyCompTable(); renderBodyCompChart(); renderDashboard();
+    document.getElementById('bcImages').value = ''; document.getElementById('imagePreviews').innerHTML = '';
+    showToast('Body comp logged!');
+  };
+  async function resizeImage(file, maxW) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > maxW) { h *= maxW/w; w = maxW; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
         };
-        let bodyCompChart = null;
-        let timerInterval = null, timerMode = 'density', timerRunning = false, timerSeconds = 0, timerLaps = [];
+        img.onerror = reject; img.src = e.target.result;
+      };
+      reader.onerror = reject; reader.readAsDataURL(file);
+    });
+  }
+  window.addBodyCompEntry = function() {
+    const date = document.getElementById('bcDate').value || new Date().toISOString().split('T')[0];
+    const w = parseFloat(document.getElementById('bcWeight').value) || null;
+    const f = parseFloat(document.getElementById('bcFat').value) || null;
+    const m = parseFloat(document.getElementById('bcMuscle').value) || null;
+    const v = parseFloat(document.getElementById('bcVFat').value) || null;
+    if (!w && !f && !m && !v) { showToast('Enter at least one metric', 'error'); return; }
+    appData.bodyComp.push({ id: uid(), date, weight: w, fatPercentage: f, skeletalMuscle: m, visceralFat: v, imageData: null, notes: document.getElementById('bcNotes').value.trim(), _timestamp: new Date().toISOString() });
+    appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    saveData(); renderBodyCompTable(); renderBodyCompChart(); renderDashboard();
+    showToast('Body comp logged!');
+  };
 
-        function loadData() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) { const parsed = JSON.parse(raw); appData = { ...appData, ...parsed }; }
-            } catch(e) {}
-        }
-        function saveData() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) { showToast('Storage full.'); }
-        }
-        function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-        function showToast(msg, isError=false) {
-            const t = document.getElementById('toast'); if(!t) return;
-            t.textContent = msg; t.className = 'toast ' + (isError?'error':'') + ' show';
-            clearTimeout(t._timeout); t._timeout = setTimeout(() => { if(t) t.className = 'toast'; }, 3000);
-        }
-        function getActiveMealPlan() { return appData.activeMealPlan || DEFAULT_MEAL_PLAN; }
-        function getActiveWorkoutPlan() { return appData.activeWorkoutPlan || DEFAULT_WORKOUT_PLAN; }
+  // ---------- MEALS ----------
+  function setMealWeekStart() {
+    const inp = document.getElementById('mealWeekStart');
+    if (inp && !inp.value) {
+      const d = new Date(); d.setDate(d.getDate() - ((d.getDay()+6)%7));
+      inp.value = d.toISOString().split('T')[0];
+    }
+  }
+  function getMealsForWeek() {
+    const startStr = document.getElementById('mealWeekStart')?.value;
+    if (!startStr) return [];
+    const start = new Date(startStr+'T00:00:00'); if (isNaN(start)) return [];
+    const end = new Date(start); end.setDate(end.getDate()+7);
+    return appData.meals.filter(m => { if(!m._timestamp) return true; const d = new Date(m._timestamp); return d>=start && d<end; });
+  }
+  window.loadDayMealPlan = function() {
+    const day = document.getElementById('mealDaySelect')?.value;
+    const weekStart = document.getElementById('mealWeekStart')?.value;
+    if (!day || !weekStart) return;
+    const plan = getActiveMealPlan();
+    const planned = plan[day] || [];
+    const existing = appData.meals.filter(m => m.day===day && m.weekStart===weekStart);
+    const container = document.getElementById('dailyMealPlanContainer');
+    if (!container) return;
+    container.innerHTML = planned.length ? planned.map(p => {
+      const saved = existing.find(e => e.time===p.time) || {};
+      return `<div class="workout-exercise-card">
+        <div style="display:flex;justify-content:space-between;"><strong>${p.time}</strong><label><input type="checkbox" class="meal-done" data-time="${p.time}" ${saved.completed?'checked':''}> Done</label></div>
+        <div style="font-size:0.75rem;color:var(--text2);">Planned: ${p.planned}</div>
+        <div class="input-row">
+          <div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${p.time}" value="${saved.actual||''}"></div>
+          <div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${p.time}" value="${saved.notes||''}"></div>
+        </div>
+      </div>`;
+    }).join('') : '<p style="color:var(--text2);">No meals planned.</p>';
+  };
+  window.saveDayMeals = function() {
+    const day = document.getElementById('mealDaySelect')?.value;
+    const weekStart = document.getElementById('mealWeekStart')?.value;
+    if (!day || !weekStart) { showToast('Select day and week','error'); return; }
+    const plan = getActiveMealPlan();
+    const newMeals = [];
+    document.querySelectorAll('.meal-done').forEach(cb => {
+      const time = cb.dataset.time;
+      newMeals.push({
+        id: uid(), day, weekStart, time,
+        planned: (plan[day]||[]).find(p=>p.time===time)?.planned||'',
+        actual: document.querySelector(`.meal-actual[data-time="${time}"]`)?.value||'',
+        notes: document.querySelector(`.meal-notes[data-time="${time}"]`)?.value||'',
+        completed: cb.checked,
+        _timestamp: new Date().toISOString()
+      });
+    });
+    appData.meals = appData.meals.filter(m => !(m.day===day && m.weekStart===weekStart));
+    appData.meals.push(...newMeals);
+    saveData(); renderDashboard(); showToast('Meals saved!');
+  };
 
-        // ---------- VIEW SWITCH ----------
-        window.switchView = function(viewId) {
-            try {
-                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-                const target = document.getElementById(viewId); if(target) target.classList.add('active');
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                const tab = document.querySelector(`.tab-btn[data-view="${viewId}"]`); if(tab) tab.classList.add('active');
-                if (viewId === 'view-bodycomp') { renderBodyCompTable(); renderBodyCompChart(); }
-                if (viewId === 'view-dashboard') renderDashboard();
-                if (viewId === 'view-meals') { setMealWeekStart(); loadDayMealPlan(); }
-                if (viewId === 'view-workouts') { setWoDate(); loadDayWorkoutPlan(); renderWorkoutHistory(); }
-                if (viewId === 'view-documents') renderInjuries();
-                if (viewId === 'view-export') document.getElementById('exportWeekLabel').value = appData.settings.weekLabel || '';
-                window.scrollTo({top:0,behavior:'smooth'});
-            } catch(e) { showToast('View error: ' + e.message, true); }
-        };
+  // ---------- WORKOUTS ----------
+  function setWoDate() { document.getElementById('woDate').valueAsDate = new Date(); }
+  window.loadDayWorkoutPlan = function() {
+    const day = document.getElementById('woDaySelect')?.value;
+    const date = document.getElementById('woDate')?.value;
+    if (!day || !date) return;
+    const plan = getActiveWorkoutPlan();
+    const dayPlan = plan[day] || {type:'Rest',exercises:[]};
+    const saved = appData.dayWorkouts[`${day}-${date}`] || {};
+    const container = document.getElementById('dailyWorkoutPlanContainer');
+    if (!container) return;
+    let html = `<h3>${dayPlan.type}</h3>`;
+    if (dayPlan.details) html += `<p style="color:var(--text2);font-size:0.8rem;">${dayPlan.details}</p>`;
+    if (dayPlan.intensity) {
+      html += `<div class="input-group"><label>Intensity (1-10) <span style="color:var(--accent);" id="intensityVal">${saved.intensity||5}</span></label><input type="range" class="intensity-slider" id="woIntensity" min="1" max="10" value="${saved.intensity||5}" oninput="document.getElementById('intensityVal').textContent=this.value"></div><div class="input-group"><label>Notes</label><textarea id="woNotes" rows="2">${saved.notes||''}</textarea></div>`;
+    }
+    if (dayPlan.exercises && dayPlan.exercises.length) {
+      dayPlan.exercises.forEach((ex,i) => {
+        const savedEx = saved.exercises?.[i] || {};
+        html += `<div class="workout-exercise-card"><strong>${ex.name}</strong><div style="font-size:0.7rem;color:var(--text2);">${ex.time?`Time:${ex.time}min`:ex.sets?`Sets:${ex.sets}`:''} ${ex.reps?`Reps:${ex.reps}`:(ex.work?`Work:${ex.work}s`:'')} | Rec:${ex.weight||'—'} ${ex.cue?`<br><small style="color:var(--accent);">${ex.cue}</small>`:''}</div><div class="input-row"><div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps" data-idx="${i}" value="${savedEx.actualReps||''}"></div><div class="input-group"><label>Weight (lbs)</label><input type="text" class="ex-weight" data-idx="${i}" value="${savedEx.actualWeight||''}"></div></div><div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx="${i}" value="${savedEx.notes||''}"></div></div>`;
+      });
+    }
+    container.innerHTML = html || '<p style="color:var(--text2);">No workout template.</p>';
+  };
+  window.saveDayWorkout = function() {
+    const day = document.getElementById('woDaySelect')?.value;
+    const date = document.getElementById('woDate')?.value;
+    if (!day || !date) { showToast('Select day and date','error'); return; }
+    const plan = getActiveWorkoutPlan();
+    const dayPlan = plan[day] || {};
+    const workout = { type: dayPlan.type, date, day };
+    if (dayPlan.intensity) {
+      workout.intensity = document.getElementById('woIntensity')?.value || 5;
+      workout.notes = document.getElementById('woNotes')?.value || '';
+    }
+    if (dayPlan.exercises && dayPlan.exercises.length) {
+      workout.exercises = dayPlan.exercises.map((ex,i) => ({
+        exercise: ex.name,
+        actualReps: document.querySelector(`.ex-reps[data-idx="${i}"]`)?.value||'',
+        actualWeight: document.querySelector(`.ex-weight[data-idx="${i}"]`)?.value||'',
+        notes: document.querySelector(`.ex-notes[data-idx="${i}"]`)?.value||''
+      }));
+    }
+    appData.dayWorkouts[`${day}-${date}`] = workout;
+    appData.workouts.push({ id: uid(), date, type: dayPlan.type, details: JSON.stringify(workout), _timestamp: new Date().toISOString() });
+    saveData(); renderWorkoutHistory(); showToast('Workout saved!');
+  };
+  function renderWorkoutHistory() {
+    const d = document.getElementById('woLog'); if(!d) return;
+    const recent = [...appData.workouts].slice(-10).reverse();
+    d.innerHTML = recent.length ? recent.map(w => `<div style="background:var(--surface2);padding:8px;border-radius:8px;margin-bottom:4px;"><strong>${w.date} — ${w.type}</strong><pre style="font-size:0.7rem;white-space:pre-wrap;">${w.details}</pre></div>`).join('') : '<p style="color:var(--text2);">No workouts yet.</p>';
+  }
 
-        // ---------- DASHBOARD ----------
-        function renderDashboard() {
-            const bc = appData.bodyComp, l=bc.length?bc[bc.length-1]:null, p=bc.length>1?bc[bc.length-2]:null;
-            const trend=(v,pv,u)=>{
-                if(v==null||pv==null)return'';
-                const d=(v-pv).toFixed(1);
-                return d>0?`▲${d}${u}`:d<0?`▼${Math.abs(d)}${u}`:'➖0';
-            };
-            document.getElementById('dashStats').innerHTML = `
-                <div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight (lbs)</div><div class="trend">${trend(l?.weight,p?.weight,' lbs')}</div></div>
-                <div class="stat-card"><div class="stat-value">${l?.fatPercentage!=null?l.fatPercentage.toFixed(1)+'%':'--'}</div><div class="stat-label">Body Fat %</div><div class="trend">${trend(l?.fatPercentage,p?.fatPercentage,'%')}</div></div>
-                <div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle (lbs)</div><div class="trend">${trend(l?.skeletalMuscle,p?.skeletalMuscle,' lbs')}</div></div>
-                <div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">Visceral Fat cm²</div><div class="trend">${trend(l?.visceralFat,p?.visceralFat,' cm²')}</div></div>
-            `;
-            const active = appData.injuries.filter(i=>i.status!=='Resolved');
-            document.getElementById('dashInjuries').innerHTML = active.length ? active.map(i=>`<div class="injury-badge">⚠️ ${i.name}</div>`).join('') : '<p style="color:var(--text2);">No active injuries.</p>';
-            const weekMeals = getMealsForWeek();
-            const done = weekMeals.filter(m=>m.completed).length;
-            document.getElementById('dashMealAdherence').innerHTML = weekMeals.length ? `<p>${done}/${weekMeals.length} meals completed (${Math.round(done/Math.max(1,weekMeals.length)*100)}%)</p>` : '<p style="color:var(--text2);">No meals logged this week.</p>';
-        }
+  // ---------- TIMER ----------
+  window.setTimerMode = function(m) {
+    timerMode=m; resetTimer();
+    document.querySelectorAll('#timerModeChips .chip').forEach(c=>c.classList.remove('active'));
+    document.querySelector(`#timerModeChips .chip[data-mode="${m}"]`).classList.add('active');
+    document.getElementById('timerConfigDensity').style.display = m==='density'?'block':'none';
+    document.getElementById('timerConfigCircuit').style.display = m==='circuit'?'block':'none';
+  };
+  window.toggleTimer = function() { if(timerRunning) stopTimer(); else startTimer(); };
+  function startTimer() { timerRunning=true; document.getElementById('timerStartBtn').textContent='⏸ Pause'; timerInterval=setInterval(tickTimer,1000); }
+  function stopTimer() { timerRunning=false; clearInterval(timerInterval); document.getElementById('timerStartBtn').textContent='▶ Start'; }
+  function resetTimer() { stopTimer(); timerSeconds=0; timerLaps=[]; updateTimerDisplay(); document.getElementById('timerLaps').innerHTML=''; document.getElementById('densityFill').style.width='0%'; }
+  window.resetTimer = resetTimer;
+  window.lapTimer = function() { timerLaps.push(timerSeconds); document.getElementById('timerLaps').innerHTML = timerLaps.map((t,i)=>`Lap ${i+1}: ${formatTime(t)}`).join('<br>'); };
+  function tickTimer() { timerSeconds++; updateTimerDisplay(); if(timerMode==='density'){ const d=parseInt(document.getElementById('densityDuration').value)||8; const pct=Math.min(100,(timerSeconds/(d*60))*100); document.getElementById('densityFill').style.width=pct+'%'; } }
+  function updateTimerDisplay() { document.getElementById('timerDisplay').textContent=formatTime(timerSeconds); }
+  function formatTime(sec) { const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0'); return `${m}:${s}`; }
 
-        // ---------- BODY COMP (Medlana OCR) ----------
-        function renderBodyCompTable() {
-            const tbody = document.querySelector('#bcTable tbody');
-            if (!tbody) return;
-            const data = [...appData.bodyComp].reverse();
-            tbody.innerHTML = data.length ? data.map(b=>`
-                <tr><td>${b.date}</td><td>${b.weight!=null?b.weight.toFixed(1):'--'}</td><td>${b.fatPercentage!=null?b.fatPercentage.toFixed(1)+'%':'--'}</td><td>${b.skeletalMuscle!=null?b.skeletalMuscle.toFixed(1):'--'}</td><td>${b.visceralFat!=null?b.visceralFat.toFixed(1):'--'}</td><td>${b.imageData?`<img src="${b.imageData}" width="30" height="30" style="border-radius:4px;" onclick="window.open('${b.imageData}')">`:'--'}</td><td><button class="btn btn-sm btn-danger" onclick="deleteBodyComp('${b.id}')">✕</button></td></tr>
-            `).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text2);">No entries yet.</td></tr>';
-        }
-        window.deleteBodyComp = function(id) {
-            appData.bodyComp = appData.bodyComp.filter(b=>b.id!==id);
-            saveData(); renderBodyCompTable(); renderBodyCompChart(); renderDashboard();
-            showToast('Measurement deleted');
-        };
-        function renderBodyCompChart() {
-            const canvas = document.getElementById('bodyCompChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (bodyCompChart) bodyCompChart.destroy();
-            const data = appData.bodyComp;
-            if (!data.length) {
-                ctx.clearRect(0,0,canvas.width,canvas.height);
-                ctx.fillStyle='#94a3b8'; ctx.font='14px var(--font)'; ctx.textAlign='center';
-                ctx.fillText('No data yet',canvas.width/2,canvas.height/2);
-                return;
-            }
-            const labels = data.map(d=>d.date);
-            const datasets = [];
-            if (data.some(d=>d.weight!=null)) datasets.push({label:'Weight (lbs)',data:data.map(d=>d.weight),borderColor:'#22d3bb',tension:0.3});
-            if (data.some(d=>d.fatPercentage!=null)) datasets.push({label:'Body Fat %',data:data.map(d=>d.fatPercentage),borderColor:'#ef4444',tension:0.3});
-            if (data.some(d=>d.skeletalMuscle!=null)) datasets.push({label:'Muscle (lbs)',data:data.map(d=>d.skeletalMuscle),borderColor:'#3b82f6',tension:0.3});
-            if (data.some(d=>d.visceralFat!=null)) datasets.push({label:'Visceral Fat cm²',data:data.map(d=>d.visceralFat),borderColor:'#f59e0b',tension:0.3,yAxisID:'y1'});
-            bodyCompChart = new Chart(ctx, {type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:false},y1:{position:'right',grid:{drawOnChartArea:false}}}}});
-        }
-        window.previewImages = function() {
-            const files = document.getElementById('bcImages').files;
-            const container = document.getElementById('imagePreviews');
-            if (!container) return;
-            container.innerHTML = '';
-            for (let i=0;i<files.length;i++) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = document.createElement('img');
-                    img.src = e.target.result; img.className = 'thumbnail'; container.appendChild(img);
-                };
-                reader.readAsDataURL(files[i]);
-            }
-        };
-        function extractMetricsFromLines(lines) {
-            const result = { weight: null, fat: null, muscle: null, vfat: null };
-            const fullText = lines.join('\n');
-            const getNum = (line) => { const m = line.match(/(-?\d+\.?\d*)/); return m ? parseFloat(m[1]) : null; };
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].replace(/[*#]/g,'').trim();
-                if (/weight/i.test(line) && /current/i.test(line)) { const n = getNum(line); if (n && n>50) { result.weight = n; break; } }
-                if (/total\s*body\s*weight/i.test(line)) { const n = getNum(line); if (n) { result.weight = n; break; } }
-            }
-            if (!result.weight) {
-                const wLine = lines.find(l => /weight/i.test(l) && /\d{3}/.test(l));
-                if (wLine) result.weight = getNum(wLine);
-            }
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].replace(/[*#]/g,'').trim();
-                if (/skeletal\s*muscle/i.test(line)) {
-                    let n = getNum(line);
-                    if (!n && i+1 < lines.length) n = getNum(lines[i+1]);
-                    if (n && n > 20) { result.muscle = n; break; }
-                }
-            }
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].replace(/[*#]/g,'').trim();
-                if (/visceral\s*fat\s*area|vfat\s*area/i.test(line)) {
-                    let n = getNum(line);
-                    if (!n && i+1 < lines.length) n = getNum(lines[i+1]);
-                    if (n && n < 500) { result.vfat = n; break; }
-                }
-            }
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].replace(/[*#]/g,'').trim();
-                if (/body\s*fat\s*percentage|fat\s*percentage/i.test(line)) {
-                    const m = line.match(/(\d+\.?\d*)\s*%/);
-                    if (m) { const val = parseFloat(m[1]); if (val < 50) { result.fat = val; break; } }
-                }
-            }
-            if (!result.fat) {
-                const fatLine = lines.find(l => /body\s*fat/i.test(l) && /(\d+\.?\d*)\s*%/.test(l) && parseFloat(l.match(/(\d+\.?\d*)\s*%/)[1]) < 50);
-                if (fatLine) result.fat = parseFloat(fatLine.match(/(\d+\.?\d*)\s*%/)[1]);
-            }
-            return result;
-        }
-        window.scanAndLogImages = async function() {
-            const files = document.getElementById('bcImages').files;
-            if (!files.length) { showToast('Select at least one image','error'); return; }
-            const date = document.getElementById('bcDate').value || new Date().toISOString().split('T')[0];
-            showToast(`Scanning ${files.length} image(s)...`);
-            let combined = { weight: null, fat: null, muscle: null, vfat: null };
-            let firstImg = null;
-            for (let i=0; i<files.length; i++) {
-                const file = files[i];
-                try {
-                    const dataUrl = await resizeImage(file, 1200);
-                    const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng', { logger: info => { if (info.status==='recognizing text') console.log(info.progress); } });
-                    const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-                    const metrics = extractMetricsFromLines(lines);
-                    if (combined.weight == null && metrics.weight != null) combined.weight = metrics.weight;
-                    if (combined.fat == null && metrics.fat != null) combined.fat = metrics.fat;
-                    if (combined.muscle == null && metrics.muscle != null) combined.muscle = metrics.muscle;
-                    if (combined.vfat == null && metrics.vfat != null) combined.vfat = metrics.vfat;
-                    if (!firstImg) firstImg = dataUrl;
-                } catch(e) { showToast(`Image ${i+1} failed: ${e.message}`, 'error'); }
-            }
-            if (combined.weight == null && combined.fat == null && combined.muscle == null && combined.vfat == null) {
-                showToast('No metrics extracted. Try manual entry.', 'error');
-                return;
-            }
-            const entry = { id: uid(), date, weight: combined.weight, fatPercentage: combined.fat, skeletalMuscle: combined.muscle, visceralFat: combined.vfat, imageData: firstImg, notes: `Combined from ${files.length} scan(s).`, _timestamp: new Date().toISOString() };
-            appData.bodyComp.push(entry);
-            appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));
-            saveData(); renderBodyCompTable(); renderBodyCompChart(); renderDashboard();
-            document.getElementById('bcImages').value = ''; document.getElementById('imagePreviews').innerHTML = '';
-            clearBodyCompForm();
-            showToast('Body comp logged from scan!');
-        };
-        async function resizeImage(file, maxW) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let w = img.width, h = img.height;
-                        if (w > maxW) { h *= maxW/w; w = maxW; }
-                        canvas.width = w; canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', 0.8));
-                    };
-                    img.onerror = reject; img.src = e.target.result;
-                };
-                reader.onerror = reject; reader.readAsDataURL(file);
+  // ---------- INJURIES (extract only) ----------
+  window.handleDocUpload = function(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      let text = '';
+      if (file.name.endsWith('.pdf')) {
+        if (typeof pdfjsLib === 'undefined') { showToast('PDF.js not loaded.','error'); return; }
+        try {
+          const typedarray = new Uint8Array(e.target.result);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          for (let i=1; i<=pdf.numPages; i++) { const page=await pdf.getPage(i); const content=await page.getTextContent(); text+=content.items.map(item=>item.str).join(' ')+'\n'; }
+        } catch(ex) { showToast('PDF error','error'); return; }
+      } else text = e.target.result;
+      parseInjuries(text, file.name);
+    };
+    if (file.name.endsWith('.pdf')) reader.readAsArrayBuffer(file); else reader.readAsText(file);
+    input.value = '';
+  };
+  window.parsePastedText = function() {
+    const text = document.getElementById('docPaste').value.trim();
+    if (!text) { showToast('Paste text.','error'); return; }
+    parseInjuries(text, 'Pasted Text'); document.getElementById('docPaste').value = '';
+  };
+  function parseInjuries(text, source) {
+    const injSec = text.match(/SECTION\s*1:?\s*COMPLETE\s*INJURY\s*LIST[\s\S]*?(?=SECTION\s*2|$)/i);
+    if (injSec) {
+      injSec[0].split(/\n/).filter(l=>/^\s*(Spine|Left\s*Knee|Biceps|Elbows|Wrists|Right\s*Shoulder)[:\s]/i.test(l)).forEach(l=>{
+        const name = l.replace(/^[•\-\s]+/,'').trim();
+        if (name && !appData.injuries.some(i=>i.name===name)) appData.injuries.push({ id:uid(), name, status:'Active', source });
+      });
+    }
+    const stopSec = text.match(/SECTION\s*7:?\s*NON-NEGOTIABLE\s*STOP\s*RULES[\s\S]*?(?=SECTION\s*8|$)/i);
+    if (stopSec) {
+      stopSec[0].split(/\n/).filter(l=>/^\d+[\.\)]/.test(l.trim())).forEach(l=>{
+        const name = l.replace(/^\d+[\.\)]\s*/,'').trim();
+        if (name && !appData.injuries.some(i=>i.name===name)) appData.injuries.push({ id:uid(), name, status:'Active', source:'Stop Rule' });
+      });
+    }
+    saveData(); renderInjuries(); renderDashboard(); showToast('Injuries updated!');
+  }
+  function renderInjuries() {
+    const div = document.getElementById('injuryList');
+    if (!div) return;
+    if (!appData.injuries.length) { div.innerHTML='<p style="color:var(--text2);">No injuries stored.</p>'; return; }
+    div.innerHTML = appData.injuries.map(i=>`
+      <div class="injury-badge ${i.status==='Resolved'?'injury-resolved':''}">
+        <span>⚠️ ${i.name}</span>
+        <select style="width:auto;padding:4px;" onchange="window.updateInjuryStatus('${i.id}',this.value)"><option ${i.status==='Active'?'selected':''}>Active</option><option ${i.status==='Resolved'?'selected':''}>Resolved</option></select>
+        <button class="btn btn-sm btn-danger" style="padding:2px 6px;" onclick="window.deleteInjury('${i.id}')">✕</button>
+      </div>`).join('');
+  }
+  window.updateInjuryStatus = function(id,s) { const i=appData.injuries.find(x=>x.id===id); if(i){ i.status=s; saveData(); renderInjuries(); renderDashboard(); } };
+  window.deleteInjury = function(id) { appData.injuries=appData.injuries.filter(i=>i.id!==id); saveData(); renderInjuries(); renderDashboard(); };
+  window.addManualInjury = function() { const n=prompt('Describe injury:'); if(n){ appData.injuries.push({ id:uid(), name:n, status:'Active', source:'Manual' }); saveData(); renderInjuries(); renderDashboard(); } };
+
+  // ---------- FULL PLAN REPLACEMENT (NO injury toasts) ----------
+  function parseMealPlan(text) {
+    const plan = {};
+    const section = text.match(/SECTION\s*5:?\s*MEAL\s*PLAN[\s\S]*?(?=SECTION\s*6|Meal\s*Prep|$)/i);
+    if (!section) return null;
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day => {
+      const regex = new RegExp(`${day.toUpperCase()}\\s*—[^\\n]*[\\s\\S]*?(?=\\n[A-Z]{3,}\\s*—|SECTION|Meal Prep|$)`, 'i');
+      const dayMatch = section[0].match(regex);
+      if (dayMatch) {
+        const meals = [];
+        const lines = dayMatch[0].split('\n');
+        lines.forEach(line => {
+          const timeMatch = line.match(/(?:Breakfast|Lunch|Pre-Judo|Pre-Workout|Post-Judo|Post-Workout|Brunch|Dinner)\s*(?:\((\d{1,2}:\d{2}\s*(?:AM|PM)?)\))?/i);
+          if (timeMatch) {
+            const time = timeMatch[1] || '';
+            const food = line.replace(/^[·\-\s]*(?:Breakfast|Lunch|Pre-Judo|Pre-Workout|Post-Judo|Post-Workout|Brunch|Dinner)\s*(?:\(\d{1,2}:\d{2}\s*(?:AM|PM)?\))?\s*:?\s*/i, '').trim();
+            if (food) meals.push({ time: time || '—', planned: food });
+          }
+        });
+        if (meals.length) plan[day] = meals;
+      }
+    });
+    return Object.keys(plan).length ? plan : null;
+  }
+  function parseWorkoutPlan(text) {
+    const plan = {};
+    const section = text.match(/SECTION\s*3:?\s*WEEKLY\s*WORKOUT\s*PLAN[\s\S]*?(?=SECTION\s*4|$)/i);
+    if (!section) return null;
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day => {
+      const regex = new RegExp(`${day.toUpperCase()}\\s*—[^\\n]*[\\s\\S]*?(?=\\n[A-Z]{3,}\\s*—|SECTION|$)`, 'i');
+      const dayMatch = section[0].match(regex);
+      if (dayMatch) {
+        let dayText = dayMatch[0];
+        const typeMatch = dayText.match(/—\s*(.*)/);
+        const type = typeMatch ? typeMatch[1].trim() : 'Training';
+        const intensity = /judo/i.test(type);
+        const exercises = [];
+        const exLines = dayText.match(/(?:Block\s*\d|^\s*[•\-\d]+\.|\b(?:Chest|Cable|Dead|Ring|Eccentric|Scapular|Kneeling|Suitcase|Med Ball|Assault|Landmine|Belt|Goblet|Pallof)[^-]*)/gm);
+        if (exLines) {
+          exLines.forEach(line => {
+            const name = line.replace(/^[•\-\d]+[\.\)]?\s*/,'').split(/\s{2,}/)[0];
+            const weightMatch = line.match(/(\d{2,3}\s*lbs)/);
+            const repsMatch = line.match(/(\d{1,2}[-–]\d{1,2}|\d{1,2}\/side|\d{1,2}\s*reps|\d{1,2}\s*sec)/i);
+            exercises.push({
+              name: name || 'Exercise',
+              weight: weightMatch ? weightMatch[0] : '—',
+              reps: repsMatch ? repsMatch[0] : '',
+              sets: line.includes('x') ? line.match(/(\d)\s*x/)?.[1] : '',
+              time: line.match(/(\d+)\s*min/)?.[1] || ''
             });
+          });
         }
-        window.addBodyCompEntry = function() {
-            const date = document.getElementById('bcDate').value || new Date().toISOString().split('T')[0];
-            const w = parseFloat(document.getElementById('bcWeight').value) || null;
-            const f = parseFloat(document.getElementById('bcFat').value) || null;
-            const m = parseFloat(document.getElementById('bcMuscle').value) || null;
-            const v = parseFloat(document.getElementById('bcVFat').value) || null;
-            const notes = document.getElementById('bcNotes').value.trim();
-            if (!w && !f && !m && !v) { showToast('Enter at least one metric', 'error'); return; }
-            appData.bodyComp.push({ id: uid(), date, weight: w, fatPercentage: f, skeletalMuscle: m, visceralFat: v, imageData: null, notes, _timestamp: new Date().toISOString() });
-            appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));
-            saveData(); renderBodyCompTable(); renderBodyCompChart(); renderDashboard(); clearBodyCompForm();
-            showToast('Body comp logged!');
-        };
-        function clearBodyCompForm() {
-            document.getElementById('bcWeight').value = ''; document.getElementById('bcFat').value = '';
-            document.getElementById('bcMuscle').value = ''; document.getElementById('bcVFat').value = '';
-            document.getElementById('bcNotes').value = ''; document.getElementById('bcDate').valueAsDate = new Date();
-        }
+        plan[day] = { type, intensity, exercises, details: dayText.split('\n').slice(1).join(' ') };
+      }
+    });
+    return Object.keys(plan).length ? plan : null;
+  }
+  function replacePlan(text) {
+    const mealPlan = parseMealPlan(text);
+    const wrkPlan = parseWorkoutPlan(text);
+    if (mealPlan) {
+      appData.activeMealPlan = mealPlan;
+      const count = Object.values(mealPlan).flat().length;
+      showToast(`Meal plan updated (${count} meals)`);
+    } else showToast('No meal plan found in document.', 'error');
+    if (wrkPlan) {
+      appData.activeWorkoutPlan = wrkPlan;
+      showToast(`Workout plan updated (${Object.keys(wrkPlan).length} days)`);
+    } else showToast('No workout plan found in document.', 'error');
+    saveData();
+  }
+  window.handlePlanUpload = function(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      let text = '';
+      if (file.name.endsWith('.pdf')) {
+        if (typeof pdfjsLib === 'undefined') { showToast('PDF.js not loaded.','error'); return; }
+        try {
+          const typedarray = new Uint8Array(e.target.result);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          for (let i=1; i<=pdf.numPages; i++) { const page=await pdf.getPage(i); const content=await page.getTextContent(); text+=content.items.map(item=>item.str).join(' ')+'\n'; }
+        } catch(ex) { showToast('PDF error','error'); return; }
+      } else text = e.target.result;
+      replacePlan(text);
+    };
+    if (file.name.endsWith('.pdf')) reader.readAsArrayBuffer(file); else reader.readAsText(file);
+    input.value = '';
+  };
+  window.loadFullPlanFromPaste = function() {
+    const text = document.getElementById('planPaste').value.trim();
+    if (!text) { showToast('Paste dossier text','error'); return; }
+    replacePlan(text);
+    document.getElementById('planPaste').value = '';
+  };
 
-        // ---------- MEALS ----------
-        function setMealWeekStart() {
-            const inp = document.getElementById('mealWeekStart');
-            if (inp && !inp.value) {
-                const d = new Date(); d.setDate(d.getDate() - ((d.getDay()+6)%7));
-                inp.value = d.toISOString().split('T')[0];
-            }
-        }
-        function getMealsForWeek() {
-            const startStr = document.getElementById('mealWeekStart')?.value;
-            if (!startStr) return [];
-            const start = new Date(startStr+'T00:00:00'); if (isNaN(start)) return [];
-            const end = new Date(start); end.setDate(end.getDate()+7);
-            return appData.meals.filter(m => { if(!m._timestamp) return true; const d = new Date(m._timestamp); return d>=start && d<end; });
-        }
-        window.loadDayMealPlan = function() {
-            const day = document.getElementById('mealDaySelect')?.value;
-            const weekStart = document.getElementById('mealWeekStart')?.value;
-            if (!day || !weekStart) return;
-            const plan = getActiveMealPlan();
-            const planned = plan[day] || [];
-            const existing = appData.meals.filter(m => m.day===day && m.weekStart===weekStart);
-            const container = document.getElementById('dailyMealPlanContainer');
-            if (!container) return;
-            container.innerHTML = planned.length ? planned.map(p => {
-                const saved = existing.find(e => e.time===p.time) || {};
-                return `<div class="workout-exercise-card">
-                    <div style="display:flex;justify-content:space-between;"><strong>${p.time}</strong><label><input type="checkbox" class="meal-done" data-time="${p.time}" ${saved.completed?'checked':''}> Done</label></div>
-                    <div style="font-size:0.75rem;color:var(--text2);">Planned: ${p.planned}</div>
-                    <div class="input-row">
-                        <div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${p.time}" value="${saved.actual||''}"></div>
-                        <div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${p.time}" value="${saved.notes||''}"></div>
-                    </div>
-                </div>`;
-            }).join('') : '<p style="color:var(--text2);">No meals planned for this day.</p>';
-        };
-        window.saveDayMeals = function() {
-            const day = document.getElementById('mealDaySelect')?.value;
-            const weekStart = document.getElementById('mealWeekStart')?.value;
-            if (!day || !weekStart) { showToast('Select day and week','error'); return; }
-            const plan = getActiveMealPlan();
-            const newMeals = [];
-            document.querySelectorAll('.meal-done').forEach(cb => {
-                const time = cb.dataset.time;
-                newMeals.push({
-                    id: uid(), day, weekStart, time,
-                    planned: (plan[day]||[]).find(p=>p.time===time)?.planned||'',
-                    actual: document.querySelector(`.meal-actual[data-time="${time}"]`)?.value||'',
-                    notes: document.querySelector(`.meal-notes[data-time="${time}"]`)?.value||'',
-                    completed: cb.checked,
-                    _timestamp: new Date().toISOString()
-                });
-            });
-            appData.meals = appData.meals.filter(m => !(m.day===day && m.weekStart===weekStart));
-            appData.meals.push(...newMeals);
-            saveData(); renderDashboard(); showToast('Meals saved!');
-        };
+  // ---------- PDF & BACKUP ----------
+  window.generateWeeklyPDF = function() {
+    const label = document.getElementById('exportWeekLabel').value.trim() || appData.settings.weekLabel;
+    appData.settings.weekLabel = label; saveData();
+    if (typeof jspdf === 'undefined') { alert('PDF library missing.'); return; }
+    const { jsPDF } = jspdf;
+    const doc = new jsPDF();
+    let y=20;
+    doc.text('JADE PARKER WEEKLY REPORT',20,y); y+=10;
+    doc.text(`Week: ${label} | ${new Date().toLocaleDateString()}`,20,y); y+=8;
+    doc.save('jadetracker-weekly-report.pdf');
+    showToast('PDF generated!');
+  };
+  window.printWeeklySummary = () => window.print();
+  window.exportAllData = function() {
+    const blob = new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='jadetracker-backup.json'; a.click();
+  };
+  window.importAllData = function(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (confirm('Replace all data?')) { appData = data; saveData(); location.reload(); }
+      } catch(ex) { showToast('Invalid file.','error'); }
+    };
+    reader.readAsText(file); input.value='';
+  };
+  window.resetAllData = function() {
+    if (confirm('DELETE ALL DATA?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+  };
 
-        // ---------- WORKOUTS ----------
-        function setWoDate() { const inp = document.getElementById('woDate'); if(inp) inp.valueAsDate = new Date(); }
-        window.loadDayWorkoutPlan = function() {
-            const day = document.getElementById('woDaySelect')?.value;
-            const date = document.getElementById('woDate')?.value;
-            if (!day || !date) return;
-            const plan = getActiveWorkoutPlan();
-            const dayPlan = plan[day] || {type:'Rest',exercises:[]};
-            const key = `${day}-${date}`;
-            const saved = appData.dayWorkouts[key] || {};
-            const container = document.getElementById('dailyWorkoutPlanContainer');
-            if (!container) return;
-            let html = `<h3>${dayPlan.type}</h3>`;
-            if (dayPlan.details) html += `<p style="color:var(--text2);font-size:0.8rem;">${dayPlan.details}</p>`;
-            if (dayPlan.intensity) {
-                html += `<div class="input-group"><label>Intensity (1-10) <span style="color:var(--accent);" id="intensityVal">${saved.intensity||5}</span></label>
-                    <input type="range" class="intensity-slider" id="woIntensity" min="1" max="10" value="${saved.intensity||5}" oninput="document.getElementById('intensityVal').textContent=this.value"></div>
-                    <div class="input-group"><label>Notes</label><textarea id="woNotes" rows="2">${saved.notes||''}</textarea></div>`;
-            }
-            if (dayPlan.exercises && dayPlan.exercises.length) {
-                dayPlan.exercises.forEach((ex, i) => {
-                    const savedEx = saved.exercises?.[i] || {};
-                    const repLabel = ex.time ? `Time: ${ex.time} min` : (ex.sets ? `Sets: ${ex.sets}` : '');
-                    html += `<div class="workout-exercise-card">
-                        <strong>${ex.name}</strong>
-                        <div style="font-size:0.7rem;color:var(--text2);">${repLabel} ${ex.reps?`Reps: ${ex.reps}`:(ex.work?`Work: ${ex.work}s`:'')} | Rec: ${ex.weight||'—'} ${ex.cue?`<br><small style="color:var(--accent);">${ex.cue}</small>`:''}</div>
-                        <div class="input-row">
-                            <div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps" data-idx="${i}" value="${savedEx.actualReps||''}"></div>
-                            <div class="input-group"><label>Weight (lbs)</label><input type="text" class="ex-weight" data-idx="${i}" value="${savedEx.actualWeight||''}"></div>
-                        </div>
-                        <div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx="${i}" value="${savedEx.notes||''}"></div>
-                    </div>`;
-                });
-            }
-            container.innerHTML = html || '<p style="color:var(--text2);">No workout template for this day.</p>';
-        };
-        window.saveDayWorkout = function() {
-            const day = document.getElementById('woDaySelect')?.value;
-            const date = document.getElementById('woDate')?.value;
-            if (!day || !date) { showToast('Select day and date','error'); return; }
-            const plan = getActiveWorkoutPlan();
-            const dayPlan = plan[day] || {};
-            const workout = { type: dayPlan.type, date, day };
-            if (dayPlan.intensity) {
-                workout.intensity = document.getElementById('woIntensity')?.value || 5;
-                workout.notes = document.getElementById('woNotes')?.value || '';
-            }
-            if (dayPlan.exercises && dayPlan.exercises.length) {
-                workout.exercises = dayPlan.exercises.map((ex, i) => ({
-                    exercise: ex.name,
-                    actualReps: document.querySelector(`.ex-reps[data-idx="${i}"]`)?.value||'',
-                    actualWeight: document.querySelector(`.ex-weight[data-idx="${i}"]`)?.value||'',
-                    notes: document.querySelector(`.ex-notes[data-idx="${i}"]`)?.value||''
-                }));
-            }
-            appData.dayWorkouts[`${day}-${date}`] = workout;
-            appData.workouts.push({ id: uid(), date, type: dayPlan.type, details: JSON.stringify(workout), _timestamp: new Date().toISOString() });
-            saveData(); renderWorkoutHistory(); showToast('Workout saved!');
-        };
-        function renderWorkoutHistory() {
-            const d = document.getElementById('woLog'); if(!d) return;
-            const recent = [...appData.workouts].slice(-10).reverse();
-            d.innerHTML = recent.length ? recent.map(w => `<div style="background:var(--surface2);padding:8px;border-radius:8px;margin-bottom:4px;"><strong>${w.date} — ${w.type}</strong><pre style="font-size:0.7rem;white-space:pre-wrap;">${w.details}</pre></div>`).join('') : '<p style="color:var(--text2);">No workouts yet.</p>';
-        }
-
-        // ---------- TIMER ----------
-        window.setTimerMode = function(m) {
-            timerMode=m; resetTimer();
-            document.querySelectorAll('#timerModeChips .chip').forEach(c=>c.classList.remove('active'));
-            const a = document.querySelector(`#timerModeChips .chip[data-mode="${m}"]`); if(a)a.classList.add('active');
-            document.getElementById('timerConfigDensity').style.display = m==='density'?'block':'none';
-            document.getElementById('timerConfigCircuit').style.display = m==='circuit'?'block':'none';
-        };
-        window.toggleTimer = function() { if(timerRunning) stopTimer(); else startTimer(); };
-        function startTimer() { timerRunning=true; document.getElementById('timerStartBtn').textContent='⏸ Pause'; timerInterval=setInterval(tickTimer,1000); }
-        function stopTimer() { timerRunning=false; clearInterval(timerInterval); document.getElementById('timerStartBtn').textContent='▶ Start'; }
-        function resetTimer() { stopTimer(); timerSeconds=0; timerLaps=[]; updateTimerDisplay(); document.getElementById('timerLaps').innerHTML=''; document.getElementById('densityFill').style.width='0%'; }
-        window.resetTimer = resetTimer;
-        window.lapTimer = function() { timerLaps.push(timerSeconds); document.getElementById('timerLaps').innerHTML = timerLaps.map((t,i)=>`Lap ${i+1}: ${formatTime(t)}`).join('<br>'); };
-        function tickTimer() { timerSeconds++; updateTimerDisplay(); if(timerMode==='density'){ const d=parseInt(document.getElementById('densityDuration').value)||8; const pct=Math.min(100,(timerSeconds/(d*60))*100); document.getElementById('densityFill').style.width=pct+'%'; } }
-        function updateTimerDisplay() { document.getElementById('timerDisplay').textContent=formatTime(timerSeconds); }
-        function formatTime(sec) { const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0'); return `${m}:${s}`; }
-
-        // ---------- DOCUMENTS (Injuries only) ----------
-        window.handleDocUpload = function(input) {
-            const file = input.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                let text = '';
-                if (file.name.endsWith('.pdf')) {
-                    if (typeof pdfjsLib === 'undefined') { showToast('PDF.js not loaded.','error'); return; }
-                    try {
-                        const typedarray = new Uint8Array(e.target.result);
-                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                        for (let i=1; i<=pdf.numPages; i++) { const page=await pdf.getPage(i); const content=await page.getTextContent(); text+=content.items.map(item=>item.str).join(' ')+'\n'; }
-                    } catch(ex) { showToast('PDF error','error'); return; }
-                } else text = e.target.result;
-                parseDocText(text, file.name);
-            };
-            if (file.name.endsWith('.pdf')) reader.readAsArrayBuffer(file); else reader.readAsText(file);
-            input.value = '';
-        };
-        window.parsePastedText = function() {
-            const text = document.getElementById('docPaste').value.trim();
-            if (!text) { showToast('Paste text.','error'); return; }
-            parseDocText(text, 'Pasted Text'); document.getElementById('docPaste').value = '';
-        };
-        function parseDocText(text, source) {
-            const injSec = text.match(/SECTION\s*1:?\s*COMPLETE\s*INJURY\s*LIST[\s\S]*?(?=SECTION\s*2|$)/i);
-            if (injSec) {
-                injSec[0].split(/\n/).filter(l=>/^\s*(Spine|Left\s*Knee|Biceps|Elbows|Wrists|Right\s*Shoulder)[:\s]/i.test(l)).forEach(l=>{
-                    const name = l.replace(/^[•\-\s]+/,'').trim();
-                    if (name && !appData.injuries.some(i=>i.name===name)) appData.injuries.push({ id:uid(), name, status:'Active', source });
-                });
-            }
-            const stopSec = text.match(/SECTION\s*7:?\s*NON-NEGOTIABLE\s*STOP\s*RULES[\s\S]*?(?=SECTION\s*8|$)/i);
-            if (stopSec) {
-                stopSec[0].split(/\n/).filter(l=>/^\d+[\.\)]/.test(l.trim())).forEach(l=>{
-                    const name = l.replace(/^\d+[\.\)]\s*/,'').trim();
-                    if (name && !appData.injuries.some(i=>i.name===name)) appData.injuries.push({ id:uid(), name, status:'Active', source:'Stop Rule' });
-                });
-            }
-            saveData(); renderInjuries(); renderDashboard(); showToast('Injuries updated!');
-        }
-        function renderInjuries() {
-            const div = document.getElementById('injuryList');
-            if (!div) return;
-            if (!appData.injuries.length) { div.innerHTML='<p style="color:var(--text2);">No injuries stored.</p>'; return; }
-            div.innerHTML = appData.injuries.map(i=>`
-                <div class="injury-badge ${i.status==='Resolved'?'injury-resolved':''}">
-                    <span>⚠️ ${i.name}</span>
-                    <select style="width:auto;padding:4px;" onchange="updateInjuryStatus('${i.id}',this.value)">
-                        <option ${i.status==='Active'?'selected':''}>Active</option>
-                        <option ${i.status==='Resolved'?'selected':''}>Resolved</option>
-                    </select>
-                    <button class="btn btn-sm btn-danger" style="padding:2px 6px;" onclick="deleteInjury('${i.id}')">✕</button>
-                </div>`).join('');
-        }
-        window.updateInjuryStatus = function(id,s) { const i=appData.injuries.find(x=>x.id===id); if(i){ i.status=s; saveData(); renderInjuries(); renderDashboard(); } };
-        window.deleteInjury = function(id) { appData.injuries=appData.injuries.filter(i=>i.id!==id); saveData(); renderInjuries(); renderDashboard(); };
-        window.addManualInjury = function() { const n=prompt('Describe injury:'); if(n){ appData.injuries.push({ id:uid(), name:n, status:'Active', source:'Manual' }); saveData(); renderInjuries(); renderDashboard(); } };
-
-        // ---------- FULL PLAN REPLACEMENT (IMPROVED PARSERS) ----------
-        function parseMealPlanFromTextV2(text) {
-            const plan = {};
-            const section = text.match(/SECTION\s*5:?\s*MEAL\s*PLAN[\s\S]*?(?=SECTION\s*6|Meal\s*Prep|$)/i);
-            if (!section) return null;
-            const content = section[0];
-            const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-            dayNames.forEach(day => {
-                const regex = new RegExp(`${day.toUpperCase()}\\s*—[^\\n]*[\\s\\S]*?(?=\\n[A-Z]{3,}\\s*—|SECTION|Meal Prep|$)`, 'i');
-                const dayMatch = content.match(regex);
-                if (dayMatch) {
-                    const dayText = dayMatch[0];
-                    const meals = [];
-                    const lines = dayText.split('\n');
-                    lines.forEach(line => {
-                        const timeMatch = line.match(/·?\s*(?:Breakfast|Lunch|Pre-Judo|Pre-Workout|Post-Judo|Post-Workout|Brunch|Dinner)\s*(?:\((\d{1,2}:\d{2}\s*(?:AM|PM)?)\))?/i);
-                        if (timeMatch) {
-                            let time = timeMatch[1] || '';
-                            const food = line.replace(/^[·\-\s]*(?:Breakfast|Lunch|Pre-Judo|Pre-Workout|Post-Judo|Post-Workout|Brunch|Dinner)\s*(?:\(\d{1,2}:\d{2}\s*(?:AM|PM)?\))?\s*:?\s*/i, '').trim();
-                            if (food) {
-                                meals.push({ time: time || '—', planned: food });
-                            }
-                        }
-                    });
-                    if (meals.length) plan[day] = meals;
-                }
-            });
-            return Object.keys(plan).length ? plan : null;
-        }
-        function parseWorkoutPlanFromTextV2(text) {
-            const plan = {};
-            const section = text.match(/SECTION\s*3:?\s*WEEKLY\s*WORKOUT\s*PLAN[\s\S]*?(?=SECTION\s*4|$)/i);
-            if (!section) return null;
-            const content = section[0];
-            const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-            dayNames.forEach(day => {
-                const regex = new RegExp(`${day.toUpperCase()}\\s*—[^\\n]*[\\s\\S]*?(?=\\n[A-Z]{3,}\\s*—|SECTION|$)`, 'i');
-                const dayMatch = content.match(regex);
-                if (dayMatch) {
-                    let dayText = dayMatch[0];
-                    const typeMatch = dayText.match(/—\s*(.*)/);
-                    const type = typeMatch ? typeMatch[1].trim() : 'Training';
-                    const intensity = /judo/i.test(type);
-                    const exercises = [];
-                    const exLines = dayText.match(/(?:Block\s*\d|^\s*[•\-\d]+\.|\b(?:Chest|Cable|Dead|Ring|Eccentric|Scapular|Kneeling|Suitcase|Med Ball|Assault|Landmine|Belt|Goblet|Pallof)[^-]*)/gm);
-                    if (exLines) {
-                        exLines.forEach(line => {
-                            const name = line.replace(/^[•\-\d]+[\.\)]?\s*/,'').split(/\s{2,}/)[0];
-                            const weightMatch = line.match(/(\d{2,3}\s*lbs)/);
-                            const repsMatch = line.match(/(\d{1,2}[-–]\d{1,2}|\d{1,2}\/side|\d{1,2}\s*reps|\d{1,2}\s*sec)/i);
-                            exercises.push({
-                                name: name || 'Exercise',
-                                weight: weightMatch ? weightMatch[0] : '—',
-                                reps: repsMatch ? repsMatch[0] : '',
-                                sets: line.includes('x') ? line.match(/(\d)\s*x/)?.[1] : '',
-                                time: line.match(/(\d+)\s*min/)?.[1] || ''
-                            });
-                        });
-                    }
-                    plan[day] = { type, intensity, exercises, details: dayText.split('\n').slice(1).join(' ') };
-                }
-            });
-            return Object.keys(plan).length ? plan : null;
-        }
-        function replacePlanFromText(text, source) {
-            const mealPlan = parseMealPlanFromTextV2(text);
-            const workoutPlan = parseWorkoutPlanFromTextV2(text);
-            if (mealPlan) {
-                appData.activeMealPlan = mealPlan;
-                showToast('Meal plan updated!');
-            } else showToast('No meal plan found in document.', true);
-            if (workoutPlan) {
-                appData.activeWorkoutPlan = workoutPlan;
-                showToast('Workout plan updated!');
-            } else showToast('No workout plan found in document.', true);
-            saveData();
-            // also extract injuries (optional)
-            parseDocText(text, source);
-        }
-        window.handlePlanUpload = function(input) {
-            const file = input.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                let text = '';
-                if (file.name.endsWith('.pdf')) {
-                    if (typeof pdfjsLib === 'undefined') { showToast('PDF.js not loaded.','error'); return; }
-                    try {
-                        const typedarray = new Uint8Array(e.target.result);
-                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                        for (let i=1; i<=pdf.numPages; i++) { const page=await pdf.getPage(i); const content=await page.getTextContent(); text+=content.items.map(item=>item.str).join(' ')+'\n'; }
-                    } catch(ex) { showToast('PDF error','error'); return; }
-                } else text = e.target.result;
-                replacePlanFromText(text, file.name);
-            };
-            if (file.name.endsWith('.pdf')) reader.readAsArrayBuffer(file); else reader.readAsText(file);
-            input.value = '';
-        };
-        window.loadFullPlanFromPaste = function() {
-            const text = document.getElementById('planPaste').value.trim();
-            if (!text) { showToast('Paste dossier text','error'); return; }
-            replacePlanFromText(text, 'Pasted Plan');
-            document.getElementById('planPaste').value = '';
-        };
-
-        // ---------- PDF & BACKUP ----------
-        window.generateWeeklyPDF = function() {
-            const label = document.getElementById('exportWeekLabel').value.trim() || appData.settings.weekLabel;
-            appData.settings.weekLabel = label; saveData();
-            if (typeof jspdf === 'undefined') { alert('PDF library missing.'); return; }
-            const { jsPDF } = jspdf;
-            const doc = new jsPDF();
-            let y=20;
-            doc.text('JADE PARKER WEEKLY REPORT',20,y); y+=10;
-            doc.text(`Week: ${label} | ${new Date().toLocaleDateString()}`,20,y); y+=8;
-            doc.save('jadetracker-weekly-report.pdf');
-            showToast('PDF generated!');
-        };
-        window.printWeeklySummary = () => window.print();
-        window.exportAllData = function() {
-            const blob = new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});
-            const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='jadetracker-backup.json'; a.click();
-            showToast('Backup exported');
-        };
-        window.importAllData = function(input) {
-            const file = input.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (confirm('Replace all data?')) { appData = data; saveData(); location.reload(); }
-                } catch(ex) { showToast('Invalid file.','error'); }
-            };
-            reader.readAsText(file); input.value='';
-        };
-        window.resetAllData = function() {
-            if (confirm('DELETE ALL DATA?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
-        };
-
-        // ---------- INIT ----------
-        function init() {
-            loadData();
-            if (!appData.activeMealPlan) appData.activeMealPlan = null;
-            if (!appData.activeWorkoutPlan) appData.activeWorkoutPlan = null;
-            document.getElementById('bcDate').valueAsDate = new Date();
-            setMealWeekStart(); setWoDate();
-            loadDayMealPlan(); loadDayWorkoutPlan();
-            renderDashboard(); renderBodyCompTable(); renderBodyCompChart(); renderInjuries(); renderWorkoutHistory();
-            document.getElementById('exportWeekLabel').value = appData.settings.weekLabel || '';
-        }
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-        else init();
-    } catch(e) { console.error(e); }
+  // ---------- INIT ----------
+  function init() {
+    loadData();
+    if (!appData.activeMealPlan) appData.activeMealPlan = null;
+    if (!appData.activeWorkoutPlan) appData.activeWorkoutPlan = null;
+    document.getElementById('bcDate').valueAsDate = new Date();
+    setMealWeekStart(); setWoDate();
+    loadDayMealPlan(); loadDayWorkoutPlan();
+    renderDashboard(); renderBodyCompTable(); renderBodyCompChart(); renderInjuries(); renderWorkoutHistory();
+    document.getElementById('exportWeekLabel').value = appData.settings.weekLabel || '';
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 </body>
