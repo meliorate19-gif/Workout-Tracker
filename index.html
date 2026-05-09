@@ -16,34 +16,18 @@
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
       --bg:#0f172a;--surface:#1e293b;--surface2:#273549;--border:#334155;
-      --text:#e2e8f0;--text2:#94a3b8;--accent:#22d3bb;--accent2:#14b8a6;
-      --red:#ef4444;--orange:#f59e0b;--green:#22c55e;
+      --text:#e2e8f0;--text2:#94a3b8;--accent:#22d3bb;--red:#ef4444;--green:#22c55e;
       --radius:16px;--radius-sm:10px;
       --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
       --tab-height:72px;--header-height:56px;--safe-bottom:env(safe-area-inset-bottom,16px);
     }
     html{font-size:15px;-webkit-tap-highlight-color:transparent}
-    body{
-      font-family:var(--font);background:var(--bg);color:var(--text);
-      min-height:100vh;padding-bottom:calc(var(--tab-height) + var(--safe-bottom) + 16px);padding-top:var(--header-height);
-    }
-    .header{
-      position:fixed;top:0;left:0;right:0;z-index:100;height:var(--header-height);
-      background:rgba(15,23,42,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--border);
-    }
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:calc(var(--tab-height) + var(--safe-bottom) + 16px);padding-top:var(--header-height)}
+    .header{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--header-height);background:rgba(15,23,42,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--border)}
     .header-title{font-weight:700;font-size:1.2rem}
     .header-badge{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:3px 12px;border-radius:20px;font-weight:700}
-    .tab-bar{
-      position:fixed;bottom:0;left:0;right:0;z-index:100;
-      background:rgba(30,41,59,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-top:1px solid var(--border);display:flex;padding:6px 8px var(--safe-bottom);gap:4px;height:calc(var(--tab-height) + var(--safe-bottom))
-    }
-    .tab-btn{
-      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-      background:none;border:none;color:var(--text2);font-size:0.65rem;font-weight:500;cursor:pointer;
-      border-radius:var(--radius-sm);transition:all 0.2s;font-family:var(--font);padding:4px 2px;letter-spacing:-0.1px
-    }
+    .tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(30,41,59,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:6px 8px var(--safe-bottom);gap:4px;height:calc(var(--tab-height) + var(--safe-bottom))}
+    .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--text2);font-size:0.65rem;font-weight:500;cursor:pointer;border-radius:var(--radius-sm);transition:all 0.2s;font-family:var(--font);padding:4px 2px}
     .tab-btn.active{color:var(--accent);font-weight:600}
     .tab-icon{font-size:1.35rem;line-height:1}
     .main-content{padding:12px 14px;max-width:600px;margin:0 auto}
@@ -53,22 +37,14 @@
     .card{background:var(--surface);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
     .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
     .card-title{font-weight:700;font-size:0.95rem}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;
-      border-radius:50px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;font-family:var(--font);
-      transition:all 0.2s;white-space:nowrap
-    }
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:50px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;font-family:var(--font);transition:all 0.2s;white-space:nowrap}
     .btn:active{transform:scale(0.96)}
     .btn-accent{background:var(--accent);color:#0f172a}
     .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
     .btn-sm{padding:6px 14px;font-size:0.75rem}
     .btn-danger{background:var(--red);color:#fff}
     .btn-block{width:100%}
-    input,textarea,select{
-      width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);
-      background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.9rem;transition:border-color 0.2s;
-      -webkit-appearance:none;appearance:none
-    }
+    input,textarea,select{width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.9rem;transition:border-color 0.2s;-webkit-appearance:none;appearance:none}
     input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,187,0.15)}
     textarea{min-height:80px;resize:vertical}
     label{font-size:0.7rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block}
@@ -89,15 +65,10 @@
     .chip{display:inline-block;padding:5px 12px;border-radius:16px;font-size:0.7rem;font-weight:600;margin:2px 3px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:all 0.2s}
     .chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent)}
     .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);margin-bottom:8px}
-    .toast{
-      position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;background:var(--accent);color:#0f172a;
-      padding:10px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;opacity:0;pointer-events:none;
-      transition:opacity 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);white-space:nowrap
-    }
+    .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;background:var(--accent);color:#0f172a;padding:10px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);white-space:nowrap}
     .toast.show{opacity:1;pointer-events:auto}
     .toast.error{background:var(--red);color:#fff}
     .injury-badge{display:flex;align-items:center;gap:4px;background:rgba(239,68,68,0.15);border-left:3px solid var(--red);padding:6px 10px;border-radius:0 8px 8px 0;margin:4px 0;font-size:0.8rem;justify-content:space-between}
-    .injury-resolved{border-left-color:var(--green);opacity:0.7}
     .workout-exercise-card{background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:8px}
     .intensity-slider{width:100%;margin:10px 0;accent-color:var(--accent)}
     .thumbnail-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
@@ -121,7 +92,6 @@
 <div class="header"><span class="header-title">🏷️ JadeTracker</span><span class="header-badge" id="headerDate">Week 1</span></div>
 <div class="toast" id="toast"></div>
 <div class="main-content" id="mainContent">
-  <!-- Dashboard -->
   <div class="view active" id="view-dashboard">
     <div class="card"><div class="card-header"><span class="card-title">📊 Latest Body Metrics</span></div><div class="stats-grid" id="dashStats"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">⚠️ Active Injuries</span></div><div id="dashInjuries"></div></div>
@@ -129,83 +99,55 @@
     <div class="toggle-row"><span>🔔 Notify meal times</span><label class="switch"><input type="checkbox" id="notifyToggle" onchange="window.toggleNotifications(this.checked)"><span class="slider"></span></label></div>
     <button class="btn btn-accent btn-block" onclick="window.switchView('view-export')">📄 Weekly PDF for DeepSeek</button>
   </div>
-  <!-- Body Comp -->
   <div class="view" id="view-bodycomp">
-    <div class="card">
-      <div class="card-header"><span class="card-title">📸 Log Body Comp</span></div>
+    <div class="card"><div class="card-header"><span class="card-title">📸 Log Body Comp</span></div>
       <div class="input-group"><label>Date</label><input type="date" id="bcDate"></div>
-      <div class="input-group"><label>Upload Body Scan Images</label><input type="file" id="bcImages" accept="image/*" multiple onchange="window.previewImages()"><div class="thumbnail-row" id="imagePreviews"></div></div>
+      <div class="input-group"><label>Upload Scan Images</label><input type="file" id="bcImages" accept="image/*" multiple onchange="window.previewImages()"><div class="thumbnail-row" id="imagePreviews"></div></div>
       <div class="input-row"><div class="input-group"><label>Weight (lbs)</label><input type="number" id="bcWeight" step="0.1"></div><div class="input-group"><label>Body Fat (lbs)</label><input type="number" id="bcFat" step="0.1"></div></div>
       <div class="input-row"><div class="input-group"><label>Muscle (lbs)</label><input type="number" id="bcMuscle" step="0.1"></div><div class="input-group"><label>Visceral Fat cm²</label><input type="number" id="bcVFat" step="0.1"></div></div>
       <div class="input-group"><label>Notes</label><textarea id="bcNotes" rows="2"></textarea></div>
-      <button class="btn btn-accent btn-block" onclick="window.scanAndLogImages()">🔍 Scan Images & Log</button>
-      <button class="btn btn-outline btn-block" style="margin-top:6px;" onclick="window.addBodyCompEntry()">➕ Log Manually</button>
+      <button class="btn btn-accent btn-block" onclick="window.scanAndLogImages()">🔍 Scan & Log</button>
+      <button class="btn btn-outline btn-block" style="margin-top:6px" onclick="window.addBodyCompEntry()">➕ Manual Log</button>
     </div>
     <div class="card"><div class="card-header"><span class="card-title">📈 Trends</span></div><div class="graph-container"><canvas id="bodyCompChart"></canvas></div></div>
     <div class="card"><div class="card-header"><span class="card-title">📋 History</span></div><table class="data-table" id="bcTable"><thead><tr><th>Date</th><th>Wt</th><th>BF% (lbs)</th><th>Musc</th><th>VFat</th><th>Img</th><th>Del</th></tr></thead><tbody></tbody></table></div>
   </div>
-  <!-- Meals -->
   <div class="view" id="view-meals">
-    <div class="card">
-      <div class="card-header"><span class="card-title">🍽️ Daily Meal Logger</span></div>
-      <div class="input-group"><label>Week of</label><input type="date" id="mealWeekStart" onchange="window.updateMealCalendar()"></div>
+    <div class="card"><div class="card-header"><span class="card-title">🍽️ Daily Meal Logger</span></div>
+      <div class="input-group"><label>Week of (Sunday)</label><input type="date" id="mealWeekStart" onchange="window.updateMealCalendar()"></div>
       <div class="day-strip" id="mealDayStrip"></div>
       <div id="dailyMealPlanContainer"></div>
       <button class="btn btn-outline btn-block" onclick="window.addCustomMeal()">➕ Add Meal</button>
-      <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="window.saveDayMeals()">💾 Save Meals</button>
+      <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="window.saveDayMeals()">💾 Save Meals</button>
     </div>
   </div>
-  <!-- Workouts -->
   <div class="view" id="view-workouts">
-    <div class="card">
-      <div class="card-header"><span class="card-title">🏋️ Daily Workout Logger</span></div>
+    <div class="card"><div class="card-header"><span class="card-title">🏋️ Daily Workout Logger</span></div>
       <div class="input-group"><label>Date</label><input type="date" id="woDate" onchange="window.updateWorkoutCalendar()"></div>
       <div class="day-strip" id="woDayStrip"></div>
       <div id="dailyWorkoutPlanContainer"></div>
       <button class="btn btn-outline btn-block" onclick="window.addCustomExercise()">➕ Add Exercise</button>
-      <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="window.saveDayWorkout()">💾 Save Workout</button>
+      <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="window.saveDayWorkout()">💾 Save Workout</button>
     </div>
-    <div class="card">
-      <div class="card-header"><span class="card-title">⏱️ Workout Timer</span></div>
-      <div style="display:flex;gap:6px;margin-bottom:12px;" id="timerModeChips">
-        <span class="chip active" data-mode="density" onclick="window.setTimerMode('density')">Density</span>
-        <span class="chip" data-mode="circuit" onclick="window.setTimerMode('circuit')">Circuit</span>
-        <span class="chip" data-mode="stopwatch" onclick="window.setTimerMode('stopwatch')">Stopwatch</span>
-      </div>
+    <div class="card"><div class="card-header"><span class="card-title">⏱️ Workout Timer</span></div>
+      <div style="display:flex;gap:6px;margin-bottom:12px" id="timerModeChips"><span class="chip active" data-mode="density" onclick="window.setTimerMode('density')">Density</span><span class="chip" data-mode="circuit" onclick="window.setTimerMode('circuit')">Circuit</span><span class="chip" data-mode="stopwatch" onclick="window.setTimerMode('stopwatch')">Stopwatch</span></div>
       <div id="timerConfigDensity"><div class="input-row"><div class="input-group"><label>Block (min)</label><input type="number" id="densityDuration" value="8" min="1"></div><div class="input-group"><label>Exercise</label><input type="text" id="densityExercise" placeholder="DB Row"></div></div><div class="progress-bar"><div class="progress-fill" id="densityFill"></div></div></div>
-      <div id="timerConfigCircuit" style="display:none;"><div class="input-row"><div class="input-group"><label>Work (sec)</label><input type="number" id="circuitWork" value="30" min="5"></div><div class="input-group"><label>Rest (sec)</label><input type="number" id="circuitRest" value="15" min="0"></div></div></div>
-      <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap;"><span class="chip" onclick="window.applyTimerPreset('density8')">Density 8min</span><span class="chip" onclick="window.applyTimerPreset('circuit3015')">Circuit 30/15</span><span class="chip" onclick="window.saveTimerPreset()">💾 Save Preset</span></div>
-      <div class="timer-label" id="timerPhaseLabel">READY</div>
-      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div id="timerConfigCircuit" style="display:none"><div class="input-row"><div class="input-group"><label>Work (sec)</label><input type="number" id="circuitWork" value="30" min="5"></div><div class="input-group"><label>Rest (sec)</label><input type="number" id="circuitRest" value="15" min="0"></div></div></div>
+      <div style="margin:8px 0;display:flex;gap:6px"><span class="chip" onclick="window.applyTimerPreset('density8')">Density 8min</span><span class="chip" onclick="window.applyTimerPreset('circuit3015')">Circuit 30/15</span><span class="chip" onclick="window.saveTimerPreset()">💾 Save Preset</span></div>
+      <div class="timer-label" id="timerPhaseLabel">READY</div><div class="timer-display" id="timerDisplay">00:00</div>
       <div class="timer-controls"><button class="btn btn-accent" id="timerStartBtn" onclick="window.toggleTimer()">▶ Start</button><button class="btn btn-outline" onclick="window.resetTimer()">↺ Reset</button><button class="btn btn-outline btn-sm" onclick="window.lapTimer()">🏁 Lap</button></div>
-      <div id="timerLaps" style="margin-top:8px;font-size:0.75rem;color:var(--text2);max-height:100px;overflow-y:auto;"></div>
+      <div id="timerLaps" style="margin-top:8px;font-size:0.75rem;color:var(--text2);max-height:100px;overflow-y:auto"></div>
     </div>
-    <div class="card"><div class="card-header"><span class="card-title">📋 Recent Workout History</span></div><div id="woLog" style="max-height:300px;overflow-y:auto;"></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 Workout History</span></div><div id="woLog" style="max-height:300px;overflow-y:auto"></div></div>
   </div>
-  <!-- Documents -->
   <div class="view" id="view-documents">
-    <div class="card">
-      <div class="card-header"><span class="card-title">📥 Load/Replace Full Plan</span></div>
-      <p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px;">Upload dossier PDF or paste text to replace meals & workouts.</p>
-      <div class="upload-zone" onclick="document.getElementById('planFile').click()"><div style="font-size:2rem;">📄</div><p>Tap to upload</p></div>
-      <input type="file" id="planFile" accept=".pdf,.txt" style="display:none;" onchange="window.handlePlanUpload(this)">
-      <textarea id="planPaste" rows="3" placeholder="Or paste text..." style="margin-top:6px;"></textarea>
-      <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="window.loadFullPlanFromPaste()">🔃 Replace My Plan</button>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="card-title">⚠️ Extract Injuries & Stop Rules</span></div>
-      <p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px;">Upload reports to add injuries only.</p>
-      <div class="upload-zone" onclick="document.getElementById('docFile').click()"><div style="font-size:2rem;">📄</div><p>Tap to upload</p></div>
-      <input type="file" id="docFile" accept=".pdf,.txt" style="display:none;" onchange="window.handleDocUpload(this)">
-      <textarea id="docPaste" rows="3" placeholder="Or paste text..." style="margin-top:6px;"></textarea>
-      <button class="btn btn-accent btn-block" style="margin-top:6px;" onclick="window.parsePastedText()">🔍 Extract Injuries</button>
-    </div>
+    <div class="card"><div class="card-header"><span class="card-title">📥 Load/Replace Full Plan</span></div><p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px">Upload dossier PDF or paste to replace meals & workouts.</p><div class="upload-zone" onclick="document.getElementById('planFile').click()"><div style="font-size:2rem">📄</div><p>Tap to upload</p></div><input type="file" id="planFile" accept=".pdf,.txt" style="display:none" onchange="window.handlePlanUpload(this)"><textarea id="planPaste" rows="3" placeholder="Or paste text..." style="margin-top:6px"></textarea><button class="btn btn-accent btn-block" style="margin-top:6px" onclick="window.loadFullPlanFromPaste()">🔃 Replace My Plan</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">⚠️ Extract Injuries</span></div><p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px">Upload reports for injuries only.</p><div class="upload-zone" onclick="document.getElementById('docFile').click()"><div style="font-size:2rem">📄</div><p>Tap to upload</p></div><input type="file" id="docFile" accept=".pdf,.txt" style="display:none" onchange="window.handleDocUpload(this)"><textarea id="docPaste" rows="3" placeholder="Or paste text..." style="margin-top:6px"></textarea><button class="btn btn-accent btn-block" style="margin-top:6px" onclick="window.parsePastedText()">🔍 Extract Injuries</button></div>
     <div class="card"><div class="card-header"><span class="card-title">⚠️ Injuries & Stop Rules</span></div><div id="injuryList"></div><button class="btn btn-sm btn-outline" onclick="window.addManualInjury()">➕ Add Manually</button></div>
   </div>
-  <!-- Export -->
   <div class="view" id="view-export">
-    <div class="card"><div class="card-header"><span class="card-title">📄 Weekly PDF Export</span></div><div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel"></div><button class="btn btn-accent btn-block" onclick="window.generateWeeklyPDF()">📥 Generate PDF</button><button class="btn btn-outline btn-block" onclick="window.printWeeklySummary()">🖨️ Print View</button></div>
-    <div class="card"><div class="card-header"><span class="card-title">💾 Backup & Restore</span></div><button class="btn btn-outline btn-block" onclick="window.exportAllData()">📦 Export JSON</button><button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON</button><input type="file" id="importFile" accept=".json" style="display:none;" onchange="window.importAllData(this)"><button class="btn btn-danger btn-block" onclick="window.resetAllData()">🗑️ Reset All</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">📄 Weekly PDF</span></div><div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel"></div><button class="btn btn-accent btn-block" onclick="window.generateWeeklyPDF()">📥 Generate PDF</button><button class="btn btn-outline btn-block" onclick="window.printWeeklySummary()">🖨️ Print</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">💾 Backup</span></div><button class="btn btn-outline btn-block" onclick="window.exportAllData()">📦 Export JSON</button><button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="window.importAllData(this)"><button class="btn btn-danger btn-block" onclick="window.resetAllData()">🗑️ Reset All</button></div>
   </div>
 </div>
 <div class="tab-bar">
@@ -219,38 +161,13 @@
 
 <script>
 (function() {
-  // ---------- DEFAULT PLANS ----------
-  const DEFAULT_MEAL_PLAN = {
-    Monday:[{time:'7:30 AM',planned:'4 egg whites + 2 eggs, Ezekiel toast, spinach, black coffee'},{time:'12:00 PM',planned:'7 oz grilled chicken breast, large salad, 2 Tbsp olive oil, ½ avocado'},{time:'5:30 PM',planned:'½ scoop whey + ¼ cup blueberries + 1 Tbsp almond butter'},{time:'9:00 PM',planned:'8 oz chicken thigh (skinless), broccoli, 1 Tbsp olive oil'}],
-    Tuesday:[{time:'7:30 AM',planned:'3 eggs + 3 whites, mushrooms, black coffee'},{time:'12:00 PM',planned:'7 oz 93/7 ground beef, green beans, ¼ cup quinoa'},{time:'4:30 PM',planned:'Black coffee + 1 Tbsp MCT oil + pinch salt'},{time:'6:30 PM',planned:'8 oz flank steak, arugula salad, 4 oz sweet potato'}],
-    Wednesday:[{time:'7:30 AM',planned:'4 whites + 2 eggs, Ezekiel toast, coffee'},{time:'12:00 PM',planned:'7 oz ground turkey, zucchini, ½ avocado'},{time:'5:30 PM',planned:'½ scoop whey + 1 Tbsp almond butter'},{time:'9:00 PM',planned:'7 oz chicken breast, asparagus, olive oil'}],
-    Thursday:[{time:'7:30 AM',planned:'4 eggs, 2 turkey bacon, black coffee'},{time:'12:00 PM',planned:'8 oz chicken breast, mixed greens, 1 Tbsp olive oil'},{time:'4:30 PM',planned:'Black coffee + pinch salt'},{time:'6:30 PM',planned:'8 oz ground beef patty, spinach, ¼ cup sauerkraut'}],
-    Friday:[{time:'7:30 AM',planned:'3 eggs + 3 whites, Ezekiel toast, coffee'},{time:'12:00 PM',planned:'7 oz chicken, ½ cup brown rice, broccoli'},{time:'4:30 PM',planned:'1 rice cake + 1 tsp honey (optional)'},{time:'6:30 PM',planned:'Cheat window: 12‑14 oz ribeye + butter, side salad'}],
-    Saturday:[{time:'10:00 AM',planned:'4‑egg omelet, spinach, 2 oz feta, ½ avocado'},{time:'5:00 PM',planned:'8 oz salmon or chicken thigh, Brussels sprouts, ½ cup quinoa'}],
-    Sunday:[{time:'9:00 AM',planned:'4 whites + 2 eggs, kale, black coffee'},{time:'1:00 PM',planned:'7 oz lean ground beef, salad, olive oil'},{time:'5:00 PM',planned:'8 oz chicken breast, cauliflower, 1 Tbsp pesto'}]
-  };
-  const DEFAULT_WORKOUT_PLAN = {
-    Monday:{type:'Judo (Technical)',details:'Class 7:00–8:30 PM. Ashi‑waza, pistol grip, light newaza.',intensity:true,exercises:[]},
-    Tuesday:{type:'Upper Pull + Pull‑Up Rescue',exercises:[{name:'Chest‑Supported DB Row',time:8,reps:'8‑10',weight:'65 lbs',cue:'Chest glued to pad'},{name:'Cable Face Pull',time:8,reps:'12‑15',weight:'50 lbs',cue:'Pull to forehead'},{name:'Dead Bug',time:6,reps:'8/side',weight:'BW or 5lb',cue:'Back imprints floor'},{name:'Ring Rows',sets:'3',reps:'8‑10',weight:'BW/assist'},{name:'Eccentric Pull‑Up Negatives',sets:'3',reps:'3‑5',weight:'Band assist',cue:'5‑sec lower'},{name:'Scapular Pull‑Ups',sets:'3',reps:'8‑10',weight:'BW'},{name:'Ring Dead Hang',sets:'2',reps:'30 sec',weight:'BW'}],details:'Pull‑Up Rescue: 60s rest between rounds.'},
-    Wednesday:{type:'Judo (Newaza)',details:'Class 7:00–8:30 PM. Guard work, sweeps.',intensity:true},
-    Thursday:{type:'Aerobic Power Circuit',exercises:[{name:'Kneeling Battle Ropes',work:30,rest:15,weight:'—'},{name:'Suitcase Carry',work:30,rest:15,weight:'55‑60 lbs'},{name:'Med Ball Slam',reps:15,rest:30,weight:'20‑40 lbs'},{name:'Assault Bike Finisher',work:300,weight:'—',cue:'5 min steady'}],details:'15‑min AMRAP, then 5‑min bike.'},
-    Friday:{type:'Power + Push',exercises:[{name:'Landmine Press',sets:'3',reps:'10/side',weight:'45 lbs',cue:'45° angle'},{name:'Belt Squat (or Goblet)',sets:'3',reps:'12',weight:'50 lbs',cue:'Box at parallel'},{name:'Pallof Press',sets:'3',reps:'12/side',weight:'25 lbs'}]},
-    Saturday:{type:'Active Recovery',details:'45‑60 min walk HR<130, sauna.'},
-    Sunday:{type:'Full Rest',details:'Legs up wall, meal prep.'}
-  };
+  const DEFAULT_MEAL_PLAN = { Sunday:[{time:'9:00 AM',planned:'4 whites + 2 eggs, kale, black coffee'},{time:'1:00 PM',planned:'7 oz lean ground beef, salad, olive oil'},{time:'5:00 PM',planned:'8 oz chicken breast, cauliflower, 1 Tbsp pesto'}], Monday:[{time:'7:30 AM',planned:'4 egg whites + 2 eggs, Ezekiel toast, spinach, black coffee'},{time:'12:00 PM',planned:'7 oz grilled chicken breast, salad, 2 Tbsp olive oil, ½ avocado'},{time:'5:30 PM',planned:'½ scoop whey + blueberries + almond butter'},{time:'9:00 PM',planned:'8 oz chicken thigh, broccoli, olive oil'}], Tuesday:[{time:'7:30 AM',planned:'3 eggs + 3 whites, mushrooms, black coffee'},{time:'12:00 PM',planned:'7 oz 93/7 ground beef, green beans, quinoa'},{time:'4:30 PM',planned:'Black coffee + MCT oil + salt'},{time:'6:30 PM',planned:'8 oz flank steak, arugula, sweet potato'}], Wednesday:[{time:'7:30 AM',planned:'4 whites + 2 eggs, Ezekiel toast, coffee'},{time:'12:00 PM',planned:'7 oz ground turkey, zucchini, avocado'},{time:'5:30 PM',planned:'½ scoop whey + almond butter'},{time:'9:00 PM',planned:'7 oz chicken breast, asparagus, olive oil'}], Thursday:[{time:'7:30 AM',planned:'4 eggs, turkey bacon, black coffee'},{time:'12:00 PM',planned:'8 oz chicken breast, greens, olive oil'},{time:'4:30 PM',planned:'Black coffee + salt'},{time:'6:30 PM',planned:'8 oz ground beef patty, spinach, sauerkraut'}], Friday:[{time:'7:30 AM',planned:'3 eggs + 3 whites, Ezekiel toast, coffee'},{time:'12:00 PM',planned:'7 oz chicken, brown rice, broccoli'},{time:'4:30 PM',planned:'Rice cake + honey'},{time:'6:30 PM',planned:'Cheat: ribeye + butter, salad'}], Saturday:[{time:'10:00 AM',planned:'Omelet, spinach, feta, avocado'},{time:'5:00 PM',planned:'8 oz salmon, Brussels sprouts, quinoa'}] };
+  const DEFAULT_WORKOUT_PLAN = { Sunday:{type:'Full Rest',details:'Legs up wall, meal prep.'}, Monday:{type:'Judo (Technical)',details:'Class 7–8:30 PM. Ashi‑waza, light newaza.',intensity:true,exercises:[]}, Tuesday:{type:'Upper Pull + Pull‑Up Rescue',exercises:[{name:'Chest‑Supported DB Row',time:8,reps:'8‑10',weight:'65 lbs',cue:'Chest glued to pad'},{name:'Cable Face Pull',time:8,reps:'12‑15',weight:'50 lbs',cue:'Pull to forehead'},{name:'Dead Bug',time:6,reps:'8/side',weight:'BW/5lb',cue:'Back imprints floor'},{name:'Ring Rows',sets:'3',reps:'8‑10',weight:'BW/assist'},{name:'Eccentric Pull‑Up Negatives',sets:'3',reps:'3‑5',weight:'Band assist',cue:'5‑sec lower'},{name:'Scapular Pull‑Ups',sets:'3',reps:'8‑10',weight:'BW'},{name:'Ring Dead Hang',sets:'2',reps:'30 sec',weight:'BW'}],details:'Pull‑Up Rescue: 60s rest.'}, Wednesday:{type:'Judo (Newaza)',details:'Class 7–8:30 PM. Guard work.',intensity:true}, Thursday:{type:'Aerobic Power Circuit',exercises:[{name:'Kneeling Battle Ropes',work:30,rest:15},{name:'Suitcase Carry',work:30,rest:15,weight:'60‑65 lbs'},{name:'Med Ball Slam',reps:15,rest:30,weight:'15 lbs'},{name:'Assault Bike Finisher',work:300,cue:'5 min steady'}],details:'15‑min AMRAP, then bike.'}, Friday:{type:'Power + Push',exercises:[{name:'Landmine Press',sets:'3',reps:'10/side',weight:'45 lbs',cue:'45° angle'},{name:'Goblet Squat to Box',sets:'3',reps:'12',weight:'65 lbs',cue:'Box at parallel'},{name:'Pallof Press',sets:'3',reps:'12/side',weight:'30 lbs'}],details:'Progressive overload.'}, Saturday:{type:'Active Recovery',details:'Walk HR<130, sauna.'} };
 
-  // ---------- STATE ----------
-  const STORAGE_KEY = 'jadetracker_final';
-  let appData = {
-    bodyComp:[], meals:[], workouts:[], injuries:[], documents:[], dayWorkouts:{},
-    activeMealPlan:null, activeWorkoutPlan:null,
-    settings:{weekLabel:'Week 1', mealWeekStart:'', mealDaySelected:'Monday', woDaySelected:'Monday', notifyMeals:false},
-    timerPresets:{}
-  };
-  let bodyCompChart=null, timerInterval=null, timerMode='density', timerSeconds=0, timerLaps=[];
-  let timerRunning=false;
+  const STORAGE_KEY = 'jadetracker_final2';
+  let appData = { bodyComp:[], meals:[], workouts:[], injuries:[], documents:[], dayWorkouts:{}, activeMealPlan:null, activeWorkoutPlan:null, settings:{weekLabel:'Week 1', mealWeekStart:'', mealDaySelected:'Sunday', woDaySelected:'Sunday', notifyMeals:false}, timerPresets:{} };
+  let bodyCompChart=null, timerInterval=null, timerMode='density', timerSeconds=0, timerLaps=[], timerRunning=false;
 
-  // ---------- PERSISTENCE ----------
   function loadData(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)appData={...appData,...JSON.parse(r)}}catch(e){}}
   function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appData))}catch(e){}}
   function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
@@ -258,325 +175,120 @@
   function getActiveMealPlan(){return appData.activeMealPlan||DEFAULT_MEAL_PLAN}
   function getActiveWorkoutPlan(){return appData.activeWorkoutPlan||DEFAULT_WORKOUT_PLAN}
 
-  // ---------- NOTIFICATIONS ----------
-  window.toggleNotifications=async function(enable){
-    if(enable&&Notification.permission==='default'){const p=await Notification.requestPermission();if(p!=='granted'){enable=false;showToast('Permission denied',true)}}
-    appData.settings.notifyMeals=enable;saveData();document.getElementById('notifyToggle').checked=enable;
-    showToast(`Notifications ${enable?'enabled':'disabled'}.`);if(enable)checkMealTimes();
-  };
-  function checkMealTimes(){
-    if(!appData.settings.notifyMeals||Notification.permission!=='granted')return;
-    const now=new Date();const ct=now.getHours()*60+now.getMinutes();
-    const plan=getActiveMealPlan();const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
-    (plan[dn]||[]).forEach(m=>{const [h,mn]=m.time.match(/(\d+):(\d+)/)?.slice(1).map(Number)||[0,0];if(Math.abs(h*60+mn-ct)<=2){new Notification('JadeTracker',{body:`Time for your ${m.time} meal: ${m.planned}`});showToast(`🔔 ${m.time} meal reminder!`)}});
-  }
+  window.toggleNotifications=async function(enable){if(enable&&Notification.permission==='default'){const p=await Notification.requestPermission();if(p!=='granted'){enable=false;showToast('Permission denied',true)}}appData.settings.notifyMeals=enable;saveData();document.getElementById('notifyToggle').checked=enable;showToast(`Notifications ${enable?'on':'off'}.`);if(enable)checkMealTimes()};
+  function checkMealTimes(){if(!appData.settings.notifyMeals||Notification.permission!=='granted')return;const now=new Date(),plan=getActiveMealPlan(),dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];(plan[dn]||[]).forEach(m=>{const [h,mn]=m.time.match(/(\d+):(\d+)/)?.slice(1).map(Number)||[0,0];if(Math.abs(h*60+mn-(now.getHours()*60+now.getMinutes()))<=2){new Notification('JadeTracker',{body:`${m.time}: ${m.planned}`});showToast(`🔔 ${m.time} meal!`)}})}
   setInterval(checkMealTimes,60000);
 
-  // ---------- CALENDAR ----------
   function getWeekDays(start){const d=new Date(start+'T00:00:00');return Array.from({length:7},(_,i)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+i))}
-  window.updateMealCalendar=function(){
-    const w=document.getElementById('mealWeekStart'),s=document.getElementById('mealDayStrip');
-    if(!w||!s)return;const wv=w.value;if(!wv)return;
-    const days=getWeekDays(wv),dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],sd=appData.settings.mealDaySelected||'Monday';
-    s.innerHTML=days.map((d,i)=>{const fd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];return `<div class="day-chip ${fd===sd?'active':''}" onclick="window.selectMealDay('${fd}')"><span class="day-name">${dn[d.getDay()]}</span><span class="day-date">${d.getDate()}/${d.getMonth()+1}</span></div>`}).join('');
-  };
+  window.updateMealCalendar=function(){const w=document.getElementById('mealWeekStart'),s=document.getElementById('mealDayStrip');if(!w||!s)return;const wv=w.value;if(!wv)return;const days=getWeekDays(wv),dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],sd=appData.settings.mealDaySelected||'Sunday';s.innerHTML=days.map((d,i)=>{const fd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];return`<div class="day-chip ${fd===sd?'active':''}" onclick="window.selectMealDay('${fd}')"><span class="day-name">${dn[d.getDay()]}</span><span class="day-date">${d.getDate()}/${d.getMonth()+1}</span></div>`}).join('')};
   window.selectMealDay=function(d){appData.settings.mealDaySelected=d;saveData();updateMealCalendar();loadDayMealPlan()};
-  window.updateWorkoutCalendar=function(){
-    const d=document.getElementById('woDate'),s=document.getElementById('woDayStrip');
-    if(!d||!s)return;const dv=d.value;if(!dv)return;
-    const dt=new Date(dv+'T00:00:00'),dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],sd=appData.settings.woDaySelected||fd[dt.getDay()];
-    s.innerHTML=fd.map((day,i)=>{const nd=new Date(dt);nd.setDate(dt.getDate()-dt.getDay()+i);return `<div class="day-chip ${day===sd?'active':''}" onclick="window.selectWoDay('${day}')"><span class="day-name">${dn[i]}</span><span class="day-date">${nd.getDate()}/${nd.getMonth()+1}</span></div>`}).join('');
-  };
+  window.updateWorkoutCalendar=function(){const d=document.getElementById('woDate'),s=document.getElementById('woDayStrip');if(!d||!s)return;const dv=d.value;if(!dv)return;const dt=new Date(dv+'T00:00:00'),dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],sd=appData.settings.woDaySelected||fd[dt.getDay()];s.innerHTML=fd.map((day,i)=>{const nd=new Date(dt);nd.setDate(dt.getDate()-dt.getDay()+i);return`<div class="day-chip ${day===sd?'active':''}" onclick="window.selectWoDay('${day}')"><span class="day-name">${dn[i]}</span><span class="day-date">${nd.getDate()}/${nd.getMonth()+1}</span></div>`}).join('')};
   window.selectWoDay=function(d){appData.settings.woDaySelected=d;saveData();updateWorkoutCalendar();loadDayWorkoutPlan()};
 
-  // ---------- VIEW SWITCH ----------
-  window.switchView=function(v){
-    document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
-    document.getElementById(v).classList.add('active');
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector(`.tab-btn[data-view="${v}"]`).classList.add('active');
-    if(v==='view-bodycomp'){renderBodyCompTable();renderBodyCompChart()}
-    if(v==='view-dashboard'){document.getElementById('notifyToggle').checked=appData.settings.notifyMeals;renderDashboard()}
-    if(v==='view-meals'){const w=document.getElementById('mealWeekStart');if(w&&appData.settings.mealWeekStart)w.value=appData.settings.mealWeekStart;else if(w){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));w.value=d.toISOString().split('T')[0];appData.settings.mealWeekStart=w.value;saveData()}updateMealCalendar();loadDayMealPlan()}
-    if(v==='view-workouts'){setWoDate();updateWorkoutCalendar();loadDayWorkoutPlan();renderWorkoutHistory()}
-    if(v==='view-documents')renderInjuries();
-    if(v==='view-export')document.getElementById('exportWeekLabel').value=appData.settings.weekLabel||'';
-    window.scrollTo({top:0,behavior:'smooth'});
-  };
+  window.switchView=function(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.tab-btn[data-view="${v}"]`).classList.add('active');if(v==='view-bodycomp'){renderBodyCompTable();renderBodyCompChart()}if(v==='view-dashboard'){document.getElementById('notifyToggle').checked=appData.settings.notifyMeals;renderDashboard()}if(v==='view-meals'){const w=document.getElementById('mealWeekStart');if(w&&appData.settings.mealWeekStart)w.value=appData.settings.mealWeekStart;else if(w){const d=new Date();d.setDate(d.getDate()-d.getDay());w.value=d.toISOString().split('T')[0];appData.settings.mealWeekStart=w.value;saveData()}updateMealCalendar();loadDayMealPlan()}if(v==='view-workouts'){setWoDate();updateWorkoutCalendar();loadDayWorkoutPlan();renderWorkoutHistory()}if(v==='view-documents')renderInjuries();if(v==='view-export')document.getElementById('exportWeekLabel').value=appData.settings.weekLabel||'';window.scrollTo({top:0,behavior:'smooth'})};
 
-  // ---------- DASHBOARD ----------
-  function renderDashboard(){
-    const bc=appData.bodyComp,l=bc.length?bc[bc.length-1]:null,p=bc.length>1?bc[bc.length-2]:null;
-    const trend=(v,pv,u)=>{if(v==null||pv==null)return'';const d=(v-pv).toFixed(1);return d>0?`▲${d}${u}`:d<0?`▼${Math.abs(d)}${u}`:'➖0'};
-    document.getElementById('dashStats').innerHTML=`
-      <div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight (lbs)</div><div class="trend">${trend(l?.weight,p?.weight,' lbs')}</div></div>
-      <div class="stat-card"><div class="stat-value">${l?.fatPercentage!=null?l.fatPercentage.toFixed(1)+'%':'--'}</div><div class="stat-label">Body Fat %${l?.bodyFatLbs!=null?` (${l.bodyFatLbs.toFixed(1)} lbs)`:''}</div><div class="trend">${trend(l?.fatPercentage,p?.fatPercentage,'%')}</div></div>
-      <div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle (lbs)</div><div class="trend">${trend(l?.skeletalMuscle,p?.skeletalMuscle,' lbs')}</div></div>
-      <div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">Visceral Fat cm²</div><div class="trend">${trend(l?.visceralFat,p?.visceralFat,' cm²')}</div></div>`;
-    const active=appData.injuries.filter(i=>i.status!=='Resolved');
-    document.getElementById('dashInjuries').innerHTML=active.length?active.map(i=>`<div class="injury-badge">⚠️ ${i.name}</div>`).join(''):'<p style="color:var(--text2);">No active injuries.</p>';
-    const wm=getMealsForWeek(),done=wm.filter(m=>m.completed).length;
-    document.getElementById('dashMealAdherence').innerHTML=wm.length?`<p>${done}/${wm.length} meals completed (${Math.round(done/Math.max(1,wm.length)*100)}%)</p>`:'<p style="color:var(--text2);">No meals logged this week.</p>';
-  }
+  function renderDashboard(){const bc=appData.bodyComp,l=bc.length?bc[bc.length-1]:null,p=bc.length>1?bc[bc.length-2]:null;const trend=(v,pv,u)=>{if(v==null||pv==null)return'';const d=(v-pv).toFixed(1);return d>0?`▲${d}${u}`:d<0?`▼${Math.abs(d)}${u}`:'➖0'};document.getElementById('dashStats').innerHTML=`<div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight (lbs)</div><div class="trend">${trend(l?.weight,p?.weight,' lbs')}</div></div><div class="stat-card"><div class="stat-value">${l?.fatPercentage!=null?l.fatPercentage.toFixed(1)+'%':'--'}</div><div class="stat-label">Body Fat %${l?.bodyFatLbs!=null?` (${l.bodyFatLbs.toFixed(1)} lbs)`:''}</div><div class="trend">${trend(l?.fatPercentage,p?.fatPercentage,'%')}</div></div><div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle (lbs)</div><div class="trend">${trend(l?.skeletalMuscle,p?.skeletalMuscle,' lbs')}</div></div><div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">Visceral Fat cm²</div><div class="trend">${trend(l?.visceralFat,p?.visceralFat,' cm²')}</div></div>`;const active=appData.injuries.filter(i=>i.status!=='Resolved');document.getElementById('dashInjuries').innerHTML=active.length?active.map(i=>`<div class="injury-badge">⚠️ ${i.name}</div>`).join(''):'<p style="color:var(--text2);">No active injuries.</p>';const wm=getMealsForWeek(),done=wm.filter(m=>m.completed).length;document.getElementById('dashMealAdherence').innerHTML=wm.length?`<p>${done}/${wm.length} meals (${Math.round(done/Math.max(1,wm.length)*100)}%)</p>`:'<p style="color:var(--text2);">No meals this week.</p>'}
 
-  // ---------- BODY COMP ----------
-  function renderBodyCompTable(){const t=document.querySelector('#bcTable tbody');if(!t)return;const d=[...appData.bodyComp].reverse();t.innerHTML=d.length?d.map(b=>`<tr><td>${b.date}</td><td>${b.weight?.toFixed(1)??'--'}</td><td>${b.fatPercentage!=null?b.fatPercentage.toFixed(1)+'%':''}${b.bodyFatLbs!=null?` (${b.bodyFatLbs.toFixed(1)} lbs)`:''}</td><td>${b.skeletalMuscle?.toFixed(1)??'--'}</td><td>${b.visceralFat?.toFixed(1)??'--'}</td><td>${b.imageData?`<img src="${b.imageData}" width="30" height="30" style="border-radius:4px;" onclick="window.open('${b.imageData}')">`:'--'}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteBodyComp('${b.id}')">✕</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text2);">No entries.</td></tr>'}
+  function renderBodyCompTable(){const t=document.querySelector('#bcTable tbody');if(!t)return;const d=[...appData.bodyComp].reverse();t.innerHTML=d.length?d.map(b=>`<tr><td>${b.date}</td><td>${b.weight?.toFixed(1)??'--'}</td><td>${b.fatPercentage!=null?b.fatPercentage.toFixed(1)+'%':''}${b.bodyFatLbs!=null?` (${b.bodyFatLbs.toFixed(1)} lbs)`:''}</td><td>${b.skeletalMuscle?.toFixed(1)??'--'}</td><td>${b.visceralFat?.toFixed(1)??'--'}</td><td>${b.imageData?`<img src="${b.imageData}" width="30" height="30" style="border-radius:4px" onclick="window.open('${b.imageData}')">`:'--'}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteBodyComp('${b.id}')">✕</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text2);">No entries.</td></tr>'}
   window.deleteBodyComp=function(id){appData.bodyComp=appData.bodyComp.filter(b=>b.id!==id);saveData();renderBodyCompTable();renderBodyCompChart();renderDashboard()};
   function renderBodyCompChart(){const c=document.getElementById('bodyCompChart');if(!c)return;const ctx=c.getContext('2d');if(bodyCompChart)bodyCompChart.destroy();const d=appData.bodyComp;if(!d.length)return;const labels=d.map(e=>e.date),ds=[];if(d.some(e=>e.weight!=null))ds.push({label:'Weight (lbs)',data:d.map(e=>e.weight),borderColor:'#22d3bb',tension:0.3});if(d.some(e=>e.fatPercentage!=null))ds.push({label:'Body Fat %',data:d.map(e=>e.fatPercentage),borderColor:'#ef4444',tension:0.3});if(d.some(e=>e.skeletalMuscle!=null))ds.push({label:'Muscle (lbs)',data:d.map(e=>e.skeletalMuscle),borderColor:'#3b82f6',tension:0.3});if(d.some(e=>e.visceralFat!=null))ds.push({label:'Visceral Fat cm²',data:d.map(e=>e.visceralFat),borderColor:'#f59e0b',tension:0.3,yAxisID:'y1'});bodyCompChart=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:false},y1:{position:'right',grid:{drawOnChartArea:false}}}}})}
   window.previewImages=function(){const f=document.getElementById('bcImages').files,c=document.getElementById('imagePreviews');if(!c)return;c.innerHTML='';for(let i=0;i<f.length;i++){const r=new FileReader();r.onload=e=>{const img=document.createElement('img');img.src=e.target.result;img.className='thumbnail';c.appendChild(img)};r.readAsDataURL(f[i])}};
   function extractMetrics(lines){const res={weight:null,fatLbs:null,muscle:null,vfat:null};const gn=l=>{const m=l.match(/(-?\d+\.?\d*)/);return m?parseFloat(m[1]):null};for(let i=0;i<lines.length;i++){const l=lines[i].replace(/[*#]/g,'').trim();if(/weight/i.test(l)&&/current/i.test(l)){const n=gn(l);if(n&&n>50){res.weight=n;break}}if(/total\s*body\s*weight/i.test(l)){const n=gn(l);if(n){res.weight=n;break}}}for(let i=0;i<lines.length;i++){const l=lines[i].replace(/[*#]/g,'').trim();if(/skeletal\s*muscle/i.test(l)){let n=gn(l);if(!n&&i+1<lines.length)n=gn(lines[i+1]);if(n&&n>20){res.muscle=n;break}}}for(let i=0;i<lines.length;i++){const l=lines[i].replace(/[*#]/g,'').trim();if(/visceral\s*fat\s*area/i.test(l)){let n=gn(l);if(!n&&i+1<lines.length)n=gn(lines[i+1]);if(n&&n<500){res.vfat=n;break}}}for(let i=0;i<lines.length;i++){const l=lines[i].replace(/[*#]/g,'').trim();if(/^\s*FAT\s*\(?lb\)?\s*(\d+\.?\d*)/i.test(l)){const m=l.match(/(\d+\.?\d*)/);if(m){res.fatLbs=parseFloat(m[1]);break}}}return res;}
-  window.scanAndLogImages=async function(){
-    const files=document.getElementById('bcImages').files;if(!files.length){showToast('Select images',true);return}
-    const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0];
-    showToast(`Scanning ${files.length} image(s)...`);let comb={weight:null,fatLbs:null,muscle:null,vfat:null},firstImg=null;
-    for(let i=0;i<files.length;i++){try{const url=await resizeImage(files[i],1200);const {data:{text}}=await Tesseract.recognize(url,'eng');const ln=text.split('\n').map(l=>l.trim()).filter(l=>l);const m=extractMetrics(ln);if(comb.weight==null&&m.weight!=null)comb.weight=m.weight;if(comb.fatLbs==null&&m.fatLbs!=null)comb.fatLbs=m.fatLbs;if(comb.muscle==null&&m.muscle!=null)comb.muscle=m.muscle;if(comb.vfat==null&&m.vfat!=null)comb.vfat=m.vfat;if(!firstImg)firstImg=url}catch(e){showToast(`Image ${i+1} failed`,true)}}
-    if(comb.weight==null&&comb.fatLbs==null&&comb.muscle==null&&comb.vfat==null){showToast('No metrics extracted',true);return}
-    const fatPct=comb.weight&&comb.fatLbs!=null?(comb.fatLbs/comb.weight)*100:null;
-    const entry={id:uid(),date,weight:comb.weight,bodyFatLbs:comb.fatLbs,fatPercentage:fatPct,skeletalMuscle:comb.muscle,visceralFat:comb.vfat,imageData:firstImg,notes:`Combined from ${files.length} scan(s).`,_timestamp:new Date().toISOString()};
-    appData.bodyComp.push(entry);appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));
-    saveData();renderBodyCompTable();renderBodyCompChart();renderDashboard();
-    document.getElementById('bcImages').value='';document.getElementById('imagePreviews').innerHTML='';showToast('Body comp logged!');
-  };
+  window.scanAndLogImages=async function(){const files=document.getElementById('bcImages').files;if(!files.length){showToast('Select images',true);return}const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0];showToast(`Scanning ${files.length} image(s)...`);let comb={weight:null,fatLbs:null,muscle:null,vfat:null},firstImg=null;for(let i=0;i<files.length;i++){try{const url=await resizeImage(files[i],1200);const {data:{text}}=await Tesseract.recognize(url,'eng');const ln=text.split('\n').map(l=>l.trim()).filter(l=>l);const m=extractMetrics(ln);if(comb.weight==null&&m.weight!=null)comb.weight=m.weight;if(comb.fatLbs==null&&m.fatLbs!=null)comb.fatLbs=m.fatLbs;if(comb.muscle==null&&m.muscle!=null)comb.muscle=m.muscle;if(comb.vfat==null&&m.vfat!=null)comb.vfat=m.vfat;if(!firstImg)firstImg=url}catch(e){showToast(`Image ${i+1} failed`,true)}}if(comb.weight==null&&comb.fatLbs==null&&comb.muscle==null&&comb.vfat==null){showToast('No metrics extracted',true);return}const fatPct=comb.weight&&comb.fatLbs!=null?(comb.fatLbs/comb.weight)*100:null;const entry={id:uid(),date,weight:comb.weight,bodyFatLbs:comb.fatLbs,fatPercentage:fatPct,skeletalMuscle:comb.muscle,visceralFat:comb.vfat,imageData:firstImg,notes:`Combined from ${files.length} scan(s).`,_timestamp:new Date().toISOString()};appData.bodyComp.push(entry);appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));saveData();renderBodyCompTable();renderBodyCompChart();renderDashboard();document.getElementById('bcImages').value='';document.getElementById('imagePreviews').innerHTML='';showToast('Body comp logged!')};
   async function resizeImage(file,maxW){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h*=maxW/w;w=maxW}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',0.8))};img.onerror=rej;img.src=e.target.result};r.onerror=rej;r.readAsDataURL(file)})}
-  window.addBodyCompEntry=function(){
-    const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0];
-    const w=parseFloat(document.getElementById('bcWeight').value)||null,fl=parseFloat(document.getElementById('bcFat').value)||null;
-    const m=parseFloat(document.getElementById('bcMuscle').value)||null,v=parseFloat(document.getElementById('bcVFat').value)||null;
-    if(!w&&fl==null&&!m&&!v){showToast('Enter at least one metric',true);return}
-    const fatPct=w&&fl!=null?(fl/w)*100:null;
-    const entry={id:uid(),date,weight:w,bodyFatLbs:fl,fatPercentage:fatPct,skeletalMuscle:m,visceralFat:v,imageData:null,notes:document.getElementById('bcNotes').value.trim(),_timestamp:new Date().toISOString()};
-    appData.bodyComp.push(entry);appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));
-    saveData();renderBodyCompTable();renderBodyCompChart();renderDashboard();showToast('Body comp logged!');
-  };
+  window.addBodyCompEntry=function(){const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0];const w=parseFloat(document.getElementById('bcWeight').value)||null,fl=parseFloat(document.getElementById('bcFat').value)||null;const m=parseFloat(document.getElementById('bcMuscle').value)||null,v=parseFloat(document.getElementById('bcVFat').value)||null;if(!w&&fl==null&&!m&&!v){showToast('Enter a metric',true);return}const fatPct=w&&fl!=null?(fl/w)*100:null;const entry={id:uid(),date,weight:w,bodyFatLbs:fl,fatPercentage:fatPct,skeletalMuscle:m,visceralFat:v,imageData:null,notes:document.getElementById('bcNotes').value.trim(),_timestamp:new Date().toISOString()};appData.bodyComp.push(entry);appData.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));saveData();renderBodyCompTable();renderBodyCompChart();renderDashboard();showToast('Body comp logged!')};
 
-  // ---------- MEALS ----------
   function getMealsForWeek(){const s=document.getElementById('mealWeekStart')?.value||appData.settings.mealWeekStart;if(!s)return[];const st=new Date(s+'T00:00:00');if(isNaN(st))return[];const end=new Date(st);end.setDate(end.getDate()+7);return appData.meals.filter(m=>{if(!m._timestamp)return true;const d=new Date(m._timestamp);return d>=st&&d<end})}
   window.updateMealDoneVisual=function(cb){const card=cb.closest('.workout-exercise-card');if(card)card.classList.toggle('meal-locked',cb.checked)};
-  window.addCustomMeal=function(){
-    const container=document.getElementById('dailyMealPlanContainer');if(!container)return;
-    const html=`<div class="workout-exercise-card"><div style="display:flex;justify-content:space-between;align-items:center;"><input type="text" class="meal-custom-time" placeholder="Time (e.g., 3:00 PM)" style="width:40%;margin-right:8px;"><label class="meal-check-label"><input type="checkbox" class="meal-done" data-time=""> <span>Done</span></label></div><div class="input-group" style="margin-top:6px;"><label>Planned</label><input type="text" class="meal-custom-planned" placeholder="What you plan to eat"></div><div class="input-row"><div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time=""></div><div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time=""></div></div></div>`;
-    container.insertAdjacentHTML('beforeend',html);
-  };
-  window.loadDayMealPlan=function(){
-    const day=appData.settings.mealDaySelected||'Monday',ws=document.getElementById('mealWeekStart')?.value||appData.settings.mealWeekStart;
-    if(!day||!ws)return;const plan=getActiveMealPlan(),planned=plan[day]||[],existing=appData.meals.filter(m=>m.day===day&&m.weekStart===ws);
-    const container=document.getElementById('dailyMealPlanContainer');if(!container)return;
-    let html='';
-    planned.forEach(p=>{const saved=existing.find(e=>e.time===p.time)||{};html+=`<div class="workout-exercise-card ${saved.completed?'meal-locked':''}"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>${p.time}</strong><label class="meal-check-label"><input type="checkbox" class="meal-done" data-time="${p.time}" ${saved.completed?'checked':''} onchange="window.updateMealDoneVisual(this)"> Done</label></div><div style="font-size:0.75rem;color:var(--text2);">Planned: ${p.planned}</div><div class="input-row"><div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${p.time}" value="${saved.actual||''}"></div><div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${p.time}" value="${saved.notes||''}"></div></div></div>`});
-    existing.forEach(m=>{if(!planned.some(p=>p.time===m.time)){html+=`<div class="workout-exercise-card ${m.completed?'meal-locked':''}"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>${m.time||'Custom'}</strong><label class="meal-check-label"><input type="checkbox" class="meal-done" data-time="${m.time}" ${m.completed?'checked':''} onchange="window.updateMealDoneVisual(this)"> Done</label></div><div style="font-size:0.75rem;color:var(--text2);">Planned: ${m.planned||''}</div><div class="input-row"><div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${m.time}" value="${m.actual||''}"></div><div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${m.time}" value="${m.notes||''}"></div></div></div>`}});
-    container.innerHTML=html||'<p style="color:var(--text2);">No meals planned.</p>';
-  };
-  window.saveDayMeals=function(){
-    const day=appData.settings.mealDaySelected||'Monday',ws=document.getElementById('mealWeekStart')?.value||appData.settings.mealWeekStart;
-    if(!day||!ws){showToast('Select day and week',true);return}
-    appData.settings.mealDaySelected=day;appData.settings.mealWeekStart=ws;
-    const newMeals=[];
-    document.querySelectorAll('#dailyMealPlanContainer .workout-exercise-card').forEach(card=>{
-      const timeEl=card.querySelector('strong')||card.querySelector('.meal-custom-time');
-      let time=timeEl?(timeEl.textContent||timeEl.value):'';
-      const plannedEl=card.querySelector('.meal-custom-planned');
-      const planned=plannedEl?plannedEl.value:(card.querySelector('.meal-custom-planned')?.value||'');
-      const actualEl=card.querySelector('.meal-actual'),notesEl=card.querySelector('.meal-notes');
-      const checked=card.querySelector('.meal-done')?.checked||false;
-      newMeals.push({id:uid(),day,weekStart:ws,time,planned:planned||'',actual:actualEl?.value||'',notes:notesEl?.value||'',completed:checked,_timestamp:new Date().toISOString()});
-    });
-    appData.meals=appData.meals.filter(m=>!(m.day===day&&m.weekStart===ws));appData.meals.push(...newMeals);
-    saveData();renderDashboard();loadDayMealPlan();showToast('Meals saved!');
-  };
+  window.addCustomMeal=function(){const c=document.getElementById('dailyMealPlanContainer');if(!c)return;c.insertAdjacentHTML('beforeend',`<div class="workout-exercise-card"><div style="display:flex;justify-content:space-between"><input type="text" class="meal-custom-time" placeholder="Time" style="width:40%"><label class="meal-check-label"><input type="checkbox" class="meal-done"> Done</label></div><div class="input-group" style="margin-top:6px"><label>Planned</label><input type="text" class="meal-custom-planned" placeholder="What you plan"></div><div class="input-row"><div class="input-group"><label>Actual</label><input type="text" class="meal-actual"></div><div class="input-group"><label>Notes</label><input type="text" class="meal-notes"></div></div></div>`)};
+  window.loadDayMealPlan=function(){const day=appData.settings.mealDaySelected||'Sunday',ws=document.getElementById('mealWeekStart')?.value||appData.settings.mealWeekStart;if(!day||!ws)return;const plan=getActiveMealPlan(),planned=plan[day]||[],existing=appData.meals.filter(m=>m.day===day&&m.weekStart===ws);const c=document.getElementById('dailyMealPlanContainer');if(!c)return;let html='';planned.forEach(p=>{const s=existing.find(e=>e.time===p.time)||{};html+=`<div class="workout-exercise-card ${s.completed?'meal-locked':''}"><div style="display:flex;justify-content:space-between"><strong>${p.time}</strong><label class="meal-check-label"><input type="checkbox" class="meal-done" data-time="${p.time}" ${s.completed?'checked':''} onchange="window.updateMealDoneVisual(this)"> Done</label></div><div style="font-size:0.75rem;color:var(--text2)">Planned: ${p.planned}</div><div class="input-row"><div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${p.time}" value="${s.actual||''}"></div><div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${p.time}" value="${s.notes||''}"></div></div></div>`});existing.forEach(m=>{if(!planned.some(p=>p.time===m.time)){html+=`<div class="workout-exercise-card ${m.completed?'meal-locked':''}"><div style="display:flex;justify-content:space-between"><strong>${m.time||'Custom'}</strong><label class="meal-check-label"><input type="checkbox" class="meal-done" data-time="${m.time}" ${m.completed?'checked':''} onchange="window.updateMealDoneVisual(this)"> Done</label></div><div style="font-size:0.75rem;color:var(--text2)">Planned: ${m.planned||''}</div><div class="input-row"><div class="input-group"><label>Actual</label><input type="text" class="meal-actual" data-time="${m.time}" value="${m.actual||''}"></div><div class="input-group"><label>Notes</label><input type="text" class="meal-notes" data-time="${m.time}" value="${m.notes||''}"></div></div></div>`}});c.innerHTML=html||'<p style="color:var(--text2)">No meals planned.</p>'};
+  window.saveDayMeals=function(){const day=appData.settings.mealDaySelected||'Sunday',ws=document.getElementById('mealWeekStart')?.value||appData.settings.mealWeekStart;if(!day||!ws){showToast('Select day and week',true);return}appData.settings.mealDaySelected=day;appData.settings.mealWeekStart=ws;const newMeals=[];document.querySelectorAll('#dailyMealPlanContainer .workout-exercise-card').forEach(card=>{const timeEl=card.querySelector('strong')||card.querySelector('.meal-custom-time');let time=timeEl?(timeEl.textContent||timeEl.value):'';const plannedEl=card.querySelector('.meal-custom-planned');const planned=plannedEl?plannedEl.value:'';const actualEl=card.querySelector('.meal-actual'),notesEl=card.querySelector('.meal-notes');const checked=card.querySelector('.meal-done')?.checked||false;newMeals.push({id:uid(),day,weekStart:ws,time,planned:planned||'',actual:actualEl?.value||'',notes:notesEl?.value||'',completed:checked,_timestamp:new Date().toISOString()})});appData.meals=appData.meals.filter(m=>!(m.day===day&&m.weekStart===ws));appData.meals.push(...newMeals);saveData();renderDashboard();loadDayMealPlan();showToast('Meals saved!')};
 
-  // ---------- WORKOUTS ----------
   function setWoDate(){document.getElementById('woDate').valueAsDate=new Date()}
-  window.addCustomExercise=function(){
-    const container=document.getElementById('dailyWorkoutPlanContainer');if(!container)return;
-    const html=`<div class="workout-exercise-card"><input type="text" class="ex-custom-name" placeholder="Exercise name" style="font-weight:bold;margin-bottom:4px;"><div class="input-row"><div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps" data-idx=""></div><div class="input-group"><label>Weight (lbs)</label><input type="text" class="ex-weight" data-idx=""></div></div><div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx=""></div></div>`;
-    container.insertAdjacentHTML('beforeend',html);
-  };
-  window.loadDayWorkoutPlan=function(){
-    const day=appData.settings.woDaySelected||'Monday',date=document.getElementById('woDate')?.value;
-    if(!day||!date)return;const plan=getActiveWorkoutPlan(),dp=plan[day]||{type:'Rest',exercises:[]},key=`${day}-${date}`,saved=appData.dayWorkouts[key]||{exercises:[]};
-    const container=document.getElementById('dailyWorkoutPlanContainer');if(!container)return;
-    let html=`<h3>${dp.type}</h3>`;if(dp.details)html+=`<p style="color:var(--text2);font-size:0.8rem;">${dp.details}</p>`;
-    if(dp.intensity){html+=`<div class="input-group"><label>Intensity (1-10) <span style="color:var(--accent);" id="intensityVal">${saved.intensity||5}</span></label><input type="range" class="intensity-slider" id="woIntensity" min="1" max="10" value="${saved.intensity||5}" oninput="document.getElementById('intensityVal').textContent=this.value"></div><div class="input-group"><label>Notes</label><textarea id="woNotes" rows="2">${saved.notes||''}</textarea></div>`}
-    const savedExercises=saved.exercises||[],displayExercises=[];
-    (dp.exercises||[]).forEach((ex,i)=>{const se=savedExercises.find(s=>s.exercise===ex.name)||savedExercises[i]||{};displayExercises.push({...ex,actualReps:se.actualReps||'',actualWeight:se.actualWeight||'',notes:se.notes||'',isCustom:false})});
-    savedExercises.forEach(s=>{if(!dp.exercises.some(p=>p.name===s.exercise)){displayExercises.push({name:s.exercise||'Custom',actualReps:s.actualReps,actualWeight:s.actualWeight,notes:s.notes,isCustom:true})}});
-    displayExercises.forEach((ex,i)=>{const repLabel=ex.time?`Time: ${ex.time} min`:(ex.sets?`Sets: ${ex.sets}`:'');html+=`<div class="workout-exercise-card"><strong>${ex.name}</strong><div style="font-size:0.7rem;color:var(--text2);">${repLabel} ${ex.reps?`Reps: ${ex.reps}`:(ex.work?`Work: ${ex.work}s`:'')} | Rec:${ex.weight||'—'} ${ex.cue?`<br><small style="color:var(--accent);">${ex.cue}</small>`:''}</div><div class="input-row"><div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps" data-idx="${i}" value="${ex.actualReps||''}"></div><div class="input-group"><label>Weight (lbs)</label><input type="text" class="ex-weight" data-idx="${i}" value="${ex.actualWeight||''}"></div></div><div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx="${i}" value="${ex.notes||''}"></div></div>`});
-    container.innerHTML=html||'<p style="color:var(--text2);">No workout template.</p>';
-  };
-  window.saveDayWorkout=function(){
-    const day=appData.settings.woDaySelected||'Monday',date=document.getElementById('woDate')?.value;
-    if(!day||!date){showToast('Select day and date',true);return}
-    const plan=getActiveWorkoutPlan(),dp=plan[day]||{},wo={type:dp.type,date,day};
-    if(dp.intensity){wo.intensity=document.getElementById('woIntensity')?.value||5;wo.notes=document.getElementById('woNotes')?.value||''}
-    const cards=document.querySelectorAll('#dailyWorkoutPlanContainer .workout-exercise-card');wo.exercises=[];
-    cards.forEach(card=>{const nameEl=card.querySelector('strong')||card.querySelector('.ex-custom-name');const name=nameEl?(nameEl.textContent||nameEl.value):'';const repsEl=card.querySelector('.ex-reps'),weightEl=card.querySelector('.ex-weight'),notesEl=card.querySelector('.ex-notes');wo.exercises.push({exercise:name,actualReps:repsEl?.value||'',actualWeight:weightEl?.value||'',notes:notesEl?.value||''})});
-    appData.dayWorkouts[`${day}-${date}`]=wo;appData.workouts.push({id:uid(),date,type:dp.type,details:JSON.stringify(wo),_timestamp:new Date().toISOString()});
-    saveData();renderWorkoutHistory();loadDayWorkoutPlan();showToast('Workout saved!');
-  };
-  function renderWorkoutHistory(){const d=document.getElementById('woLog');if(!d)return;const r=[...appData.workouts].slice(-10).reverse();d.innerHTML=r.length?r.map(w=>`<div style="background:var(--surface2);padding:8px;border-radius:8px;margin-bottom:4px;"><strong>${w.date} — ${w.type}</strong><pre style="font-size:0.7rem;white-space:pre-wrap;">${w.details}</pre></div>`).join(''):'<p style="color:var(--text2);">No workouts yet.</p>'}
+  window.addCustomExercise=function(){const c=document.getElementById('dailyWorkoutPlanContainer');if(!c)return;c.insertAdjacentHTML('beforeend',`<div class="workout-exercise-card"><input type="text" class="ex-custom-name" placeholder="Exercise name" style="font-weight:bold;margin-bottom:4px"><div class="input-row"><div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps"></div><div class="input-group"><label>Weight (lbs)</label><input type="text" class="ex-weight"></div></div><div class="input-group"><label>Notes</label><input type="text" class="ex-notes"></div></div>`)};
+  window.loadDayWorkoutPlan=function(){const day=appData.settings.woDaySelected||'Sunday',date=document.getElementById('woDate')?.value;if(!day||!date)return;const plan=getActiveWorkoutPlan(),dp=plan[day]||{type:'Rest',exercises:[]},key=`${day}-${date}`,saved=appData.dayWorkouts[key]||{exercises:[]};const c=document.getElementById('dailyWorkoutPlanContainer');if(!c)return;let html=`<h3>${dp.type}</h3>`;if(dp.details)html+=`<p style="color:var(--text2);font-size:0.8rem">${dp.details}</p>`;if(dp.intensity){html+=`<div class="input-group"><label>Intensity (1-10) <span style="color:var(--accent)" id="intensityVal">${saved.intensity||5}</span></label><input type="range" class="intensity-slider" id="woIntensity" min="1" max="10" value="${saved.intensity||5}" oninput="document.getElementById('intensityVal').textContent=this.value"></div><div class="input-group"><label>Notes</label><textarea id="woNotes" rows="2">${saved.notes||''}</textarea></div>`}const se=saved.exercises||[],display=[];(dp.exercises||[]).forEach((ex,i)=>{const s=se.find(x=>x.exercise===ex.name)||se[i]||{};display.push({...ex,actualReps:s.actualReps||'',actualWeight:s.actualWeight||'',notes:s.notes||'',isCustom:false})});se.forEach(s=>{if(!dp.exercises.some(p=>p.name===s.exercise)){display.push({name:s.exercise||'Custom',actualReps:s.actualReps,actualWeight:s.actualWeight,notes:s.notes,isCustom:true})}});display.forEach((ex,i)=>{const rl=ex.time?`Time: ${ex.time} min`:(ex.sets?`Sets: ${ex.sets}`:'');html+=`<div class="workout-exercise-card"><strong>${ex.name}</strong><div style="font-size:0.7rem;color:var(--text2)">${rl} ${ex.reps?`Reps: ${ex.reps}`:(ex.work?`Work: ${ex.work}s`:'')} | Rec:${ex.weight||'—'} ${ex.cue?`<br><small style="color:var(--accent)">${ex.cue}</small>`:''}</div><div class="input-row"><div class="input-group"><label>Actual Reps</label><input type="text" class="ex-reps" data-idx="${i}" value="${ex.actualReps||''}"></div><div class="input-group"><label>Weight (lbs)</label><input type="text" class="ex-weight" data-idx="${i}" value="${ex.actualWeight||''}"></div></div><div class="input-group"><label>Notes</label><input type="text" class="ex-notes" data-idx="${i}" value="${ex.notes||''}"></div></div>`});c.innerHTML=html||'<p style="color:var(--text2)">No workout template.</p>'};
+  window.saveDayWorkout=function(){const day=appData.settings.woDaySelected||'Sunday',date=document.getElementById('woDate')?.value;if(!day||!date){showToast('Select day and date',true);return}const plan=getActiveWorkoutPlan(),dp=plan[day]||{},wo={type:dp.type,date,day};if(dp.intensity){wo.intensity=document.getElementById('woIntensity')?.value||5;wo.notes=document.getElementById('woNotes')?.value||''}const cards=document.querySelectorAll('#dailyWorkoutPlanContainer .workout-exercise-card');wo.exercises=[];cards.forEach(card=>{const nameEl=card.querySelector('strong')||card.querySelector('.ex-custom-name');const name=nameEl?(nameEl.textContent||nameEl.value):'';const repsEl=card.querySelector('.ex-reps'),weightEl=card.querySelector('.ex-weight'),notesEl=card.querySelector('.ex-notes');wo.exercises.push({exercise:name,actualReps:repsEl?.value||'',actualWeight:weightEl?.value||'',notes:notesEl?.value||''})});appData.dayWorkouts[`${day}-${date}`]=wo;appData.workouts.push({id:uid(),date,type:dp.type,details:JSON.stringify(wo),_timestamp:new Date().toISOString()});saveData();renderWorkoutHistory();loadDayWorkoutPlan();showToast('Workout saved!')};
+  function renderWorkoutHistory(){const d=document.getElementById('woLog');if(!d)return;const r=[...appData.workouts].slice(-10).reverse();d.innerHTML=r.length?r.map(w=>`<div style="background:var(--surface2);padding:8px;border-radius:8px;margin-bottom:4px"><strong>${w.date} — ${w.type}</strong><pre style="font-size:0.7rem;white-space:pre-wrap">${w.details}</pre></div>`).join(''):'<p style="color:var(--text2)">No workouts yet.</p>'}
 
-  // ---------- TIMER ----------
   window.setTimerMode=function(m){timerMode=m;resetTimer();document.querySelectorAll('#timerModeChips .chip').forEach(c=>c.classList.remove('active'));document.querySelector(`#timerModeChips .chip[data-mode="${m}"]`).classList.add('active');document.getElementById('timerConfigDensity').style.display=m==='density'?'block':'none';document.getElementById('timerConfigCircuit').style.display=m==='circuit'?'block':'none'}
   window.toggleTimer=function(){timerRunning?stopTimer():startTimer()}
   function startTimer(){timerRunning=true;document.getElementById('timerStartBtn').textContent='⏸ Pause';timerInterval=setInterval(tickTimer,1000)}
   function stopTimer(){timerRunning=false;clearInterval(timerInterval);document.getElementById('timerStartBtn').textContent='▶ Start'}
   function resetTimer(){stopTimer();timerSeconds=0;timerLaps=[];updateTimerDisplay();document.getElementById('timerLaps').innerHTML='';document.getElementById('densityFill').style.width='0%'}
-  window.resetTimer=resetTimer;
-  window.lapTimer=function(){timerLaps.push(timerSeconds);document.getElementById('timerLaps').innerHTML=timerLaps.map((t,i)=>`Lap ${i+1}: ${formatTime(t)}`).join('<br>')}
+  window.resetTimer=resetTimer;window.lapTimer=function(){timerLaps.push(timerSeconds);document.getElementById('timerLaps').innerHTML=timerLaps.map((t,i)=>`Lap ${i+1}: ${formatTime(t)}`).join('<br>')}
   function tickTimer(){timerSeconds++;updateTimerDisplay();if(timerMode==='density'){document.getElementById('densityFill').style.width=Math.min(100,(timerSeconds/(parseInt(document.getElementById('densityDuration').value||8)*60))*100)+'%'}}
   function updateTimerDisplay(){document.getElementById('timerDisplay').textContent=formatTime(timerSeconds)}
   function formatTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0');return`${m}:${s}`}
-  window.applyTimerPreset=function(id){if(id==='density8'){document.getElementById('densityDuration').value=8;setTimerMode('density')}else if(id==='circuit3015'){document.getElementById('circuitWork').value=30;document.getElementById('circuitRest').value=15;setTimerMode('circuit')}else if(appData.timerPresets[id]){const p=appData.timerPresets[id];if(p.mode==='density'){document.getElementById('densityDuration').value=p.duration||8;document.getElementById('densityExercise').value=p.exercise||'';setTimerMode('density')}else if(p.mode==='circuit'){document.getElementById('circuitWork').value=p.work||30;document.getElementById('circuitRest').value=p.rest||15;setTimerMode('circuit')}}showToast(`Preset '${id}' applied.`)}
-  window.saveTimerPreset=function(){const n=prompt('Preset name:');if(!n)return;const p={};if(timerMode==='density'){p.mode='density';p.duration=document.getElementById('densityDuration').value;p.exercise=document.getElementById('densityExercise').value}else if(timerMode==='circuit'){p.mode='circuit';p.work=document.getElementById('circuitWork').value;p.rest=document.getElementById('circuitRest').value}else return showToast('Only density/circuit',true);appData.timerPresets[n]=p;saveData();showToast(`Preset '${n}' saved!`)}
+  window.applyTimerPreset=function(id){if(id==='density8'){document.getElementById('densityDuration').value=8;setTimerMode('density')}else if(id==='circuit3015'){document.getElementById('circuitWork').value=30;document.getElementById('circuitRest').value=15;setTimerMode('circuit')}else if(appData.timerPresets[id]){const p=appData.timerPresets[id];if(p.mode==='density'){document.getElementById('densityDuration').value=p.duration||8;setTimerMode('density')}else if(p.mode==='circuit'){document.getElementById('circuitWork').value=p.work||30;document.getElementById('circuitRest').value=p.rest||15;setTimerMode('circuit')}}showToast(`Preset applied`)};
+  window.saveTimerPreset=function(){const n=prompt('Preset name:');if(!n)return;const p={};if(timerMode==='density'){p.mode='density';p.duration=document.getElementById('densityDuration').value;p.exercise=document.getElementById('densityExercise').value}else if(timerMode==='circuit'){p.mode='circuit';p.work=document.getElementById('circuitWork').value;p.rest=document.getElementById('circuitRest').value}else return showToast('Only density/circuit',true);appData.timerPresets[n]=p;saveData();showToast(`Preset saved!`)}
 
-  // ---------- INJURIES ----------
   window.handleDocUpload=function(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{let t='';if(f.name.endsWith('.pdf')){if(typeof pdfjsLib==='undefined'){showToast('PDF.js not loaded',true);return}try{const arr=new Uint8Array(e.target.result);const pdf=await pdfjsLib.getDocument(arr).promise;for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i);const c=await pg.getTextContent();t+=c.items.map(it=>it.str).join(' ')+'\n'}}catch(ex){showToast('PDF error',true);return}}else t=e.target.result;parseInjuries(t,f.name)};if(f.name.endsWith('.pdf'))r.readAsArrayBuffer(f);else r.readAsText(f);input.value=''};
   window.parsePastedText=function(){const t=document.getElementById('docPaste').value.trim();if(!t){showToast('Paste text',true);return}parseInjuries(t,'Pasted Text');document.getElementById('docPaste').value=''};
-  function parseInjuries(text,source){const is=text.match(/SECTION\s*1:?\s*COMPLETE\s*INJURY\s*LIST[\s\S]*?(?=SECTION\s*2|$)/i);if(is){is[0].split(/\n/).filter(l=>/^\s*(Spine|Left\s*Knee|Biceps|Elbows|Wrists|Right\s*Shoulder)[:\s]/i.test(l)).forEach(l=>{const n=l.replace(/^[•\-\s]+/,'').trim();if(n&&!appData.injuries.some(i=>i.name===n))appData.injuries.push({id:uid(),name:n,status:'Active',source})})}const ss=text.match(/SECTION\s*7:?\s*NON-NEGOTIABLE\s*STOP\s*RULES[\s\S]*?(?=SECTION\s*8|$)/i);if(ss){ss[0].split(/\n/).filter(l=>/^\d+[\.\)]/.test(l.trim())).forEach(l=>{const n=l.replace(/^\d+[\.\)]\s*/,'').trim();if(n&&!appData.injuries.some(i=>i.name===n))appData.injuries.push({id:uid(),name:n,status:'Active',source:'Stop Rule'})})}saveData();renderInjuries();renderDashboard();showToast('Injuries updated!')}
-  function renderInjuries(){const d=document.getElementById('injuryList');if(!d)return;if(!appData.injuries.length){d.innerHTML='<p style="color:var(--text2);">No injuries.</p>';return}d.innerHTML=appData.injuries.map(i=>`<div class="injury-badge ${i.status==='Resolved'?'injury-resolved':''}"><span>⚠️ ${i.name}</span><select style="width:auto;padding:4px;" onchange="window.updateInjuryStatus('${i.id}',this.value)"><option ${i.status==='Active'?'selected':''}>Active</option><option ${i.status==='Resolved'?'selected':''}>Resolved</option></select><button class="btn btn-sm btn-danger" style="padding:2px 6px;" onclick="window.deleteInjury('${i.id}')">✕</button></div>`).join('')}
+  function parseInjuries(text,source){const is=text.match(/SECTION\s*1:?\s*COMPLETE\s*INJURY\s*LIST[\s\S]*?(?=SECTION\s*2|$)/i);if(is){is[0].split(/\n/).filter(l=>/^\s*(Spine|Left\s*Knee|Biceps|Elbows|Wrists|Right\s*Shoulder)[:\s]/i.test(l)).forEach(l=>{const n=l.replace(/^[•\-\s]+/,'').trim();if(n&&!appData.injuries.some(i=>i.name===n))appData.injuries.push({id:uid(),name:n,status:'Active',source})})}const ss=text.match(/SECTION\s*7:?\s*NON-NEGOTIABLE\s*STOP\s*RULES[\s\S]*?(?=SECTION\s*8|$)/i)||text.match(/🛑\s*STOP\s*RULES[\s\S]*?(?=\n\n|$)/i);if(ss){ss[0].split(/\n/).filter(l=>/^\d+[\.\)]/.test(l.trim())).forEach(l=>{const n=l.replace(/^\d+[\.\)]\s*/,'').trim();if(n&&!appData.injuries.some(i=>i.name===n))appData.injuries.push({id:uid(),name:n,status:'Active',source:'Stop Rule'})})}saveData();renderInjuries();renderDashboard();showToast('Injuries updated!')}
+  function renderInjuries(){const d=document.getElementById('injuryList');if(!d)return;if(!appData.injuries.length){d.innerHTML='<p style="color:var(--text2)">No injuries.</p>';return}d.innerHTML=appData.injuries.map(i=>`<div class="injury-badge ${i.status==='Resolved'?'injury-resolved':''}"><span>⚠️ ${i.name}</span><select style="width:auto;padding:4px" onchange="window.updateInjuryStatus('${i.id}',this.value)"><option ${i.status==='Active'?'selected':''}>Active</option><option ${i.status==='Resolved'?'selected':''}>Resolved</option></select><button class="btn btn-sm btn-danger" style="padding:2px 6px" onclick="window.deleteInjury('${i.id}')">✕</button></div>`).join('')}
   window.updateInjuryStatus=function(id,s){const i=appData.injuries.find(x=>x.id===id);if(i){i.status=s;saveData();renderInjuries();renderDashboard()}}
   window.deleteInjury=function(id){appData.injuries=appData.injuries.filter(i=>i.id!==id);saveData();renderInjuries();renderDashboard()}
   window.addManualInjury=function(){const n=prompt('Describe injury:');if(n){appData.injuries.push({id:uid(),name:n,status:'Active',source:'Manual'});saveData();renderInjuries();renderDashboard()}}
 
-  // ---------- PLAN REPLACEMENT (generic + structured) ----------
-  function parseMealPlanGeneric(text){
-    const plan={}; const dayMap={'mon':'Monday','tue':'Tuesday','wed':'Wednesday','thu':'Thursday','fri':'Friday','sat':'Saturday','sun':'Sunday'};
-    const lines=text.split('\n'); let currentDay=null;
-    for(let line of lines){
-      const dMatch=line.match(/^(?:MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[-:]\s*(.*)/i);
-      if(dMatch){currentDay=dayMap[line.substr(0,3).toLowerCase()];if(!plan[currentDay])plan[currentDay]=[];continue}
-      if(currentDay){
-        const timeMatch=line.match(/(\d{1,2}:\d{2}\s*(?:AM|PM)?)/);
-        if(timeMatch){
-          const time=timeMatch[1];
-          const food=line.replace(time,'').trim().replace(/^[-•\s]+/,'');
-          if(food)plan[currentDay].push({time,planned:food});
-        }
-      }
-    }
-    return Object.keys(plan).length?plan:null;
-  }
+  // ---------- ENHANCED PLAN PARSER FOR YOUR EXACT FORMAT ----------
   function parseMealPlan(text){
-    const wk=parseMealPlanFromWeekPlan(text);
-    if(wk)return wk;
-    const gen=parseMealPlanGeneric(text);
-    if(gen)return gen;
-    const section=text.match(/SECTION\s*5:?\s*MEAL\s*PLAN[\s\S]*?(?=SECTION\s*6|Meal\s*Prep|$)/i);
-    if(!section)return null;
-    const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-    const result={}; days.forEach(day=>{const re=new RegExp(`${day.toUpperCase()}\\s*—[^\\n]*[\\s\\S]*?(?=\\n[A-Z]{3,}\\s*—|SECTION|Meal Prep|$)`, 'i');const dm=section[0].match(re);if(dm){const meals=[];dm[0].split('\n').forEach(l=>{const tm=l.match(/(?:Breakfast|Lunch|Pre-Judo|Pre-Workout|Post-Judo|Post-Workout|Brunch|Dinner)\s*(?:\((\d{1,2}:\d{2}\s*(?:AM|PM)?)\))?/i);if(tm){const time=tm[1]||'';const food=l.replace(/^[·\-\s]*(?:Breakfast|Lunch|Pre-Judo|Pre-Workout|Post-Judo|Post-Workout|Brunch|Dinner)\s*(?:\(\d{1,2}:\d{2}\s*(?:AM|PM)?\))?\s*:?\s*/i,'').trim();if(food)meals.push({time:time||'—',planned:food})}});if(meals.length)result[day]=meals}});
-    return Object.keys(result).length?result:null;
-  }
-  function parseMealPlanFromWeekPlan(text){
-    const plan={}; const tableStart=text.indexOf('Weekly Meal Templates'); if(tableStart===-1)return null;
-    const tableText=text.slice(tableStart).split(/\n{2,}/)[0];
-    const lines=tableText.split('\n').filter(l=>l.trim());
-    const daysColumnMap={Mon:['Monday','Wednesday'],Tue:['Tuesday','Friday'],Thu:['Thursday'],Sat:['Saturday'],Sun:['Sunday']};
-    let currentMealTime=''; const columnValues={Mon:'',Tue:'',Thu:'',Sat:'',Sun:''};
-    lines.forEach(line=>{
-      if(line.startsWith('Breakfast')){currentMealTime='7:30 AM'; columnValues.Mon=''; columnValues.Tue=''; columnValues.Thu=''; columnValues.Sat=''; columnValues.Sun='';}
-      else if(line.startsWith('Lunch')){currentMealTime='12:00 PM'; columnValues.Mon=''; columnValues.Tue=''; columnValues.Thu=''; columnValues.Sat=''; columnValues.Sun='';}
-      else if(line.startsWith('Pre-Workout')){currentMealTime='5:30 PM'; columnValues.Mon=''; columnValues.Tue=''; columnValues.Thu=''; columnValues.Sat=''; columnValues.Sun='';}
-      else if(line.startsWith('Post-Workout')){currentMealTime='8:00 PM'; columnValues.Mon=''; columnValues.Tue=''; columnValues.Thu=''; columnValues.Sat=''; columnValues.Sun='';}
-      else if(line.startsWith('Evening')){currentMealTime='9:00 PM'; columnValues.Mon=''; columnValues.Tue=''; columnValues.Thu=''; columnValues.Sat=''; columnValues.Sun='';}
-      else if(line.startsWith('Meal '))return;
-      if(currentMealTime&&line.includes('Mon/Wed')){const parts=line.split(/\s{2,}/);columnValues.Mon=parts[1]||'';columnValues.Tue=parts[2]||'';columnValues.Thu=parts[3]||'';columnValues.Sat=parts[4]||'';columnValues.Sun=parts[5]||''}
-      else if(currentMealTime&&line.includes('Mon')){const parts=line.split(/\s{2,}/);columnValues.Mon=parts[1]||'';columnValues.Tue=parts[2]||'';columnValues.Thu=parts[3]||'';columnValues.Sat=parts[4]||'';columnValues.Sun=parts[5]||''}
+    const plan={}; const mealSection=text.match(/🍽️\s*MEAL\s*PLAN[\s\S]*?(?=💪\s*WORKOUT|$)/i)||text.match(/MEAL\s*PLAN[\s\S]*?(?=WORKOUT\s*PLAN|$)/i);
+    if(!mealSection)return null;
+    const content=mealSection[0]; const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day=>{
+      const dayRegex=new RegExp(`${day.toUpperCase()}[\\s–-]+[A-Z]+[\\s\\(][\\s\\S]*?(?=\\n[A-Z]{3,}[\\s–-]|$)`, 'i');
+      const dayMatch=content.match(dayRegex); if(!dayMatch)return;
+      const dayText=dayMatch[0]; const meals=[];
+      const mealLines=dayText.split('\n');
+      mealLines.forEach(line=>{
+        const timeMatch=line.match(/(\d{1,2}:\d{2}\s*(?:AM|PM))/);
+        if(timeMatch){
+          const time=timeMatch[1]; const food=line.split(time)[1]?.trim()||'';
+          if(food)meals.push({time,planned:food});
+        }
+      });
+      if(meals.length)plan[day]=meals;
     });
-    for(const [col,days] of Object.entries(daysColumnMap)){
-      const mealText=columnValues[col]?.trim(); if(!mealText||mealText==='—')continue;
-      days.forEach(day=>{ if(!plan[day])plan[day]=[]; plan[day].push({time:currentMealTime,planned:mealText}) });
-    }
-    for(const day in plan)plan[day]=plan[day].filter(m=>m.planned!=='None');
     return Object.keys(plan).length?plan:null;
   }
 
-  function parseWorkoutPlanGeneric(text){
-    const plan={}; const lines=text.split('\n'); let currentDay=null;
-    for(let line of lines){
-      const dMatch=line.match(/^(?:MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[-:]\s*(.*)/i);
-      if(dMatch){currentDay=line.substr(0,3).toLowerCase();if(!plan[currentDay])plan[currentDay]={type:dMatch[1].trim(),intensity:/judo/i.test(dMatch[1]),exercises:[],details:''};continue}
-      if(currentDay){
-        if(line.match(/(?:Block\s*\d|^\s*[•\-\d]+\.|\b(?:Chest|Cable|Dead|Ring|Eccentric|Scapular|Kneeling|Suitcase|Med Ball|Assault|Landmine|Belt|Goblet|Pallof)[^-]*)/i)){
-          const name=line.replace(/^[•\-\d]+[\.\)]?\s*/,'').split(/\s{2,}/)[0];
-          const weightMatch=line.match(/(\d{2,3}\s*lbs)/);
-          const repsMatch=line.match(/(\d{1,2}[-–]\d{1,2}|\d{1,2}\/side|\d{1,2}\s*reps|\d{1,2}\s*sec)/i);
-          plan[currentDay].exercises.push({name:name||'Exercise',weight:weightMatch?weightMatch[0]:'—',reps:repsMatch?repsMatch[0]:'',sets:line.includes('x')?line.match(/(\d)\s*x/)?.[1]:'',time:line.match(/(\d+)\s*min/)?.[1]||''});
-        }
-      }
-    }
-    return Object.keys(plan).length?plan:null;
-  }
-  function parseWorkoutPlanFromWeekPlan(text){
-    const plan={}; const sectionMatch=text.match(/Weekly Workout Progression([\s\S]*?)(?=Non-Negotiable|Stop Rules|$)/i);
-    if(!sectionMatch)return null; const content=sectionMatch[1];
-    const dayRegex=/(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—\s*(.*?)(?=\n\s*(?:MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—|$)/gs;
-    let match; while((match=dayRegex.exec(content))!==null){
-      const day=match[1].charAt(0).toUpperCase()+match[1].slice(1).toLowerCase();
-      const type=match[2].split('\n')[0].trim();const details=match[2].slice(match[2].indexOf('\n')).trim();
-      const exercises=[]; const exerciseLines=details.match(/(?:Block\s*\d|^\s*[•\-\d]+\.|\b(?:Chest|Cable|Dead|Ring|Eccentric|Scapular|Kneeling|Suitcase|Med Ball|Assault|Landmine|Belt|Goblet|Pallof)[^-]*)/gm);
-      if(exerciseLines){exerciseLines.forEach(line=>{const name=line.replace(/^[•\-\d]+[\.\)]?\s*/,'').split(/\s{2,}/)[0];const weightMatch=line.match(/(\d{2,3}\s*lbs)/);const repsMatch=line.match(/(\d{1,2}[-–]\d{1,2}|\d{1,2}\/side|\d{1,2}\s*reps|\d{1,2}\s*sec)/i);exercises.push({name:name||'Exercise',weight:weightMatch?weightMatch[0]:'—',reps:repsMatch?repsMatch[0]:'',sets:line.includes('x')?line.match(/(\d)\s*x/)?.[1]:'',time:line.match(/(\d+)\s*min/)?.[1]||''})})}
-      plan[day]={type,intensity:/judo/i.test(type),exercises,details};
-    }
-    return Object.keys(plan).length?plan:null;
-  }
   function parseWorkoutPlan(text){
-    const wk=parseWorkoutPlanFromWeekPlan(text);
-    if(wk)return wk;
-    const gen=parseWorkoutPlanGeneric(text);
-    if(gen)return gen;
-    const section=text.match(/SECTION\s*3:?\s*WEEKLY\s*WORKOUT\s*PLAN[\s\S]*?(?=SECTION\s*4|$)/i);
-    if(!section)return null;
-    const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-    const result={}; days.forEach(day=>{const re=new RegExp(`${day.toUpperCase()}\\s*—[^\\n]*[\\s\\S]*?(?=\\n[A-Z]{3,}\\s*—|SECTION|$)`, 'i');const dm=section[0].match(re);if(dm){let dt=dm[0];const tm=dt.match(/—\s*(.*)/);const type=tm?tm[1].trim():'Training';const intensity=/judo/i.test(type);const exs=[];const el=dt.match(/(?:Block\s*\d|^\s*[•\-\d]+\.|\b(?:Chest|Cable|Dead|Ring|Eccentric|Scapular|Kneeling|Suitcase|Med Ball|Assault|Landmine|Belt|Goblet|Pallof)[^-]*)/gm);if(el){el.forEach(l=>{const nm=l.replace(/^[•\-\d]+[\.\)]?\s*/,'').split(/\s{2,}/)[0];const wm=l.match(/(\d{2,3}\s*lbs)/);const rm=l.match(/(\d{1,2}[-–]\d{1,2}|\d{1,2}\/side|\d{1,2}\s*reps|\d{1,2}\s*sec)/i);exs.push({name:nm||'Exercise',weight:wm?wm[0]:'—',reps:rm?rm[0]:'',sets:l.includes('x')?l.match(/(\d)\s*x/)?.[1]:'',time:l.match(/(\d+)\s*min/)?.[1]||''})})}result[day]={type,intensity,exercises:exs,details:dt.split('\n').slice(1).join(' ')}} });
-    return Object.keys(result).length?result:null;
+    const plan={}; const woSection=text.match(/💪\s*WORKOUT\s*PLAN[\s\S]*?(?=🔧\s*DAILY|$)/i)||text.match(/WORKOUT\s*PLAN[\s\S]*?(?=DAILY\s*REHAB|$)/i);
+    if(!woSection)return null;
+    const content=woSection[0]; const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day=>{
+      const dayRegex=new RegExp(`${day.toUpperCase()}\\s*[—–-]\\s*([A-Za-z\\s]+)`, 'i');
+      const dayMatch=content.match(dayRegex); if(!dayMatch)return;
+      const type=dayMatch[1].trim(); const intensity=/judo/i.test(type);
+      const exercises=[]; const exRegex=/(?:Block\s*\d|^\s*[•\-\d]+\.|\b(?:Chest|Cable|Dead|Ring|Eccentric|Scapular|Kneeling|Suitcase|Med Ball|Assault|Landmine|Belt|Goblet|Pallof)[^-]*)/gm;
+      let m; while((m=exRegex.exec(content))!==null){
+        const line=m[0]; const name=line.replace(/^[•\-\d]+[\.\)]?\s*/,'').split(/\s{2,}/)[0];
+        const weightMatch=line.match(/(\d{2,3}\s*lbs)/); const repsMatch=line.match(/(\d{1,2}[-–]\d{1,2}|\d{1,2}\/side|\d{1,2}\s*reps|\d{1,2}\s*sec)/i);
+        exercises.push({name:name||'Exercise',weight:weightMatch?weightMatch[0]:'—',reps:repsMatch?repsMatch[0]:'',sets:line.includes('x')?line.match(/(\d)\s*x/)?.[1]:'',time:line.match(/(\d+)\s*min/)?.[1]||''});
+      }
+      plan[day]={type,intensity,exercises,details:''};
+    });
+    return Object.keys(plan).length?plan:null;
   }
 
   function replacePlan(text){
-    const mealPlan=parseMealPlan(text),wrkPlan=parseWorkoutPlan(text);
-    if(mealPlan){appData.activeMealPlan=mealPlan;showToast(`Meal plan updated (${Object.values(mealPlan).flat().length} meals)`);} else showToast('No meal plan found in document.',true);
-    if(wrkPlan){appData.activeWorkoutPlan=wrkPlan;showToast(`Workout plan updated (${Object.keys(wrkPlan).length} days)`);} else showToast('No workout plan found in document.',true);
+    const mealPlan=parseMealPlan(text); const wrkPlan=parseWorkoutPlan(text);
+    if(mealPlan){appData.activeMealPlan=mealPlan;showToast(`Meal plan updated (${Object.values(mealPlan).flat().length} meals)`)} else showToast('No meal plan found.',true);
+    if(wrkPlan){appData.activeWorkoutPlan=wrkPlan;showToast(`Workout plan updated (${Object.keys(wrkPlan).length} days)`)} else showToast('No workout plan found.',true);
     saveData();
+    parseInjuries(text,'Plan Document');
   }
   window.handlePlanUpload=function(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{let t='';if(f.name.endsWith('.pdf')){if(typeof pdfjsLib==='undefined'){showToast('PDF.js not loaded',true);return}try{const arr=new Uint8Array(e.target.result);const pdf=await pdfjsLib.getDocument(arr).promise;for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i);const c=await pg.getTextContent();t+=c.items.map(it=>it.str).join(' ')+'\n'}}catch(ex){showToast('PDF error',true);return}}else t=e.target.result;replacePlan(t)};if(f.name.endsWith('.pdf'))r.readAsArrayBuffer(f);else r.readAsText(f);input.value=''};
   window.loadFullPlanFromPaste=function(){const t=document.getElementById('planPaste').value.trim();if(!t){showToast('Paste text',true);return}replacePlan(t);document.getElementById('planPaste').value=''};
 
-  // ---------- PDF EXPORT ----------
-  window.generateWeeklyPDF=function(){
-    const wl=document.getElementById('exportWeekLabel').value.trim()||appData.settings.weekLabel;appData.settings.weekLabel=wl;saveData();
-    if(typeof jspdf==='undefined'){showToast('PDF missing',true);return}
-    const {jsPDF}=jspdf;const doc=new jsPDF({unit:'pt',format:'a4'});let y=50;const m=40,lh=16;
-    const add=(t,s=10,b=false,c='#000')=>{doc.setFont('Courier',b?'bold':'normal');doc.setFontSize(s);doc.setTextColor(c);doc.splitTextToSize(t,doc.internal.pageSize.getWidth()-2*m).forEach(l=>{if(y>780){doc.addPage();y=50}doc.text(l,m,y);y+=lh})};
-    add('JADE PARKER — WEEKLY REPORT',14,true);add(`Week: ${wl} | ${new Date().toLocaleDateString()}`,9,false,'#444');y+=8;
-    add('BODY COMPOSITION',11,true);const bc=appData.bodyComp;if(bc.length){const l=bc[bc.length-1],p=bc.length>1?bc[bc.length-2]:null;add(`Latest (${l.date}): Weight ${l.weight?.toFixed(1)??'N/A'} lbs, BF ${l.fatPercentage?.toFixed(1)??'N/A'}% (${l.bodyFatLbs?.toFixed(1)??'N/A'} lbs), Muscle ${l.skeletalMuscle?.toFixed(1)??'N/A'} lbs, VFat ${l.visceralFat?.toFixed(1)??'N/A'} cm²`);if(p)add(`Change: Weight ${((l.weight??0)-(p.weight??0)).toFixed(1)} lbs, BF ${((l.fatPercentage??0)-(p.fatPercentage??0)).toFixed(1)}%`)}else add('No data.');
-    y+=6;add('INJURIES & STOP RULES',11,true);const ai=appData.injuries.filter(i=>i.status!=='Resolved');if(ai.length)ai.forEach(i=>add(`⚠️ ${i.name}`,9,false,'#b91c1c'));else add('None active.',9);
-    y+=6;add('MEAL ADHERENCE',11,true);const wm=getMealsForWeek(),done=wm.filter(m=>m.completed).length;add(`${done}/${wm.length} meals (${Math.round(done/Math.max(1,wm.length)*100)}%)`);wm.forEach(m=>{const s=m.completed?'✓':'✗';add(`  ${s} ${m.day} ${m.time} — ${m.planned}${m.actual?' → '+m.actual:''}`,8)});
-    y+=6;add('WORKOUTS',11,true);const rw=appData.workouts.slice(-10).reverse();if(rw.length)rw.forEach(w=>{add(`${w.date} — ${w.type}`,9,true);try{const d=JSON.parse(w.details);if(d.intensity)add(`  Intensity: ${d.intensity}/10 ${d.notes||''}`,8);if(d.exercises)d.exercises.forEach((ex,i)=>add(`  ${i+1}. ${ex.exercise}: ${ex.actualReps||'—'} reps | ${ex.actualWeight||'—'} lbs`,8))}catch(e){add(w.details,8)}});else add('No workouts.');
-    y+=12;add('ADDITIONAL NOTES FOR DEEPSEEK',11,true);add('_______________________________________________',10);add('_______________________________________________',10);
-    doc.save('jadetracker-weekly-report.pdf');showToast('PDF generated!');
-  };
+  // ---------- PDF & BACKUP ----------
+  window.generateWeeklyPDF=function(){const wl=document.getElementById('exportWeekLabel').value.trim()||appData.settings.weekLabel;appData.settings.weekLabel=wl;saveData();if(typeof jspdf==='undefined'){showToast('PDF missing',true);return}const {jsPDF}=jspdf;const doc=new jsPDF({unit:'pt',format:'a4'});let y=50;const m=40,lh=16;const add=(t,s=10,b=false,c='#000')=>{doc.setFont('Courier',b?'bold':'normal');doc.setFontSize(s);doc.setTextColor(c);doc.splitTextToSize(t,doc.internal.pageSize.getWidth()-2*m).forEach(l=>{if(y>780){doc.addPage();y=50}doc.text(l,m,y);y+=lh})};add('JADE PARKER — WEEKLY REPORT',14,true);add(`Week: ${wl} | ${new Date().toLocaleDateString()}`,9,false,'#444');y+=8;add('BODY COMP',11,true);const bc=appData.bodyComp;if(bc.length){const l=bc[bc.length-1],p=bc.length>1?bc[bc.length-2]:null;add(`Latest (${l.date}): Wt ${l.weight?.toFixed(1)??'N/A'} lbs, BF ${l.fatPercentage?.toFixed(1)??'N/A'}% (${l.bodyFatLbs?.toFixed(1)??'N/A'} lbs), Muscle ${l.skeletalMuscle?.toFixed(1)??'N/A'} lbs, VFat ${l.visceralFat?.toFixed(1)??'N/A'} cm²`);if(p)add(`Change: Wt ${((l.weight??0)-(p.weight??0)).toFixed(1)} lbs, BF ${((l.fatPercentage??0)-(p.fatPercentage??0)).toFixed(1)}%`)}else add('No data.');y+=6;add('INJURIES',11,true);const ai=appData.injuries.filter(i=>i.status!=='Resolved');if(ai.length)ai.forEach(i=>add(`⚠️ ${i.name}`,9,false,'#b91c1c'));else add('None active.',9);y+=6;add('MEALS',11,true);const wm=getMealsForWeek(),done=wm.filter(m=>m.completed).length;add(`${done}/${wm.length} meals (${Math.round(done/Math.max(1,wm.length)*100)}%)`);wm.forEach(m=>{add(`  ${m.completed?'✓':'✗'} ${m.day} ${m.time} — ${m.planned}${m.actual?' → '+m.actual:''}`,8)});y+=6;add('WORKOUTS',11,true);const rw=appData.workouts.slice(-10).reverse();if(rw.length)rw.forEach(w=>{add(`${w.date} — ${w.type}`,9,true);try{const d=JSON.parse(w.details);if(d.intensity)add(`  Intensity: ${d.intensity}/10 ${d.notes||''}`,8);if(d.exercises)d.exercises.forEach((ex,i)=>add(`  ${i+1}. ${ex.exercise}: ${ex.actualReps||'—'} reps | ${ex.actualWeight||'—'} lbs`,8))}catch(e){add(w.details,8)}});else add('No workouts.');y+=12;add('NOTES FOR DEEPSEEK',11,true);add('_______________________________________________',10);doc.save('jadetracker-weekly-report.pdf');showToast('PDF generated!')};
   window.printWeeklySummary=()=>window.print();
-
-  // ---------- BACKUP ----------
   window.exportAllData=function(){const b=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='jadetracker-backup.json';a.click()};
   window.importAllData=function(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=function(e){try{const d=JSON.parse(e.target.result);if(confirm('Replace all data?')){appData=d;saveData();location.reload()}}catch(ex){showToast('Invalid file',true)}};r.readAsText(f);input.value=''};
   window.resetAllData=function(){if(confirm('DELETE ALL DATA?')){localStorage.removeItem(STORAGE_KEY);location.reload()}};
 
-  // ---------- INIT ----------
-  function init(){
-    loadData();
-    if(!appData.activeMealPlan)appData.activeMealPlan=null;
-    if(!appData.activeWorkoutPlan)appData.activeWorkoutPlan=null;
-    document.getElementById('bcDate').valueAsDate=new Date();
-    const wi=document.getElementById('mealWeekStart');
-    if(wi&&appData.settings.mealWeekStart)wi.value=appData.settings.mealWeekStart;
-    else if(wi){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));wi.value=d.toISOString().split('T')[0];appData.settings.mealWeekStart=wi.value;saveData()}
-    document.getElementById('notifyToggle').checked=appData.settings.notifyMeals;
-    setWoDate();updateMealCalendar();updateWorkoutCalendar();loadDayMealPlan();loadDayWorkoutPlan();
-    renderDashboard();renderBodyCompTable();renderBodyCompChart();renderInjuries();renderWorkoutHistory();
-    document.getElementById('exportWeekLabel').value=appData.settings.weekLabel||'';
-    setInterval(checkMealTimes,60000);
-  }
+  function init(){loadData();if(!appData.activeMealPlan)appData.activeMealPlan=null;if(!appData.activeWorkoutPlan)appData.activeWorkoutPlan=null;document.getElementById('bcDate').valueAsDate=new Date();const wi=document.getElementById('mealWeekStart');if(wi&&appData.settings.mealWeekStart)wi.value=appData.settings.mealWeekStart;else if(wi){const d=new Date();d.setDate(d.getDate()-d.getDay());wi.value=d.toISOString().split('T')[0];appData.settings.mealWeekStart=wi.value;saveData()}document.getElementById('notifyToggle').checked=appData.settings.notifyMeals;setWoDate();updateMealCalendar();updateWorkoutCalendar();loadDayMealPlan();loadDayWorkoutPlan();renderDashboard();renderBodyCompTable();renderBodyCompChart();renderInjuries();renderWorkoutHistory();document.getElementById('exportWeekLabel').value=appData.settings.weekLabel||'';setInterval(checkMealTimes,60000)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
