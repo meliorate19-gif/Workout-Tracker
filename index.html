@@ -8,14 +8,15 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
     :root {
-      --bg: #f4f6f9;
-      --card-bg: #ffffff;
-      --primary: #0d6efd;
-      --success: #198754;
-      --warning: #ffc107;
-      --danger: #dc3545;
-      --text: #212529;
-      --text-muted: #6c757d;
+      --bg: #e0e0e0;
+      --card-bg: #f5f5f5;
+      --primary: #1a1a1a;
+      --success: #2e7d32;
+      --warning: #f57c00;
+      --danger: #c62828;
+      --text: #000000;
+      --text-muted: #333333;
+      --border: #bdbdbd;
     }
     body { 
       background: var(--bg); 
@@ -27,24 +28,27 @@
     .card { 
       background: var(--card-bg);
       margin-bottom: 1.5rem; 
-      border: none; 
-      box-shadow: 0 0.15rem 1rem rgba(0,0,0,0.05); 
+      border: 1px solid var(--border); 
+      box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,0.1); 
       border-radius: 12px;
+      color: var(--text);
     }
+    .card-body { color: var(--text); }
     .section-title { 
       font-weight: 700; 
       font-size: 1.25rem; 
       border-left: 5px solid var(--primary); 
       padding-left: 0.75rem; 
       margin: 1.5rem 0 0.75rem; 
+      color: var(--text);
     }
-    .badge-time { background: var(--primary); color: white; font-weight: 500; }
-    .meal-day { background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #e9ecef; }
+    .badge-time { background: var(--primary); color: #ffffff; font-weight: 500; }
+    .meal-day { background: #e8e8e8; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border); color: var(--text); }
     pre { 
       white-space: pre-wrap; 
       word-break: break-word; 
-      background: #212529; 
-      color: #f8f9fa; 
+      background: #2a2a2a; 
+      color: #f0f0f0; 
       padding: 1rem; 
       border-radius: 10px; 
       font-size: 0.9rem; 
@@ -56,49 +60,69 @@
       margin-bottom: 0.5rem; 
       border-radius: 6px; 
       font-weight: 500;
+      color: #000;
     }
-    textarea { font-family: 'Courier New', monospace; font-size: 0.9rem; }
-    .nav-tabs .nav-link { font-weight: 500; border: none; color: var(--text-muted); }
-    .nav-tabs .nav-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: transparent; }
+    textarea { font-family: 'Courier New', monospace; font-size: 0.9rem; background: #ffffff; color: #000; border: 1px solid #9e9e9e; }
+    .form-control, .form-select { background: #ffffff; color: #000; border: 1px solid #9e9e9e; }
+    .form-control:focus, .form-select:focus { background: #ffffff; color: #000; border-color: #000; box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.1); }
+    .nav-tabs .nav-link { font-weight: 500; border: none; color: #333; }
+    .nav-tabs .nav-link.active { color: #000; border-bottom: 3px solid #000; background: transparent; font-weight: 700; }
+    .nav-tabs { border-bottom: 1px solid #9e9e9e; }
     .tab-pane { padding-top: 1.2rem; }
     
     /* Meal logging styles */
-    .planned-meal { background: #e7f1ff; border-left: 4px solid var(--primary); padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; }
-    .actual-meal-entry { background: #f1f8f4; border-left: 4px solid var(--success); margin-top: 0.5rem; }
-    .meal-log-row { transition: all 0.2s; }
+    .planned-meal { background: #d9d9d9; border-left: 4px solid var(--primary); padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; color: #000; }
+    .actual-meal-entry { background: #e0e0e0; border-left: 4px solid var(--success); margin-top: 0.5rem; }
     
     /* Workout logging */
-    .exercise-log-row { background: #f8f9fa; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #dee2e6; }
+    .exercise-log-row { background: #e8e8e8; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid var(--border); }
     .weight-input { width: 80px; }
     .reps-input { width: 80px; }
     
-    /* Dashboard metric cards */
+    /* Dashboard metric cards - monochrome grey palette */
     .metric-card { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      color: white; 
+      background: #757575; 
+      color: #ffffff; 
       border-radius: 14px; 
       padding: 1.5rem; 
       text-align: center; 
-      box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      border: 1px solid #616161;
     }
-    .metric-card.secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: 0 8px 20px rgba(245,87,108,0.3); }
-    .metric-card.tertiary { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: 0 8px 20px rgba(79,172,254,0.3); }
+    .metric-card.secondary { background: #616161; box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+    .metric-card.tertiary { background: #424242; box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
     .metric-value { font-size: 2.5rem; font-weight: 800; }
-    .metric-label { font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-label { font-size: 0.9rem; opacity: 0.95; text-transform: uppercase; letter-spacing: 0.5px; }
     
     .dashboard-highlight { 
-      background: linear-gradient(105deg, #f8f9fa 0%, #e9ecef 100%); 
+      background: #d5d5d5; 
       border-radius: 14px; 
       padding: 1.2rem 1.5rem; 
       margin: 1rem 0;
-      border: 1px solid #dee2e6;
+      border: 1px solid #9e9e9e;
+      color: #000;
     }
+    .list-group-item { background: #f5f5f5; color: #000; border-color: #bdbdbd; }
+    .table { color: #000; }
+    .table-bordered { border-color: #9e9e9e; }
+    .table-bordered th, .table-bordered td { border-color: #9e9e9e; }
+    .alert-info { background: #cfcfcf; color: #000; border-color: #9e9e9e; }
+    .btn-primary { background: #333; border-color: #222; color: #fff; }
+    .btn-primary:hover { background: #000; border-color: #000; }
+    .btn-outline-secondary { border-color: #666; color: #222; }
+    .btn-outline-secondary:hover { background: #555; color: #fff; }
+    .btn-outline-dark { border-color: #333; color: #111; }
+    .btn-outline-dark:hover { background: #222; color: #fff; }
+    .btn-success { background: #2e7d32; border-color: #1b5e20; color: #fff; }
+    .text-muted { color: #333 !important; }
+    h1, h2, h3, h4, h5, h6 { color: #000; }
+    .badge.bg-secondary { background: #555 !important; color: #fff; }
   </style>
 </head>
 <body>
 <div class="container">
   <h1 class="mb-2 text-center fw-bold">📋 Weekly Fitness & Nutrition Tracker</h1>
-  <p class="text-muted text-center mb-4">Parse plan → Log actual meals & lifts → Track body metrics</p>
+  <p class="text-center mb-4" style="color:#333;">Parse plan → Log actual meals & lifts → Track body metrics</p>
   
   <!-- TABS: Dashboard + Parse + Logs -->
   <ul class="nav nav-tabs justify-content-center mb-4" id="mainTabs" role="tablist">
@@ -113,7 +137,7 @@
     <!-- DASHBOARD PANE -->
     <div class="tab-pane fade show active" id="dashboardPane" role="tabpanel">
       <div id="dashboardContent">
-        <div class="text-center py-5 text-muted">
+        <div class="text-center py-5" style="color:#333;">
           <i class="bi bi-clipboard-data" style="font-size: 3rem;"></i>
           <p class="mt-3">No data yet. Parse your plan and start logging to see your dashboard.</p>
           <button class="btn btn-primary" onclick="document.getElementById('parse-tab').click()">📥 Parse Plan First</button>
@@ -121,7 +145,7 @@
       </div>
     </div>
     
-    <!-- PARSE PANE (original functionality enhanced) -->
+    <!-- PARSE PANE -->
     <div class="tab-pane fade" id="parsePane" role="tabpanel">
       <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -161,7 +185,7 @@
     <!-- MEAL LOG PANE -->
     <div class="tab-pane fade" id="mealsLogPane" role="tabpanel">
       <div id="mealLogContent">
-        <div class="text-center py-5 text-muted">
+        <div class="text-center py-5" style="color:#333;">
           <i class="bi bi-journal-text" style="font-size: 3rem;"></i>
           <p class="mt-3">No meal plan parsed yet. Go to "Parse Plan" first.</p>
         </div>
@@ -171,7 +195,7 @@
     <!-- WORKOUT LOG PANE -->
     <div class="tab-pane fade" id="workoutLogPane" role="tabpanel">
       <div id="workoutLogContent">
-        <div class="text-center py-5 text-muted">
+        <div class="text-center py-5" style="color:#333;">
           <i class="bi bi-activity" style="font-size: 3rem;"></i>
           <p class="mt-3">No workout plan parsed yet. Go to "Parse Plan" first.</p>
         </div>
@@ -195,16 +219,16 @@
                   <input type="number" id="bodyWeight" class="form-control" placeholder="e.g. 185.5" step="0.1">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Body Fat %</label>
-                  <input type="number" id="bodyFat" class="form-control" placeholder="e.g. 14.2" step="0.1">
+                  <label class="form-label">Body Fat (lbs)</label>
+                  <input type="number" id="bodyFat" class="form-control" placeholder="e.g. 26.3" step="0.1">
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Visceral Fat</label>
                   <input type="number" id="visceralFat" class="form-control" placeholder="e.g. 5" step="0.1">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Skeletal Muscle %</label>
-                  <input type="number" id="skeletalMuscle" class="form-control" placeholder="e.g. 42.5" step="0.1">
+                  <label class="form-label">Skeletal Muscle (lbs)</label>
+                  <input type="number" id="skeletalMuscle" class="form-control" placeholder="e.g. 78.5" step="0.1">
                 </div>
               </div>
               <button id="saveBodyMetrics" class="btn btn-primary mt-3 w-100"><i class="bi bi-save"></i> Save Entry</button>
@@ -217,7 +241,6 @@
   </div>
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   (function() {
@@ -229,7 +252,7 @@
       BODY_METRICS: 'fitness_body_metrics'
     };
     
-    // ---------- PARSER ENGINE (from original, enhanced) ----------
+    // ---------- PARSER ENGINE ----------
     function parseFullPlan(text) {
       text = text.replace(/^[“"']+/, '').replace(/[”"']+$/, '').trim();
       const sectionsRaw = text.split(/\n---+\n/);
@@ -256,8 +279,12 @@
         else if (firstLine.includes('stop rules')) stopRulesText = sec;
       }
       
+      if (!primaryDirective || Object.keys(primaryDirective).length === 0) {
+        primaryDirective = parsePrimaryDirective(sections[0] || '');
+      }
+      
       return {
-        primaryDirective: parsePrimaryDirective(primaryDirective?.text || sections[0] || ''),
+        primaryDirective,
         dailySchedule: dailyScheduleText ? parseDailySchedule(dailyScheduleText) : [],
         mealPlan: mealPlanText ? parseMealPlan(mealPlanText) : {},
         workouts: workoutPlanText ? parseWorkoutPlan(workoutPlanText) : {},
@@ -406,7 +433,7 @@
     
     // ---------- RENDER FUNCTIONS ----------
     function renderSchedule(schedule) {
-      if (!schedule || !Object.keys(schedule).length) return '<p class="text-muted">No schedule.</p>';
+      if (!schedule || !Object.keys(schedule).length) return '<p style="color:#333;">No schedule.</p>';
       return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].filter(d => schedule[d]).map(d => {
         const events = schedule[d].map(e => `<li class="list-group-item d-flex"><span class="badge-time me-2">${e.time}</span> ${e.activity}</li>`).join('');
         return `<div class="mb-3"><h6 class="fw-bold">${d}</h6><ul class="list-group list-group-flush">${events}</ul></div>`;
@@ -414,7 +441,7 @@
     }
     
     function renderMealPlan(mealPlan) {
-      if (!mealPlan || !Object.keys(mealPlan).length) return '<p class="text-muted">No meal plan.</p>';
+      if (!mealPlan || !Object.keys(mealPlan).length) return '<p style="color:#333;">No meal plan.</p>';
       return ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].filter(d => mealPlan[d]).map(d => {
         const meals = mealPlan[d].meals.map(m => `<li class="list-group-item"><span class="badge bg-secondary me-2">${m.meal} (${m.time})</span> ${m.description}</li>`).join('');
         return `<div class="meal-day"><h6 class="fw-bold">${mealPlan[d].title}</h6><ul class="list-group list-group-flush">${meals}</ul></div>`;
@@ -422,7 +449,7 @@
     }
     
     function renderWorkouts(workouts) {
-      if (!workouts || !Object.keys(workouts).length) return '<p class="text-muted">No workouts.</p>';
+      if (!workouts || !Object.keys(workouts).length) return '<p style="color:#333;">No workouts.</p>';
       return ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].filter(d => workouts[d]).map(d => {
         const wo = workouts[d];
         let html = `<div class="card mb-3"><div class="card-body"><h6 class="fw-bold">${wo.title}</h6>`;
@@ -440,7 +467,7 @@
     function renderMealLogUI() {
       const plan = getParsedPlan();
       if (!plan || !plan.mealPlan || !Object.keys(plan.mealPlan).length) {
-        document.getElementById('mealLogContent').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-journal-text" style="font-size:3rem;"></i><p>Parse a plan first.</p></div>';
+        document.getElementById('mealLogContent').innerHTML = '<div class="text-center py-5" style="color:#333;"><i class="bi bi-journal-text" style="font-size:3rem;"></i><p>Parse a plan first.</p></div>';
         return;
       }
       
@@ -475,7 +502,6 @@
       html += `<button id="saveMealLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save Meal Log</button></div></div></div></div>`;
       document.getElementById('mealLogContent').innerHTML = html;
       
-      // Event listeners
       document.getElementById('saveMealLogBtn').addEventListener('click', () => {
         const date = document.getElementById('mealLogDate').value;
         const mealLogs = getMealLogs();
@@ -498,7 +524,7 @@
     function renderWorkoutLogUI() {
       const plan = getParsedPlan();
       if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) {
-        document.getElementById('workoutLogContent').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>';
+        document.getElementById('workoutLogContent').innerHTML = '<div class="text-center py-5" style="color:#333;"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>';
         return;
       }
       
@@ -519,7 +545,7 @@
           html += `
             <div class="exercise-log-row">
               <div class="row align-items-center">
-                <div class="col-md-4"><strong>${exName}</strong><br><small class="text-muted">Target: ${ex.reps_set || ex.weight_target || 'See plan'}</small></div>
+                <div class="col-md-4"><strong>${exName}</strong><br><small style="color:#333;">Target: ${ex.reps_set || ex.weight_target || 'See plan'}</small></div>
                 <div class="col-md-3"><label class="form-label small">Weight (lbs)</label>
                   <input type="number" class="form-control weight-input workout-weight" data-ex-key="${exKey}" value="${log.weight || ''}" placeholder="lbs" step="0.5"></div>
                 <div class="col-md-3"><label class="form-label small">Reps</label>
@@ -558,11 +584,11 @@
     function renderBodyMetricsHistory() {
       const metrics = getBodyMetrics();
       if (!metrics.length) {
-        document.getElementById('bodyMetricsHistory').innerHTML = '<p class="text-muted mt-3">No entries yet.</p>';
+        document.getElementById('bodyMetricsHistory').innerHTML = '<p style="color:#333;" class="mt-3">No entries yet.</p>';
         return;
       }
       const sorted = [...metrics].sort((a,b) => new Date(b.date) - new Date(a.date));
-      let html = '<h6 class="fw-bold mt-4">📋 History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight</th><th>BF%</th><th>Visceral</th><th>Muscle%</th></tr></thead><tbody>';
+      let html = '<h6 class="fw-bold mt-4">📋 History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight (lbs)</th><th>Body Fat (lbs)</th><th>Visceral Fat</th><th>Muscle (lbs)</th></tr></thead><tbody>';
       sorted.slice(0, 10).forEach(m => {
         html += `<tr><td>${m.date}</td><td>${m.weight || '-'}</td><td>${m.bodyFat || '-'}</td><td>${m.visceralFat || '-'}</td><td>${m.skeletalMuscle || '-'}</td></tr>`;
       });
@@ -577,7 +603,7 @@
       const workoutLogs = getWorkoutLogs();
       
       if (!plan) {
-        document.getElementById('dashboardContent').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-clipboard-data" style="font-size:3rem;"></i><p>No plan parsed. Start by parsing your plan.</p></div>';
+        document.getElementById('dashboardContent').innerHTML = '<div class="text-center py-5" style="color:#333;"><i class="bi bi-clipboard-data" style="font-size:3rem;"></i><p>No plan parsed. Start by parsing your plan.</p></div>';
         return;
       }
       
@@ -590,9 +616,9 @@
         <div class="row g-4">
           <div class="col-12"><h4 class="fw-bold"><i class="bi bi-speedometer2"></i> Dashboard</h4></div>
           <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latestBody?.weight || '—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latestBody?.bodyFat || '—'}%</div><div class="metric-label">Body Fat</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latestBody?.bodyFat || '—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
           <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latestBody?.visceralFat || '—'}</div><div class="metric-label">Visceral Fat</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latestBody?.skeletalMuscle || '—'}%</div><div class="metric-label">Skeletal Muscle</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latestBody?.skeletalMuscle || '—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div>
         </div>
         <div class="dashboard-highlight mt-4">
           <div class="row text-center">
@@ -603,7 +629,7 @@
         </div>`;
       
       if (latestBody) {
-        html += `<div class="mt-3 text-muted small">📅 Latest entry: ${latestBody.date}</div>`;
+        html += `<div class="mt-3" style="color:#333;"><small>📅 Latest entry: ${latestBody.date}</small></div>`;
       }
       if (plan.primaryDirective?.directive) {
         html += `<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`;
@@ -692,12 +718,10 @@
       renderDashboard();
     });
     
-    // Tab change listeners for dynamic content
     document.getElementById('meals-log-tab').addEventListener('click', renderMealLogUI);
     document.getElementById('workout-log-tab').addEventListener('click', renderWorkoutLogUI);
     document.getElementById('dashboard-tab').addEventListener('click', renderDashboard);
     
-    // Initialize
     initializeApp();
     if (getParsedPlan()) {
       renderMealLogUI();
