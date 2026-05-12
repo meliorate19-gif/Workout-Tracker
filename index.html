@@ -2,371 +2,621 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>JadeTracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Fitness Plan Parser</title>
+  <!-- Bootstrap 5 CSS + custom styles -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    :root{--bg:#0f172a;--surface:#1e293b;--surface2:#273549;--border:#334155;--text:#e2e8f0;--text2:#94a3b8;--accent:#22d3bb;--red:#ef4444;--green:#22c55e;--amber:#f59e0b;--radius:14px;--radius-sm:10px;--font:system-ui,'Segoe UI',sans-serif;--tab-height:70px;--header-height:56px;--safe-bottom:env(safe-area-inset-bottom,12px)}
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{font-size:15px;-webkit-tap-highlight-color:transparent}
-    body{font-family:var(--font);background:var(--bg);color:var(--text);padding-top:var(--header-height);padding-bottom:calc(var(--tab-height) + var(--safe-bottom) + 8px);min-height:100vh}
-    .header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,23,42,0.94);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:var(--header-height);border-bottom:1px solid var(--border)}
-    .header-title{font-weight:700;font-size:1.1rem}
-    .header-badge{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:3px 12px;border-radius:20px;font-weight:700}
-    .tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(30,41,59,0.95);backdrop-filter:blur(20px);display:flex;padding:6px 8px var(--safe-bottom);gap:4px;height:calc(var(--tab-height) + var(--safe-bottom));border-top:1px solid var(--border)}
-    .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;color:var(--text2);font-size:0.6rem;font-weight:500;cursor:pointer;border-radius:10px;transition:0.2s;font-family:var(--font);padding:4px}
-    .tab-btn.active{color:var(--accent);font-weight:600}
-    .tab-icon{font-size:1.3rem}
-    .main-content{padding:12px 14px;max-width:600px;margin:0 auto}
-    .view{display:none;animation:fade 0.25s}
-    .view.active{display:block}
-    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-    .card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:12px;border:1px solid var(--border)}
-    .card-title{font-weight:700;font-size:0.95rem;margin-bottom:8px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:50px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;font-family:var(--font);transition:0.2s;white-space:nowrap}
-    .btn-accent{background:var(--accent);color:#0f172a}
-    .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
-    .btn-sm{padding:5px 12px;font-size:0.75rem}
-    .btn-danger{background:var(--red);color:#fff}
-    .btn-block{width:100%}
-    input,textarea,select{width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.9rem;transition:border-color 0.2s;appearance:none}
-    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
-    label{font-size:0.7rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;display:block}
-    .input-group{margin-bottom:8px}
-    .input-row{display:flex;gap:8px}
-    .input-row>*{flex:1}
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .stat-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center;border:1px solid var(--border)}
-    .stat-value{font-size:1.5rem;font-weight:800;letter-spacing:-1px;color:var(--accent)}
-    .stat-label{font-size:0.65rem;color:var(--text2);margin-top:2px}
-    .timer-display{font-size:3.5rem;font-weight:900;text-align:center;font-family:monospace;color:var(--accent);margin:8px 0}
-    .timer-label{text-align:center;font-size:0.8rem;color:var(--text2);font-weight:600;margin-bottom:4px}
-    .progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:8px 0}
-    .progress-fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s}
-    .chip{display:inline-block;padding:5px 12px;border-radius:16px;font-size:0.7rem;font-weight:600;margin:2px 4px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:0.2s}
-    .chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent)}
-    .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;background:var(--accent);color:#0f172a;padding:10px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 8px 16px rgba(0,0,0,0.5);white-space:nowrap}
-    .toast.show{opacity:1;pointer-events:auto}
-    .toast.error{background:var(--red);color:#fff}
-    .wday-strip{display:flex;gap:4px;overflow-x:auto;padding:8px 0}
-    .wday-chip{min-width:55px;text-align:center;padding:8px 4px;border-radius:12px;cursor:pointer;background:var(--surface2);border:1px solid var(--border);font-size:0.7rem;color:var(--text2);transition:0.2s;flex-shrink:0}
-    .wday-chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:600}
-    .workout-exercise-card{background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:6px;border:1px solid var(--border);font-size:0.8rem}
-    .meal-locked{border-left:3px solid var(--green)}
-    .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.65rem;font-weight:600}
-    .toggle-row{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
-    .switch{position:relative;display:inline-block;width:40px;height:22px}
-    .switch input{opacity:0;width:0;height:0}
-    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:22px;transition:0.3s}
-    .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:var(--text);border-radius:50%;transition:0.3s}
-    input:checked+.slider{background:var(--accent)}
-    input:checked+.slider:before{transform:translateX(18px)}
+    body { background: #f4f6f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    .container { max-width: 1200px; margin-top: 2rem; }
+    .card { margin-bottom: 1.5rem; border: none; box-shadow: 0 0.15rem 1rem rgba(0,0,0,0.05); }
+    .section-title { font-weight: 700; font-size: 1.25rem; border-left: 4px solid #0d6efd; padding-left: 0.75rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+    .meal-day { background: #f8f9fa; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .badge-time { background: #0d6efd; color: white; font-weight: 500; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #212529; color: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem; }
+    .schedule-table td, .schedule-table th { white-space: nowrap; vertical-align: middle; }
+    .day-col { min-width: 110px; }
+    .stop-rule { background: #fff3cd; border-left: 4px solid #ffc107; padding: 0.5rem 1rem; margin-bottom: 0.5rem; border-radius: 4px; }
+    .btn-parse { font-weight: 600; }
+    textarea { font-family: 'Courier New', monospace; font-size: 0.9rem; }
+    .nav-tabs .nav-link { font-weight: 500; }
+    .tab-pane { padding-top: 1rem; }
   </style>
 </head>
 <body>
-<div class="header"><span class="header-title">🏷️ JadeTracker</span><span class="header-badge" id="headerDate">No Plan</span></div>
-<div class="toast" id="toast"></div>
-<div class="main-content" id="mainContent">
-  <div class="view active" id="view-dashboard">
-    <div class="card"><div class="card-title">📋 Plan Status</div><div id="planStatusContent"><p style="color:var(--text2)">No plan loaded. Go to Docs.</p></div></div>
-    <div class="card"><div class="card-title">📊 Body Metrics</div><div class="stats-grid" id="dashStats"></div><div style="height:240px"><canvas id="dashChart"></canvas></div><button class="btn btn-sm btn-outline" onclick="App.switchView('view-bodycomp')" style="margin-top:8px">Log / View More</button></div>
-    <div class="card"><div class="card-title">🎯 Progression Targets</div><div id="dashProgression"></div></div>
-    <div class="card"><div class="card-title">🍽️ Meal Adherence</div><div id="dashMealAdherence"></div></div>
-    <div class="toggle-row"><span>🔔 Notify meals</span><label class="switch"><input type="checkbox" id="notifyToggle" onchange="App.toggleNotifications(this.checked)"><span class="slider"></span></label></div>
-    <button class="btn btn-accent btn-block" onclick="App.switchView('view-export')">📄 Weekly PDF</button>
-  </div>
-  <div class="view" id="view-bodycomp">
-    <div class="card"><div class="card-title">📸 Log Body Comp</div>
-      <div class="input-group"><label>Date</label><input type="date" id="bcDate"></div>
-      <div class="input-row"><div class="input-group"><label>Weight (lbs)</label><input type="number" id="bcWeight" step="0.1"></div><div class="input-group"><label>Body Fat (lbs)</label><input type="number" id="bcFat" step="0.1"></div></div>
-      <div class="input-row"><div class="input-group"><label>Skeletal Muscle (lbs)</label><input type="number" id="bcMuscle" step="0.1"></div><div class="input-group"><label>Visceral Fat (cm²)</label><input type="number" id="bcVFat" step="0.1"></div></div>
-      <div class="input-group"><label>Notes</label><textarea id="bcNotes" rows="2"></textarea></div>
-      <button class="btn btn-accent btn-block" onclick="App.addBodyCompEntry()">➕ Log Entry</button>
+<div class="container">
+  <h1 class="mb-4 text-center">📋 Weekly Fitness & Nutrition Plan Parser</h1>
+  <p class="text-muted text-center">Paste the full plan text below to extract structured schedule, meals, workouts, and more.</p>
+  
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card">
+        <div class="card-body">
+          <label class="form-label fw-bold">Paste your plan here</label>
+          <textarea id="rawInput" class="form-control mb-3" rows="12" placeholder="Paste the entire plan text including sections like Primary Directive, Daily Schedule, Meal Plan, etc..."></textarea>
+          <div class="d-flex gap-2">
+            <button id="parseBtn" class="btn btn-primary btn-parse px-4">🔍 Parse Plan</button>
+            <button id="clearBtn" class="btn btn-outline-secondary">Clear</button>
+            <button id="exportJsonBtn" class="btn btn-outline-dark ms-auto" disabled>📥 Export JSON</button>
+          </div>
+          <div id="parseError" class="text-danger mt-2 small"></div>
+        </div>
+      </div>
+      
+      <!-- Results area -->
+      <div id="resultsContainer" style="display:none;">
+        <!-- Tabs navigation -->
+        <ul class="nav nav-tabs mt-4" id="resultTabs" role="tablist">
+          <li class="nav-item" role="presentation"><button class="nav-link active" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedulePane" type="button" role="tab">📅 Daily Schedule</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" id="meals-tab" data-bs-toggle="tab" data-bs-target="#mealsPane" type="button" role="tab">🍽️ Meal Plan</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" id="workout-tab" data-bs-toggle="tab" data-bs-target="#workoutPane" type="button" role="tab">🏋️ Workouts</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" id="rehabSupps-tab" data-bs-toggle="tab" data-bs-target="#rehabSuppsPane" type="button" role="tab">🧘 Rehab & Supps</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" id="stop-tab" data-bs-toggle="tab" data-bs-target="#stopPane" type="button" role="tab">⚠️ Stop Rules</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" id="json-tab" data-bs-toggle="tab" data-bs-target="#jsonPane" type="button" role="tab">🧾 Raw JSON</button></li>
+        </ul>
+        
+        <!-- Tab panes -->
+        <div class="tab-content" id="resultTabsContent">
+          <div class="tab-pane fade show active" id="schedulePane" role="tabpanel"></div>
+          <div class="tab-pane fade" id="mealsPane" role="tabpanel"></div>
+          <div class="tab-pane fade" id="workoutPane" role="tabpanel"></div>
+          <div class="tab-pane fade" id="rehabSuppsPane" role="tabpanel"></div>
+          <div class="tab-pane fade" id="stopPane" role="tabpanel"></div>
+          <div class="tab-pane fade" id="jsonPane" role="tabpanel"></div>
+        </div>
+      </div>
     </div>
-    <div class="card"><div class="card-title">📈 Trends</div><div style="height:280px"><canvas id="bodyCompChart"></canvas></div></div>
-    <div class="card"><div class="card-title">📋 History</div><table id="bcTable" style="width:100%"><thead><tr><th>Date</th><th>Wt</th><th>Fat(lbs)</th><th>Muscle</th><th>VFat</th><th>Del</th></tr></thead><tbody></tbody></table></div>
   </div>
-  <div class="view" id="view-meals">
-    <div class="card"><div class="card-title">🍽️ Daily Meals</div>
-      <div class="input-group"><label>Week of (Sunday)</label><input type="date" id="mealWeekStart" onchange="App.updateMealCalendar()"></div>
-      <div class="wday-strip" id="mealDayStrip"></div>
-      <div id="dailyMealPlanContainer"></div>
-      <button class="btn btn-outline btn-block" onclick="App.addCustomMeal()">➕ Add Meal</button>
-      <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.saveDayMeals()">💾 Save Meals</button>
-    </div>
-  </div>
-  <div class="view" id="view-workouts">
-    <div class="card"><div class="card-title">🏋️ Daily Workout</div>
-      <div class="input-group"><label>Date</label><input type="date" id="woDate" onchange="App.updateWorkoutCalendar()"></div>
-      <div class="wday-strip" id="woDayStrip"></div>
-      <div id="dailyWorkoutPlanContainer"></div>
-      <button class="btn btn-outline btn-block" onclick="App.addCustomExercise()">➕ Add Exercise</button>
-      <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.saveDayWorkout()">💾 Save Workout</button>
-    </div>
-    <div class="card"><div class="card-title">⏱️ Timer</div>
-      <div style="display:flex;gap:6px;margin-bottom:8px"><span class="chip active" id="modeDensity" onclick="Timer.setMode('density')">Density</span><span class="chip" id="modeCircuit" onclick="Timer.setMode('circuit')">Circuit</span><span class="chip" id="modeStopwatch" onclick="Timer.setMode('stopwatch')">Stopwatch</span></div>
-      <div id="densityBlock"><div class="input-row"><div class="input-group"><label>Min</label><input type="number" id="densityDur" value="8" min="1"></div><div class="input-group"><label>Exercise</label><input type="text" id="densityEx" placeholder="DB Row"></div></div><div class="progress-bar"><div class="progress-fill" id="densityFill"></div></div></div>
-      <div id="circuitBlock" style="display:none"><div class="input-row"><div class="input-group"><label>Work (sec)</label><input type="number" id="circWork" value="30" min="5"></div><div class="input-group"><label>Rest (sec)</label><input type="number" id="circRest" value="15" min="0"></div></div></div>
-      <div style="margin:8px 0;display:flex;gap:6px"><span class="chip" onclick="Timer.applyPreset('density8')">8min</span><span class="chip" onclick="Timer.applyPreset('circuit3015')">30/15</span><span class="chip" onclick="Timer.savePreset()">💾 Save</span></div>
-      <div class="timer-label" id="timerPhase">READY</div><div class="timer-display" id="timerDisplay">00:00</div>
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px"><button class="btn btn-accent" id="timerStartBtn" onclick="Timer.toggle()">▶ Start</button><button class="btn btn-outline" onclick="Timer.reset()">↺ Reset</button><button class="btn btn-outline btn-sm" onclick="Timer.lap()">🏁 Lap</button></div>
-      <div id="timerLaps" style="margin-top:8px;font-size:0.75rem;color:var(--text2);max-height:100px;overflow-y:auto"></div>
-    </div>
-    <div class="card"><div class="card-title">📋 History</div><div id="woLog" style="max-height:300px;overflow-y:auto"></div></div>
-  </div>
-  <div class="view" id="view-documents">
-    <div class="card"><div class="card-title">📥 Load Weekly Plan</div><textarea id="planPaste" rows="12" placeholder="Paste your plan..."></textarea><button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.loadPlanFromPaste()">🔃 Parse & Load Plan</button><div style="text-align:center;margin:10px 0">— or —</div><div class="upload-zone" onclick="document.getElementById('planFile').click()" style="border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--surface2)"><div style="font-size:1.8rem">📄</div><p>Upload PDF/TXT</p></div><input type="file" id="planFile" accept=".pdf,.txt" style="display:none" onchange="App.handlePlanUpload(this)"><div id="planPreview" style="display:none;margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;font-size:0.75rem;"></div></div>
-    <div class="card"><div class="card-title">⚠️ Stop Rules</div><div id="stopRulesList"></div></div>
-  </div>
-  <div class="view" id="view-export">
-    <div class="card"><div class="card-title">📄 Weekly PDF</div><div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel"></div><button class="btn btn-accent btn-block" onclick="App.generateWeeklyPDF()">📥 Generate PDF</button><button class="btn btn-outline btn-block" onclick="App.copyForDeepSeek()">📋 Copy Text</button></div>
-    <div class="card"><div class="card-title">💾 Data</div><button class="btn btn-outline btn-block" onclick="App.exportJSON()">📦 Export JSON</button><button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="App.importJSON(this)"><button class="btn btn-danger btn-block" onclick="App.resetAll()">🗑️ Reset All</button></div>
-  </div>
-</div>
-<div class="tab-bar">
-  <button class="tab-btn active" data-view="view-dashboard" onclick="App.switchView('view-dashboard')"><span class="tab-icon">📊</span>Home</button>
-  <button class="tab-btn" data-view="view-bodycomp" onclick="App.switchView('view-bodycomp')"><span class="tab-icon">📈</span>Body</button>
-  <button class="tab-btn" data-view="view-meals" onclick="App.switchView('view-meals')"><span class="tab-icon">🍽️</span>Meals</button>
-  <button class="tab-btn" data-view="view-workouts" onclick="App.switchView('view-workouts')"><span class="tab-icon">⏱️</span>Train</button>
-  <button class="tab-btn" data-view="view-documents" onclick="App.switchView('view-documents')"><span class="tab-icon">📄</span>Docs</button>
-  <button class="tab-btn" data-view="view-export" onclick="App.switchView('view-export')"><span class="tab-icon">📤</span>Export</button>
 </div>
 
+<!-- Bootstrap JS + custom parser -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-(function() {
-  const STORAGE = 'jt_meal_final';
-  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-  let Store = {
-    bodyComp:[], mealLog:[], workoutLog:[], stopRules:[], progressionTargets:[],
-    mealPlan:null, workoutPlan:null,
-    planMeta:{weekLabel:'',focus:''},
-    settings:{mealWeekStart:'',mealDay:'Monday',woDay:'Monday',notify:false,weekLabel:'Week 1'},
-    presets:{}
-  };
-  function S(){try{localStorage.setItem(STORAGE,JSON.stringify(Store))}catch(e){T('Storage full',true)}}
-  function L(){try{const r=localStorage.getItem(STORAGE);if(r)Store={...Store,...JSON.parse(r)}}catch(e){}}
-  function U(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-  function T(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast '+(e?'error':'')+' show';clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',3000)}
-  function fmtTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0');return`${m}:${s}`}
-  function weekDays(s){const d=new Date(s+'T00:00:00');if(isNaN(d))return[];return Array.from({length:7},(_,i)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+i))}
-
-  // ---------- Fixated Parser ----------
-  function parsePlan(text){
-    const res = { mealPlan:{}, workoutPlan:{}, stopRules:[], progressionTargets:[], weekLabel:'', focus:'' };
-    let clean = text.replace(/[^\S\n]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
-    const wm = clean.match(/WEEK\s*(\d+)/i); if(wm) res.weekLabel = 'Week '+wm[1];
-    const fm = clean.match(/Focus:\s*(.+)/i); if(fm) res.focus = fm[1].trim();
-
-    // 1. MEALS from Weekly Meal Templates table
-    const mealSection = clean.match(/Weekly Meal Templates[\s\S]*?(?=\n\s*\n\s*\n|$)/i);
-    if(mealSection){
-      const lines = mealSection[0].split('\n').filter(l=>l.trim());
-      let headerIdx = -1;
-      for(let i=0;i<lines.length;i++){
-        if(/Mon\/Wed|Tue\/Fri|\bThu\b|\bSat\b|\bSun\b/i.test(lines[i]) && !/Breakfast|Lunch/i.test(lines[i])){
-          headerIdx = i;
-          break;
-        }
+  (function() {
+    // ---------- PARSER ENGINE ----------
+    const DAYS_MAP = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const DAYS_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    
+    function parseFullPlan(text) {
+      // Remove leading/trailing quotes/whitespace
+      text = text.replace(/^[“"']+/, '').replace(/[”"']+$/, '').trim();
+      
+      // Split into major sections by "---" lines
+      const sectionsRaw = text.split(/\n---+\n/);
+      let sections = [];
+      for (let sec of sectionsRaw) {
+        sec = sec.trim();
+        if (sec) sections.push(sec);
       }
-      if(headerIdx >= 0){
-        // Parse header columns
-        const headerLine = lines[headerIdx];
-        const headerCols = headerLine.split(/\s{2,}/).filter(c=>c.trim());
-        const colMap = headerCols.map(col=>{
-          if(/Mon\/Wed/i.test(col)) return ['Monday','Wednesday'];
-          if(/Tue\/Fri/i.test(col)) return ['Tuesday','Friday'];
-          if(/\bThu\b/i.test(col)) return ['Thursday'];
-          if(/\bSat\b/i.test(col)) return ['Saturday'];
-          if(/\bSun\b/i.test(col)) return ['Sunday'];
-          return null; // not a day column
-        });
-
-        // Process data rows
-        for(let i=headerIdx+1; i<lines.length; i++){
-          const rowLine = lines[i];
-          // Skip rule notes
-          if(/Salad Kit|Carb Rule/i.test(rowLine)) continue;
-
-          const cols = rowLine.split(/\s{2,}/).filter(c=>c.trim());
-          if(cols.length < 2) continue;
-
-          // Time is always in first column, like "Breakfast (7:30 AM)"
-          const timeCell = cols[0];
-          const timeMatch = timeCell.match(/\((\d{1,2}:\d{2}\s*(?:AM|PM))\)/i);
-          if(!timeMatch) continue;
-          const time = timeMatch[1].trim();
-
-          // For each subsequent column, assign to days
-          for(let j=1; j<cols.length; j++){
-            const days = colMap[j] || null;
-            if(!days) continue;
-            let mealText = cols[j].trim();
-            // Handle "Same"
-            if(/^Same$/i.test(mealText)){
-              // use the previous column's value (j-1)
-              mealText = cols[j-1]?.trim() || '';
-            }
-            if(mealText && mealText.length > 2){
-              days.forEach(d => {
-                if(!res.mealPlan[d]) res.mealPlan[d] = [];
-                if(!res.mealPlan[d].some(m=>m.time===time)){
-                  res.mealPlan[d].push({time, planned: mealText});
-                }
-              });
-            }
+      
+      // Identify sections by their first meaningful line
+      let primaryDirective = {};
+      let dailyScheduleText = null;
+      let mealPlanText = null;
+      let workoutPlanText = null;
+      let dailyRehabText = null;
+      let supplementText = null;
+      let stopRulesText = null;
+      
+      for (let sec of sections) {
+        const lines = sec.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length === 0) continue;
+        const firstLine = lines[0].toLowerCase();
+        
+        if (firstLine.includes('primary directive')) {
+          primaryDirective = parsePrimaryDirective(sec);
+        } else if (firstLine.includes('daily schedule snapshot')) {
+          dailyScheduleText = sec;
+        } else if (firstLine.includes('meal plan')) {
+          mealPlanText = sec;
+        } else if (firstLine.includes('workout plan') || firstLine.includes('progression targets')) {
+          workoutPlanText = sec;
+        } else if (firstLine.includes('daily rehab')) {
+          dailyRehabText = sec;
+        } else if (firstLine.includes('supplement protocol')) {
+          supplementText = sec;
+        } else if (firstLine.includes('stop rules')) {
+          stopRulesText = sec;
+        } else {
+          // Could be primary directive line (first section without header)
+          if (firstLine.match(/^\d+,\s*\d{4}\)/)) continue; // date line
+          if (firstLine.includes('primary directive')) {
+            primaryDirective = parsePrimaryDirective(sec);
           }
         }
       }
+      
+      // Parse each section with dedicated functions
+      const dailySchedule = dailyScheduleText ? parseDailySchedule(dailyScheduleText) : [];
+      const mealPlan = mealPlanText ? parseMealPlan(mealPlanText) : {};
+      const workouts = workoutPlanText ? parseWorkoutPlan(workoutPlanText) : {};
+      const rehab = dailyRehabText ? parseRehabTable(dailyRehabText) : [];
+      const supplements = supplementText ? parseSupplements(supplementText) : [];
+      const stopRules = stopRulesText ? parseStopRules(stopRulesText) : [];
+      
+      return {
+        primaryDirective,
+        dailySchedule,
+        mealPlan,
+        workouts,
+        rehab,
+        supplements,
+        stopRules
+      };
     }
-
-    // 2. WORKOUTS (with rep/set patterns)
-    // (same as before – just keep it from previous working versions)
-    // We'll keep the workout parser here (simplified but functional)
-    const dayHeaders = [];
-    const linesAll = clean.split('\n');
-    linesAll.forEach((line,i)=>{
-      const m = line.match(/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\b/i);
-      if(m){
-        let day = m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase();
-        dayHeaders.push({day, idx:i});
-      }
-    });
-    dayHeaders.sort((a,b)=>a.idx-b.idx);
-    for(let i=0;i<dayHeaders.length;i++){
-      const cur = dayHeaders[i];
-      const end = i+1<dayHeaders.length ? dayHeaders[i+1].idx : linesAll.length;
-      const blockLines = linesAll.slice(cur.idx, end);
-      const blockText = blockLines.join('\n');
-      const exPattern = /(\d{1,2}\s*x\s*\d|\d{1,2}\s*reps|\d{1,2}\s*sec|\d{1,2}\s*min|\d{2,3}\s*lbs|\d{2,3}\s*kg)/i;
-      const wo = {type:'', details:'', intensity:false, exercises:[]};
-      wo.type = blockLines[0].replace(new RegExp(cur.day,'i'),'').replace(/^[\s—–-]+/,'').trim() || 'Workout';
-      if(/judo|newaza/i.test(wo.type)) wo.intensity = true;
-      let detailLines = [];
-      let exStart = blockLines.length;
-      for(let j=1;j<blockLines.length;j++){
-        if(exPattern.test(blockLines[j])){ exStart=j; break; }
-        detailLines.push(blockLines[j]);
-      }
-      wo.details = detailLines.join(' | ');
-      const exLines = blockLines.slice(exStart).filter(l=>exPattern.test(l));
-      exLines.forEach(line=>{
-        const parts = line.split(/\t|\s{2,}/).filter(p=>p.trim());
-        const ex = {name:'', sets:'', reps:'', weight:'', time:'', target:'', cue:''};
-        if(parts.length>=2){
-          ex.name = parts[0].replace(/^\d+\.\s*/,'').trim();
-          parts.forEach(p=>{
-            if(/(\d{1,2}\s*x\s*\d)/.test(p)) ex.sets=p;
-            else if(/(\d{1,2}\s*reps)/i.test(p)) ex.reps=p;
-            else if(/(\d{1,2}\s*sec)/i.test(p)) ex.time=p;
-            else if(/(\d{1,2}\s*min)/i.test(p)) ex.time=p;
-            else if(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i.test(p)) ex.weight=p;
-            else if(/(\d+\+\s*total|Beat\s*\d+|Goal)/i.test(p)) ex.target=p;
-            else if(/Stop|glued|imprint/i.test(p)) ex.cue=p;
-          });
-        } else {
-          const timeM = line.match(/(\d{1,2}\s*min|\d{1,2}\s*sec)/i);
-          const setsM = line.match(/(\d{1,2}\s*x\s*\d)/i);
-          const weightM = line.match(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i);
-          const repsM = line.match(/(\d{1,2}\s*reps)/i);
-          const targetM = line.match(/(\d+\+\s*total|Beat\s*\d+|Goal)/i);
-          if(timeM) ex.time = timeM[0];
-          if(setsM) ex.sets = setsM[0];
-          if(weightM) ex.weight = weightM[0];
-          if(repsM) ex.reps = repsM[0];
-          if(targetM) ex.target = targetM[0];
-          ex.name = line.replace(timeM?.[0]||'').replace(setsM?.[0]||'').replace(weightM?.[0]||'').replace(repsM?.[0]||'').replace(targetM?.[0]||'').trim();
+    
+    // ---------- PRIMARY DIRECTIVE ----------
+    function parsePrimaryDirective(text) {
+      const result = {};
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      for (let line of lines) {
+        if (line.toLowerCase().includes('primary directive')) {
+          const parts = line.split(':').slice(1).join(':').trim();
+          if (parts) result.directive = parts;
+        } else if (line.includes('No BCAAs') || line.includes('No alcohol') || line.includes('No energy drinks')) {
+          result.restrictions = line;
+        } else if (line.includes('Black coffee') || line.includes('salted water')) {
+          result.allowedDrinks = line;
+        } else if (line.match(/^\d+,\s*\d{4}\)/)) {
+          result.date = line.replace(/[“”"]/g, '');
         }
-        if(ex.name) wo.exercises.push(ex);
-      });
-      res.workoutPlan[cur.day] = wo;
-    }
-
-    // Stop rules
-    linesAll.forEach(l=>{
-      const t = l.replace(/^[\s•\-\d]+[\.\)]?\s*/,'').trim();
-      if(t && /stop|pain|ache|shift|numbness|warning|off/i.test(t) && t.length>5) res.stopRules.push(t);
-    });
-    return res;
-  }
-
-  function applyParsed(parsed){
-    let changes=[];
-    if(parsed.mealPlan && Object.keys(parsed.mealPlan).length){
-      if(!Store.mealPlan) Store.mealPlan={};
-      for(const d in parsed.mealPlan){
-        if(!Store.mealPlan[d]) Store.mealPlan[d]=[];
-        parsed.mealPlan[d].forEach(m=>{ if(!Store.mealPlan[d].some(e=>e.time===m.time)) Store.mealPlan[d].push(m); });
       }
-      changes.push(`${Object.values(parsed.mealPlan).flat().length} meals`);
+      return result;
     }
-    if(parsed.workoutPlan && Object.keys(parsed.workoutPlan).length){
-      if(!Store.workoutPlan) Store.workoutPlan={};
-      for(const d in parsed.workoutPlan) Store.workoutPlan[d]=parsed.workoutPlan[d];
-      changes.push(`${Object.keys(parsed.workoutPlan).length} workout days`);
+    
+    // ---------- DAILY SCHEDULE (TABLE) ----------
+    function parseDailySchedule(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      // Find header row containing "Time" and day names
+      let headerIndex = -1;
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes('Time') && (lines[i].includes('Mon') || lines[i].includes('Tue'))) {
+          headerIndex = i;
+          break;
+        }
+      }
+      if (headerIndex === -1) return [];
+      
+      // Extract day columns from header
+      const headerLine = lines[headerIndex];
+      const headerTokens = headerLine.split(/\s{2,}/);
+      const daysOrder = [];
+      for (let tok of headerTokens) {
+        const dayMatch = tok.match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/);
+        if (dayMatch) daysOrder.push(dayMatch[1]);
+      }
+      if (daysOrder.length === 0) return [];
+      
+      // Process rows after header until a line that doesn't start with time pattern
+      const scheduleRows = [];
+      for (let i = headerIndex+1; i < lines.length; i++) {
+        const line = lines[i];
+        // Time pattern like "4:00 AM" or "11:30 AM" or "12:00 PM"
+        if (!/^\d{1,2}:\d{2}\s+(AM|PM)/i.test(line)) break;
+        const tokens = line.split(/\s{2,}/);
+        if (tokens.length < 2) continue;
+        const time = tokens[0].trim();
+        const activities = tokens.slice(1, 1 + daysOrder.length).map(t => t.trim() === '—' ? '' : t.trim());
+        scheduleRows.push({ time, activities });
+      }
+      
+      // Build per-day schedule
+      const dailySchedule = {};
+      for (let d of daysOrder) dailySchedule[d] = [];
+      
+      for (let row of scheduleRows) {
+        const time = row.time;
+        for (let idx = 0; idx < daysOrder.length; idx++) {
+          const act = row.activities[idx] || '';
+          if (act) {
+            dailySchedule[daysOrder[idx]].push({ time, activity: act });
+          }
+        }
+      }
+      return dailySchedule;
     }
-    parsed.stopRules.forEach(r=>{ if(!Store.stopRules.some(s=>s.name===r)) Store.stopRules.push({id:U(),name:r}); });
-    if(parsed.stopRules.length) changes.push(`${parsed.stopRules.length} stop rules`);
-    if(parsed.weekLabel) Store.settings.weekLabel=parsed.weekLabel;
-    if(parsed.focus) Store.planMeta.focus=parsed.focus;
-    S(); return changes;
-  }
-
-  const Timer = {
-    mode:'density',secs:0,laps:[],running:false,interval:null,
-    setMode(m){this.mode=m;this.reset();document.getElementById('densityBlock').style.display=m==='density'?'block':'none';document.getElementById('circuitBlock').style.display=m==='circuit'?'block':'none';document.querySelectorAll('#modeDensity,#modeCircuit,#modeStopwatch').forEach(c=>c.classList.remove('active'));document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active')},
-    toggle(){this.running?this.stop():this.start()},
-    start(){this.running=true;document.getElementById('timerStartBtn').textContent='⏸ Pause';this.interval=setInterval(()=>this.tick(),1000)},
-    stop(){this.running=false;clearInterval(this.interval);document.getElementById('timerStartBtn').textContent='▶ Start';document.getElementById('timerPhase').textContent='PAUSED'},
-    reset(){this.stop();this.secs=0;this.laps=[];this.updateDisplay();document.getElementById('timerLaps').innerHTML='';document.getElementById('densityFill').style.width='0%';document.getElementById('timerPhase').textContent='READY'},
-    lap(){this.laps.push(this.secs);document.getElementById('timerLaps').innerHTML=this.laps.map((t,i)=>`Lap ${i+1}: ${fmtTime(t)}`).join('<br>')},
-    tick(){this.secs++;this.updateDisplay();if(this.mode==='density'){const d=parseInt(document.getElementById('densityDur').value||8);document.getElementById('densityFill').style.width=Math.min(100,(this.secs/(d*60))*100)+'%';if(this.secs>=d*60){this.stop();T('Block complete!')}}if(this.mode==='circuit'){const w=parseInt(document.getElementById('circWork').value||30),r=parseInt(document.getElementById('circRest').value||15);document.getElementById('timerPhase').textContent=(this.secs%(w+r)<w)?'WORK':'REST'}},
-    updateDisplay(){document.getElementById('timerDisplay').textContent=fmtTime(this.secs)},
-    applyPreset(id){if(id==='density8'){document.getElementById('densityDur').value=8;this.setMode('density')}else if(id==='circuit3015'){document.getElementById('circWork').value=30;document.getElementById('circRest').value=15;this.setMode('circuit')}else if(Store.presets[id]){const p=Store.presets[id];if(p.mode==='density'){document.getElementById('densityDur').value=p.duration;this.setMode('density')}else{document.getElementById('circWork').value=p.work;document.getElementById('circRest').value=p.rest;this.setMode('circuit')}}},
-    savePreset(){const n=prompt('Preset name:');if(!n)return;const p={mode:this.mode};if(this.mode==='density')p.duration=parseInt(document.getElementById('densityDur').value)||8;else{p.work=parseInt(document.getElementById('circWork').value)||30;p.rest=parseInt(document.getElementById('circRest').value)||15}Store.presets[n]=p;S();T('Saved!')}
-  };
-  window.Timer=Timer;
-
-  const App = {
-    dashChart:null, bcChart:null,
-    switchView(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');if(b.getAttribute('data-view')===v)b.classList.add('active')});if(v==='view-dashboard')this.renderDashboard();if(v==='view-bodycomp'){this.renderBCTable();this.renderBCChart()}if(v==='view-meals'){this.initMealView();this.loadMeals()}if(v==='view-workouts'){this.initWoView();this.loadWorkout();this.renderWoHist()}if(v==='view-documents'){this.renderStopRules()}if(v==='view-export'){document.getElementById('exportWeekLabel').value=Store.settings.weekLabel||''}},
-    renderDashboard(){const bc=Store.bodyComp,l=bc.length?bc[bc.length-1]:null;document.getElementById('dashStats').innerHTML=`<div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight</div></div><div class="stat-card"><div class="stat-value">${l?.bodyFatLbs?.toFixed(1)??'--'}</div><div class="stat-label">Fat (lbs)</div></div><div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle</div></div><div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">VFat</div></div>`;const dctx=document.getElementById('dashChart')?.getContext('2d');if(dctx&&this.dashChart)this.dashChart.destroy();if(dctx&&Store.bodyComp.length)this.dashChart=new Chart(dctx,{type:'line',data:{labels:Store.bodyComp.map(e=>e.date),datasets:[{label:'Weight',data:Store.bodyComp.map(e=>e.weight),borderColor:'#22d3bb'},{label:'Muscle',data:Store.bodyComp.map(e=>e.skeletalMuscle),borderColor:'#3b82f6'},{label:'Fat',data:Store.bodyComp.map(e=>e.bodyFatLbs),borderColor:'#ef4444'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}});document.getElementById('dashProgression').innerHTML=Store.progressionTargets.length?Store.progressionTargets.map(pt=>{const hit=pt.actual&&pt.target&&parseFloat(pt.actual)>=parseFloat(pt.target);return`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.78rem"><span>${pt.day} ${pt.metric}</span><span class="badge ${hit?'badge-hit':'badge-pending'}">${hit?'✓ HIT':'PENDING'}</span> Target:${pt.target}</div>`}).join(''):'<p style="color:var(--text2)">No targets</p>';const ad=this.getMealAdherence();document.getElementById('dashMealAdherence').innerHTML=ad.total?`<p>${ad.done}/${ad.total} meals (${Math.round(ad.pct)}%)</p>`:'<p style="color:var(--text2)">No meals</p>';document.getElementById('planStatusContent').innerHTML=(Store.mealPlan||Store.workoutPlan)?`<p><b>${Store.settings.weekLabel||'Plan'}</b> loaded. Meals:${Store.mealPlan?Object.keys(Store.mealPlan).length:0}d | Workouts:${Store.workoutPlan?Object.keys(Store.workoutPlan).length:0}d</p>`:'<p style="color:var(--text2)">No plan. Paste in Docs.</p>';document.getElementById('headerDate').textContent=Store.settings.weekLabel||'No Plan';document.getElementById('notifyToggle').checked=Store.settings.notify},
-    getMealAdherence(){const ws=Store.settings.mealWeekStart;if(!ws)return{total:0,done:0,pct:0};const st=new Date(ws+'T00:00:00'),end=new Date(st);end.setDate(end.getDate()+7);const meals=Store.mealLog.filter(m=>{const d=new Date(m._ts);return d>=st&&d<end});const done=meals.filter(m=>m.completed).length;return{total:meals.length,done,pct:meals.length?done/meals.length*100:0}},
-    renderBCTable(){const t=document.querySelector('#bcTable tbody');t.innerHTML=Store.bodyComp.slice().reverse().map(b=>`<tr><td>${b.date}</td><td>${b.weight?.toFixed(1)??'--'}</td><td>${b.bodyFatLbs?.toFixed(1)??'--'}</td><td>${b.skeletalMuscle?.toFixed(1)??'--'}</td><td>${b.visceralFat?.toFixed(1)??'--'}</td><td><button class="btn btn-sm btn-danger" onclick="App.deleteBodyComp('${b.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan="6">No entries</td></tr>'},
-    deleteBodyComp(id){Store.bodyComp=Store.bodyComp.filter(b=>b.id!==id);S();this.renderBCTable();this.renderBCChart();this.renderDashboard()},
-    renderBCChart(){const ctx=document.getElementById('bodyCompChart')?.getContext('2d');if(!ctx)return;if(this.bcChart)this.bcChart.destroy();if(!Store.bodyComp.length)return;this.bcChart=new Chart(ctx,{type:'line',data:{labels:Store.bodyComp.map(e=>e.date),datasets:[{label:'Weight',data:Store.bodyComp.map(e=>e.weight),borderColor:'#22d3bb'},{label:'Muscle',data:Store.bodyComp.map(e=>e.skeletalMuscle),borderColor:'#3b82f6'},{label:'Fat',data:Store.bodyComp.map(e=>e.bodyFatLbs),borderColor:'#ef4444'},{label:'VFat',data:Store.bodyComp.map(e=>e.visceralFat),borderColor:'#f59e0b',yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:false,ticks:{color:'#94a3b8'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8'}}},plugins:{legend:{labels:{color:'#94a3b8'}}}}})},
-    addBodyCompEntry(){const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0];const w=parseFloat(document.getElementById('bcWeight').value)||null,fl=parseFloat(document.getElementById('bcFat').value)||null,m=parseFloat(document.getElementById('bcMuscle').value)||null,v=parseFloat(document.getElementById('bcVFat').value)||null;if(!w&&fl==null&&!m&&!v){T('Enter a value',true);return}const fatPct=(w&&fl)?fl/w*100:null;Store.bodyComp.push({id:U(),date,weight:w,bodyFatLbs:fl,fatPercentage:fatPct,skeletalMuscle:m,visceralFat:v,notes:document.getElementById('bcNotes').value});Store.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date));S();this.renderBCTable();this.renderBCChart();this.renderDashboard();T('Logged')},
-    initMealView(){if(!Store.settings.mealWeekStart){const d=new Date();d.setDate(d.getDate()-d.getDay());Store.settings.mealWeekStart=d.toISOString().split('T')[0];S()}document.getElementById('mealWeekStart').value=Store.settings.mealWeekStart;this.updateMealCalendar()},
-    updateMealCalendar(){const w=document.getElementById('mealWeekStart'),s=document.getElementById('mealDayStrip');if(!w||!s)return;Store.settings.mealWeekStart=w.value;S();const days=weekDays(w.value);if(!days.length)return;s.innerHTML=days.map((d,i)=>{const fd=DAYS[d.getDay()];return`<div class="wday-chip ${fd===Store.settings.mealDay?'active':''}" onclick="App.selectMealDay('${fd}')">${DAYS_SHORT[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</div>`}).join('')},
-    selectMealDay(d){Store.settings.mealDay=d;S();this.updateMealCalendar();this.loadMeals()},
-    addCustomMeal(){document.getElementById('dailyMealPlanContainer').insertAdjacentHTML('beforeend',`<div class="workout-exercise-card"><input class="meal-custom-time" placeholder="Time"><input class="meal-custom-planned" placeholder="Planned" style="margin:4px 0"><div class="input-row"><input class="meal-actual" placeholder="Actual"><input class="meal-notes" placeholder="Notes"></div><label><input type="checkbox" class="meal-done"> Done</label></div>`)},
-    loadMeals(){const day=Store.settings.mealDay,ws=Store.settings.mealWeekStart;if(!day||!ws)return;const planned=(Store.mealPlan||{})[day]||[],existing=Store.mealLog.filter(m=>m.day===day&&m.weekStart===ws);const c=document.getElementById('dailyMealPlanContainer');let html='';planned.forEach(p=>{const s=existing.find(e=>e.time===p.time)||{};html+=`<div class="workout-exercise-card ${s.completed?'meal-locked':''}"><strong>${p.time}</strong><p style="font-size:0.75rem;color:var(--text2)">${p.planned}</p><div class="input-row"><input class="meal-actual" value="${s.actual||''}" placeholder="Actual"><input class="meal-notes" value="${s.notes||''}" placeholder="Notes"></div><label><input type="checkbox" class="meal-done" ${s.completed?'checked':''}> Done</label></div>`});c.innerHTML=html||'<p style="color:var(--text2)">No meals planned.</p>'},
-    saveDayMeals(){const day=Store.settings.mealDay,ws=Store.settings.mealWeekStart;if(!day||!ws){T('Select day',true);return}const newMeals=[];document.querySelectorAll('#dailyMealPlanContainer .workout-exercise-card').forEach(card=>{const timeEl=card.querySelector('strong')||card.querySelector('.meal-custom-time');const time=timeEl?(timeEl.textContent||timeEl.value):'';const plannedEl=card.querySelector('.meal-custom-planned');const actualEl=card.querySelector('.meal-actual'),notesEl=card.querySelector('.meal-notes');const checked=card.querySelector('.meal-done')?.checked||false;newMeals.push({id:U(),day,weekStart:ws,time,planned:plannedEl?plannedEl.value:'',actual:actualEl?.value||'',notes:notesEl?.value||'',completed:checked,_ts:new Date().toISOString()})});Store.mealLog=Store.mealLog.filter(m=>!(m.day===day&&m.weekStart===ws));Store.mealLog.push(...newMeals);S();this.renderDashboard();this.loadMeals();T('Meals saved!')},
-    initWoView(){if(!document.getElementById('woDate').value)document.getElementById('woDate').valueAsDate=new Date();this.updateWorkoutCalendar()},
-    updateWorkoutCalendar(){const d=document.getElementById('woDate'),s=document.getElementById('woDayStrip');if(!d||!s)return;const dt=new Date(d.value+'T00:00:00');if(isNaN(dt))return;const sd=Store.settings.woDay||DAYS[dt.getDay()];s.innerHTML=DAYS.map((day,i)=>{const nd=new Date(dt);nd.setDate(dt.getDate()-dt.getDay()+i);return`<div class="wday-chip ${day===sd?'active':''}" onclick="App.selectWoDay('${day}')">${DAYS_SHORT[i]} ${nd.getDate()}/${nd.getMonth()+1}</div>`}).join('')},
-    selectWoDay(d){Store.settings.woDay=d;S();this.updateWorkoutCalendar();this.loadWorkout()},
-    addCustomExercise(){document.getElementById('dailyWorkoutPlanContainer').insertAdjacentHTML('beforeend',`<div class="workout-exercise-card"><input class="ex-custom-name" placeholder="Exercise"><div class="input-row"><input class="ex-reps" placeholder="Reps"><input class="ex-weight" placeholder="Weight"></div><input class="ex-notes" placeholder="Notes"></div>`)},
-    loadWorkout(){const day=Store.settings.woDay,date=document.getElementById('woDate')?.value;if(!day||!date)return;const plan=Store.workoutPlan||{},dp=plan[day]||{type:'Rest',exercises:[]};const saved=Store.workoutLog.find(w=>w.date===date)||{};const c=document.getElementById('dailyWorkoutPlanContainer');let html=`<h3>${dp.type||'Rest'}</h3>${dp.details?`<p style="font-size:0.8rem;color:var(--text2)">${dp.details}</p>`:''}`;(dp.exercises||[]).forEach((ex,i)=>{const s=saved.exercises?.[i]||{};html+=`<div class="workout-exercise-card"><strong>${ex.name}</strong><div style="font-size:0.7rem;color:var(--text2)">${[ex.sets,ex.reps,ex.weight,ex.time].filter(Boolean).join(' | ')}</div><div class="input-row"><input class="ex-reps" value="${s.actualReps||''}" placeholder="Reps"><input class="ex-weight" value="${s.actualWeight||''}" placeholder="Weight"></div><input class="ex-notes" value="${s.notes||''}" placeholder="Notes"></div>`});c.innerHTML=html||'<p>No template</p>'},
-    saveDayWorkout(){const day=Store.settings.woDay,date=document.getElementById('woDate')?.value;if(!day||!date){T('Select date',true);return}const wo={id:U(),date,day,type:Store.workoutPlan?.[day]?.type||'Custom',exercises:[]};document.querySelectorAll('#dailyWorkoutPlanContainer .workout-exercise-card').forEach(card=>{const nameEl=card.querySelector('strong')||card.querySelector('.ex-custom-name');const name=nameEl?(nameEl.textContent||nameEl.value).replace(/^\d+\.\s*/,''):'';const reps=card.querySelector('.ex-reps')?.value||'',weight=card.querySelector('.ex-weight')?.value||'';wo.exercises.push({exercise:name,actualReps:reps,actualWeight:weight,notes:card.querySelector('.ex-notes')?.value||''})});Store.workoutLog=Store.workoutLog.filter(w=>!(w.date===date));Store.workoutLog.push(wo);S();this.renderWoHist();this.loadWorkout();this.renderDashboard();T('Workout saved!')},
-    renderWoHist(){document.getElementById('woLog').innerHTML=Store.workoutLog.slice(-10).reverse().map(w=>`<div style="background:var(--surface2);padding:8px;border-radius:8px;margin-bottom:4px"><b>${w.date} — ${w.type}</b><br>${(w.exercises||[]).map(e=>`${e.exercise}: ${e.actualReps||'--'} reps ${e.actualWeight||''}`).join('<br>')}</div>`).join('')||'<p style="color:var(--text2)">No workouts</p>'},
-    loadPlanFromPaste(){const t=document.getElementById('planPaste').value.trim();if(!t){T('Paste plan',true);return}this._applyPlan(t)},
-    handlePlanUpload(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{let t='';if(f.name.endsWith('.pdf')){if(typeof pdfjsLib==='undefined'){T('PDF.js missing',true);return}try{const pdf=await pdfjsLib.getDocument({data:new Uint8Array(e.target.result)}).promise;for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i);t+=(await pg.getTextContent()).items.map(it=>it.str).join(' ')+' '}}catch(ex){T('PDF error',true);return}}else t=e.target.result;this._applyPlan(t)};if(f.name.endsWith('.pdf'))r.readAsArrayBuffer(f);else r.readAsText(f);input.value=''},
-    _applyPlan(text){const parsed=parsePlan(text);const changes=applyParsed(parsed);document.getElementById('planPreview').style.display='block';document.getElementById('planPreview').innerHTML=changes.length?`✅ Loaded: ${changes.join(' | ')}`:'⚠️ No meals/workouts detected.';T(changes.length?'Plan loaded':'No plan found',!changes.length);this.renderDashboard();if(document.getElementById('view-meals').classList.contains('active'))this.loadMeals();if(document.getElementById('view-workouts').classList.contains('active'))this.loadWorkout();this.renderStopRules()},
-    renderStopRules(){document.getElementById('stopRulesList').innerHTML=Store.stopRules.length?Store.stopRules.map(r=>`<div class="injury-badge">⚠️ ${r.name}</div>`).join(''):'<p style="color:var(--text2)">No stop rules</p>'},
-    async toggleNotifications(on){if(on&&Notification.permission==='default'){const p=await Notification.requestPermission();if(p!=='granted')on=false}Store.settings.notify=on;S();document.getElementById('notifyToggle').checked=on;T(`Notifications ${on?'on':'off'}`)},
-    generateWeeklyPDF(){if(typeof jspdf==='undefined'){T('PDF missing',true);return}const {jsPDF}=jspdf;const doc=new jsPDF();let y=20;const add=(t,s=12,bold)=>{doc.setFont('Helvetica',bold?'bold':'normal');doc.setFontSize(s);doc.text(t,20,y);y+=8};add('JADE PARKER WEEKLY REPORT',14,true);add(`Week: ${Store.settings.weekLabel}`);const bc=Store.bodyComp.slice(-1)[0];if(bc)add(`Weight:${bc.weight?.toFixed(1)??'--'} BF:${bc.fatPercentage?.toFixed(1)??'--'}% Muscle:${bc.skeletalMuscle?.toFixed(1)??'--'} VFat:${bc.visceralFat?.toFixed(1)??'--'}cm²`);Store.workoutLog.slice(-7).reverse().forEach(w=>{add(`${w.date} - ${w.type}`);(w.exercises||[]).forEach(e=>add(`  ${e.exercise}: ${e.actualReps||'--'} reps ${e.actualWeight||''}`))});doc.save('jadetracker-weekly.pdf');T('PDF saved')},
-    copyForDeepSeek(){let t=`JadeTracker - ${Store.settings.weekLabel} Report\n`;const bc=Store.bodyComp.slice(-1)[0];if(bc)t+=`Body: ${bc.weight?.toFixed(1)??'--'}lbs, BF ${bc.fatPercentage?.toFixed(1)??'--'}%, Muscle ${bc.skeletalMuscle?.toFixed(1)??'--'}lbs, VFat ${bc.visceralFat?.toFixed(1)??'--'}cm²\n`;Store.workoutLog.slice(-5).reverse().forEach(w=>{t+=`${w.date} ${w.type}\n`;(w.exercises||[]).forEach(e=>t+=`  ${e.exercise}: ${e.actualReps||'--'} reps ${e.actualWeight||''}\n`)});navigator.clipboard.writeText(t).then(()=>T('Copied!'))},
-    exportJSON(){const b=new Blob([JSON.stringify(Store,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='jadetracker-backup.json';a.click()},
-    importJSON(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(confirm('Replace all data?')){Store=d;S();location.reload()}}catch(ex){T('Invalid file',true)}};r.readAsText(f);input.value=''},
-    resetAll(){if(confirm('DELETE ALL DATA?')){localStorage.removeItem(STORAGE);location.reload()}}
-  };
-  window.App=App;
-  setInterval(()=>{if(!Store.settings.notify||Notification.permission!=='granted'||!Store.mealPlan)return;const now=new Date(),mins=now.getHours()*60+now.getMinutes(),day=DAYS[now.getDay()];(Store.mealPlan[day]||[]).forEach(p=>{const m=p.time.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return;let h=parseInt(m[1]);if(m[3].toUpperCase()==='PM'&&h<12)h+=12;if(m[3]==='AM'&&h===12)h=0;if(Math.abs(h*60+parseInt(m[2])-mins)<=2)new Notification('JadeTracker',{body:`${p.time}: ${p.planned}`})})},60000);
-  L();document.getElementById('bcDate').valueAsDate=new Date();const mws=document.getElementById('mealWeekStart');if(Store.settings.mealWeekStart)mws.value=Store.settings.mealWeekStart;else{const d=new Date();d.setDate(d.getDate()-d.getDay());mws.value=d.toISOString().split('T')[0];Store.settings.mealWeekStart=mws.value;S()}document.getElementById('woDate').valueAsDate=new Date();document.getElementById('notifyToggle').checked=Store.settings.notify;document.getElementById('exportWeekLabel').value=Store.settings.weekLabel||'';App.renderDashboard();App.updateMealCalendar();App.updateWorkoutCalendar();App.loadMeals();App.loadWorkout();App.renderBCTable();App.renderBCChart();App.renderStopRules();
-})();
+    
+    // ---------- MEAL PLAN ----------
+    function parseMealPlan(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const mealDays = {};
+      let currentDay = null;
+      let currentDayName = null;
+      
+      const dayHeaderRegex = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
+      
+      for (let line of lines) {
+        // Skip meta lines like "Meal Plan", "Salad Kit Rule:", etc.
+        if (line.toLowerCase().startsWith('meal plan') || line.toLowerCase().startsWith('salad kit rule') ||
+            line.toLowerCase().startsWith('daily option') || line.toLowerCase().startsWith('hydration')) {
+          continue;
+        }
+        
+        const dayMatch = line.match(dayHeaderRegex);
+        if (dayMatch) {
+          currentDayName = dayMatch[1].charAt(0).toUpperCase() + dayMatch[1].slice(1).toLowerCase();
+          currentDay = [];
+          mealDays[currentDayName] = { title: line, meals: currentDay };
+          continue;
+        }
+        
+        // Bullet point meals
+        if (line.startsWith('·') && currentDay !== null && currentDayName) {
+          const mealObj = parseMealLine(line);
+          if (mealObj) currentDay.push(mealObj);
+        }
+      }
+      return mealDays;
+    }
+    
+    function parseMealLine(line) {
+      // Example: "· Breakfast (4:30 AM): 4 egg whites + 2 whole eggs, 1 slice Ezekiel toast, 1 cup spinach, black coffee"
+      const cleaned = line.replace(/^·\s*/, '');
+      const match = cleaned.match(/^(.+?)\s*\(([^)]+)\)\s*:\s*(.+)/);
+      if (match) {
+        return {
+          meal: match[1].trim(),
+          time: match[2].trim(),
+          description: match[3].trim()
+        };
+      }
+      return null;
+    }
+    
+    // ---------- WORKOUT PLAN ----------
+    function parseWorkoutPlan(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const workouts = {};
+      let currentDay = null;
+      const dayHeaderRegex = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
+      let inTable = false;
+      let tableHeaders = [];
+      let tableRows = [];
+      let pullUpRescueText = '';
+      
+      function finalizeDay() {
+        if (currentDay && workouts[currentDay]) {
+          if (tableRows.length > 0) {
+            workouts[currentDay].exercises = tableRows.map(row => {
+              const obj = {};
+              for (let i = 0; i < tableHeaders.length; i++) {
+                obj[tableHeaders[i]] = row[i] || '';
+              }
+              return obj;
+            });
+          }
+          if (pullUpRescueText) {
+            workouts[currentDay].pullUpRescue = pullUpRescueText;
+          }
+        }
+        tableHeaders = [];
+        tableRows = [];
+        pullUpRescueText = '';
+        inTable = false;
+      }
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const dayMatch = line.match(dayHeaderRegex);
+        if (dayMatch) {
+          finalizeDay();
+          const dayName = dayMatch[1].charAt(0).toUpperCase() + dayMatch[1].slice(1).toLowerCase();
+          currentDay = dayName;
+          workouts[currentDay] = { title: line, details: [], exercises: [], pullUpRescue: '' };
+          continue;
+        }
+        
+        if (!currentDay) continue;
+        
+        // Detect table header (contains "Exercise" or "Block" and "Reps")
+        if (line.match(/block.*exercise|exercise.*reps/i) || (line.includes('Exercise') && line.includes('Reps'))) {
+          // Table header
+          inTable = true;
+          tableHeaders = line.split(/\s{2,}/).map(h => h.trim().toLowerCase().replace(/\//g, '_').replace(/\s+/g, '_'));
+          continue;
+        }
+        
+        if (inTable) {
+          // Check if still a table row: starts with a number (block) or has typical exercise words
+          if (/^\d+\s+/.test(line) || line.match(/^\d+\s+/)) {
+            const rowTokens = line.split(/\s{2,}/);
+            tableRows.push(rowTokens);
+            continue;
+          } else {
+            // End of table
+            inTable = false;
+            // Save table data to current day
+            if (tableRows.length > 0) {
+              workouts[currentDay].exercises = tableRows.map(row => {
+                const obj = {};
+                for (let i = 0; i < tableHeaders.length; i++) {
+                  obj[tableHeaders[i]] = row[i] || '';
+                }
+                return obj;
+              });
+              tableRows = [];
+              tableHeaders = [];
+            }
+          }
+        }
+        
+        // Pull-up rescue line
+        if (line.toLowerCase().includes('pull-up rescue')) {
+          pullUpRescueText = line;
+          // The following lines until empty might be rescue details
+          let j = i+1;
+          while (j < lines.length && lines[j].trim() !== '' && !lines[j].match(dayHeaderRegex)) {
+            pullUpRescueText += ' ' + lines[j].trim();
+            j++;
+          }
+          i = j-1;
+          continue;
+        }
+        
+        // Regular bullet or detail line
+        if (line.startsWith('·') || line.startsWith('-') || line.startsWith('*')) {
+          workouts[currentDay].details.push(line.replace(/^[·\-\*]\s*/, ''));
+        } else if (line.length > 0 && !inTable && !line.match(dayHeaderRegex)) {
+          // Additional details (like "Target: 6 rounds...")
+          workouts[currentDay].details.push(line);
+        }
+      }
+      finalizeDay();
+      return workouts;
+    }
+    
+    // ---------- REHAB TABLE ----------
+    function parseRehabTable(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const rehab = [];
+      let headerFound = false;
+      for (let line of lines) {
+        if (line.toLowerCase().includes('exercise') && line.toLowerCase().includes('reps')) {
+          headerFound = true;
+          continue;
+        }
+        if (!headerFound) continue;
+        if (line.startsWith('·') || line.startsWith('-')) {
+          const parts = line.replace(/^[·\-]\s*/, '').split(/\s{2,}/);
+          if (parts.length >= 3) {
+            rehab.push({
+              exercise: parts[0].trim(),
+              reps_time: parts[1].trim(),
+              purpose: parts.slice(2).join(' ').trim()
+            });
+          } else if (parts.length === 2) {
+            rehab.push({
+              exercise: parts[0].trim(),
+              reps_time: parts[1].trim(),
+              purpose: ''
+            });
+          }
+        }
+      }
+      return rehab;
+    }
+    
+    // ---------- SUPPLEMENTS ----------
+    function parseSupplements(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const supps = [];
+      for (let line of lines) {
+        if (line.toLowerCase().includes('supplement protocol') || line.toLowerCase().includes('unchanged')) continue;
+        if (line.startsWith('·') || line.startsWith('-')) {
+          supps.push(line.replace(/^[·\-]\s*/, ''));
+        } else if (line && !line.startsWith('No BCAAs')) {
+          supps.push(line);
+        }
+      }
+      return supps;
+    }
+    
+    // ---------- STOP RULES ----------
+    function parseStopRules(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const rules = [];
+      for (let line of lines) {
+        if (line.match(/^\d+\./)) {
+          rules.push(line.replace(/^\d+\.\s*/, ''));
+        }
+      }
+      return rules;
+    }
+    
+    // ---------- RENDER FUNCTIONS ----------
+    function renderDailySchedule(schedule) {
+      if (!schedule || Object.keys(schedule).length === 0) return '<p class="text-muted">No schedule data parsed.</p>';
+      let html = '';
+      const dayOrder = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      for (let day of dayOrder) {
+        if (!schedule[day]) continue;
+        const events = schedule[day];
+        if (events.length === 0) continue;
+        html += `<div class="mb-3"><h6 class="fw-bold">${day}</h6><ul class="list-group list-group-flush">`;
+        for (let ev of events) {
+          html += `<li class="list-group-item d-flex justify-content-between"><span class="badge-time">${ev.time}</span> <span class="ms-3 flex-grow-1">${ev.activity}</span></li>`;
+        }
+        html += `</ul></div>`;
+      }
+      return html || '<p class="text-muted">No events found.</p>';
+    }
+    
+    function renderMealPlan(mealPlan) {
+      if (!mealPlan || Object.keys(mealPlan).length === 0) return '<p class="text-muted">No meal plan parsed.</p>';
+      let html = '';
+      const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      for (let day of dayOrder) {
+        const data = mealPlan[day];
+        if (!data) continue;
+        html += `<div class="meal-day"><h6 class="fw-bold">${data.title}</h6>`;
+        if (data.meals && data.meals.length > 0) {
+          html += `<ul class="list-group list-group-flush mt-2">`;
+          for (let m of data.meals) {
+            html += `<li class="list-group-item"><span class="badge bg-secondary me-2">${m.meal} (${m.time})</span> ${m.description}</li>`;
+          }
+          html += `</ul>`;
+        }
+        html += `</div>`;
+      }
+      return html || '<p class="text-muted">No meals found.</p>';
+    }
+    
+    function renderWorkouts(workouts) {
+      if (!workouts || Object.keys(workouts).length === 0) return '<p class="text-muted">No workout data parsed.</p>';
+      let html = '';
+      const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      for (let day of dayOrder) {
+        const wo = workouts[day];
+        if (!wo) continue;
+        html += `<div class="card mb-3"><div class="card-body"><h6 class="card-title fw-bold">${wo.title}</h6>`;
+        if (wo.details.length > 0) {
+          html += `<ul class="list-unstyled">`;
+          for (let d of wo.details) html += `<li>• ${d}</li>`;
+          html += `</ul>`;
+        }
+        if (wo.exercises && wo.exercises.length > 0) {
+          html += `<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr>`;
+          for (let key of Object.keys(wo.exercises[0])) {
+            html += `<th>${key.replace(/_/g, ' ')}</th>`;
+          }
+          html += `</tr></thead><tbody>`;
+          for (let row of wo.exercises) {
+            html += `<tr>`;
+            for (let key of Object.keys(row)) {
+              html += `<td>${row[key]}</td>`;
+            }
+            html += `</tr>`;
+          }
+          html += `</tbody></table></div>`;
+        }
+        if (wo.pullUpRescue) {
+          html += `<p class="fw-semibold mt-2">🔹 Pull-Up Rescue:</p><p>${wo.pullUpRescue}</p>`;
+        }
+        html += `</div></div>`;
+      }
+      return html || '<p class="text-muted">No workouts.</p>';
+    }
+    
+    function renderRehab(rehab) {
+      if (!rehab || rehab.length === 0) return '<p class="text-muted">No rehab exercises parsed.</p>';
+      let html = `<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Exercise</th><th>Reps/Time</th><th>Purpose</th></tr></thead><tbody>`;
+      for (let r of rehab) {
+        html += `<tr><td>${r.exercise}</td><td>${r.reps_time}</td><td>${r.purpose}</td></tr>`;
+      }
+      html += `</tbody></table></div>`;
+      return html;
+    }
+    
+    function renderSupplements(supps) {
+      if (!supps || supps.length === 0) return '<p class="text-muted">No supplements parsed.</p>';
+      let html = `<ul class="list-group">`;
+      for (let s of supps) html += `<li class="list-group-item">${s}</li>`;
+      html += `</ul>`;
+      return html;
+    }
+    
+    function renderStopRules(rules) {
+      if (!rules || rules.length === 0) return '<p class="text-muted">No stop rules parsed.</p>';
+      let html = '';
+      for (let r of rules) {
+        html += `<div class="stop-rule">${r}</div>`;
+      }
+      return html;
+    }
+    
+    // ---------- MAIN APP ----------
+    const textarea = document.getElementById('rawInput');
+    const parseBtn = document.getElementById('parseBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportJsonBtn');
+    const errorDiv = document.getElementById('parseError');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    // Tab panes
+    const schedulePane = document.getElementById('schedulePane');
+    const mealsPane = document.getElementById('mealsPane');
+    const workoutPane = document.getElementById('workoutPane');
+    const rehabSuppsPane = document.getElementById('rehabSuppsPane');
+    const stopPane = document.getElementById('stopPane');
+    const jsonPane = document.getElementById('jsonPane');
+    
+    let lastParsedData = null;
+    
+    function clearResults() {
+      schedulePane.innerHTML = '';
+      mealsPane.innerHTML = '';
+      workoutPane.innerHTML = '';
+      rehabSuppsPane.innerHTML = '';
+      stopPane.innerHTML = '';
+      jsonPane.innerHTML = '';
+      resultsContainer.style.display = 'none';
+      exportBtn.disabled = true;
+      lastParsedData = null;
+      errorDiv.textContent = '';
+    }
+    
+    parseBtn.addEventListener('click', () => {
+      const raw = textarea.value.trim();
+      if (!raw) {
+        errorDiv.textContent = 'Please paste the plan text first.';
+        return;
+      }
+      errorDiv.textContent = '';
+      try {
+        const data = parseFullPlan(raw);
+        lastParsedData = data;
+        
+        // Render sections
+        schedulePane.innerHTML = renderDailySchedule(data.dailySchedule);
+        mealsPane.innerHTML = renderMealPlan(data.mealPlan);
+        workoutPane.innerHTML = renderWorkouts(data.workouts);
+        
+        // Rehab & Supps combined
+        let rehabSuppsHtml = '<h5 class="section-title">🧘 Daily Rehab</h5>';
+        rehabSuppsHtml += renderRehab(data.rehab);
+        rehabSuppsHtml += '<h5 class="section-title mt-4">💊 Supplement Protocol</h5>';
+        rehabSuppsHtml += renderSupplements(data.supplements);
+        rehabSuppsPane.innerHTML = rehabSuppsHtml;
+        
+        stopPane.innerHTML = '<h5 class="section-title">⚠️ Stop Rules</h5>' + renderStopRules(data.stopRules);
+        
+        // JSON raw
+        jsonPane.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        
+        resultsContainer.style.display = 'block';
+        exportBtn.disabled = false;
+        
+        // Activate first tab
+        const firstTab = document.querySelector('#resultTabs button.active');
+        if (!firstTab) {
+          document.getElementById('schedule-tab').click();
+        }
+      } catch (e) {
+        errorDiv.textContent = 'Parsing error: ' + e.message;
+        console.error(e);
+      }
+    });
+    
+    clearBtn.addEventListener('click', () => {
+      textarea.value = '';
+      clearResults();
+    });
+    
+    exportBtn.addEventListener('click', () => {
+      if (!lastParsedData) return;
+      const dataStr = JSON.stringify(lastParsedData, null, 2);
+      const blob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'fitness_plan_parsed.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    
+    // Optional: load example text for demo (if empty)
+    // Not pre-loading to avoid clutter, but you can paste the provided text.
+  })();
 </script>
 </body>
 </html>
