@@ -13,110 +13,43 @@
       --primary: #1a1a1a;
       --success: #2e7d32;
       --warning: #f57c00;
-      --danger: #c62828;
-      --text: #000000;
-      --text-muted: #333333;
+      --text: #000;
+      --text-muted: #333;
       --border: #bdbdbd;
     }
-    body { 
-      background: var(--bg); 
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-      color: var(--text);
-      padding-bottom: 3rem;
-    }
+    body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); padding-bottom: 3rem; }
     .container { max-width: 1300px; margin-top: 1.5rem; }
-    .card { 
-      background: var(--card-bg);
-      margin-bottom: 1.5rem; 
-      border: 1px solid var(--border); 
-      box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,0.1); 
-      border-radius: 12px;
-      color: var(--text);
-    }
-    .card-body { color: var(--text); }
-    .section-title { 
-      font-weight: 700; 
-      font-size: 1.25rem; 
-      border-left: 5px solid var(--primary); 
-      padding-left: 0.75rem; 
-      margin: 1.5rem 0 0.75rem; 
-      color: var(--text);
-    }
-    .badge-time { background: var(--primary); color: #ffffff; font-weight: 500; }
-    .meal-day { background: #e8e8e8; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border); color: var(--text); }
-    pre { 
-      white-space: pre-wrap; 
-      word-break: break-word; 
-      background: #2a2a2a; 
-      color: #f0f0f0; 
-      padding: 1rem; 
-      border-radius: 10px; 
-      font-size: 0.9rem; 
-    }
-    .stop-rule { 
-      background: #fff3cd; 
-      border-left: 5px solid var(--warning); 
-      padding: 0.6rem 1rem; 
-      margin-bottom: 0.5rem; 
-      border-radius: 6px; 
-      font-weight: 500;
-      color: #000;
-    }
-    textarea { font-family: 'Courier New', monospace; font-size: 0.9rem; background: #ffffff; color: #000; border: 1px solid #9e9e9e; }
-    .form-control, .form-select { background: #ffffff; color: #000; border: 1px solid #9e9e9e; }
-    .form-control:focus, .form-select:focus { background: #ffffff; color: #000; border-color: #000; box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.1); }
+    .card { background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,0.1); border-radius: 12px; color: var(--text); }
+    .section-title { font-weight: 700; font-size: 1.25rem; border-left: 5px solid var(--primary); padding-left: 0.75rem; margin: 1.5rem 0 0.75rem; }
+    .badge-time { background: var(--primary); color: white; }
+    .meal-day { background: #e8e8e8; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border); }
+    pre { white-space: pre-wrap; word-break: break-word; background: #2a2a2a; color: #f0f0f0; padding: 1rem; border-radius: 10px; font-size: 0.9rem; }
+    .stop-rule { background: #fff3cd; border-left: 5px solid var(--warning); padding: 0.6rem 1rem; margin-bottom: 0.5rem; border-radius: 6px; font-weight: 500; color: #000; }
+    textarea, .form-control, .form-select { background: #fff; color: #000; border: 1px solid #9e9e9e; }
+    .form-control:focus, .form-select:focus { background: #fff; color: #000; border-color: #000; box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.1); }
     .nav-tabs .nav-link { font-weight: 500; border: none; color: #333; }
     .nav-tabs .nav-link.active { color: #000; border-bottom: 3px solid #000; background: transparent; font-weight: 700; }
     .nav-tabs { border-bottom: 1px solid #9e9e9e; }
     .tab-pane { padding-top: 1.2rem; }
-    
-    /* Meal logging styles */
-    .planned-meal { background: #d9d9d9; border-left: 4px solid var(--primary); padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; color: #000; }
+    .planned-meal { background: #d9d9d9; border-left: 4px solid var(--primary); padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; }
     .actual-meal-entry { background: #e0e0e0; border-left: 4px solid var(--success); margin-top: 0.5rem; }
-    
-    /* Workout logging */
     .exercise-log-row { background: #e8e8e8; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid var(--border); }
-    .weight-input { width: 80px; }
-    .reps-input { width: 80px; }
-    
-    /* Dashboard metric cards - monochrome grey palette */
-    .metric-card { 
-      background: #757575; 
-      color: #ffffff; 
-      border-radius: 14px; 
-      padding: 1.5rem; 
-      text-align: center; 
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-      border: 1px solid #616161;
-    }
-    .metric-card.secondary { background: #616161; box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
-    .metric-card.tertiary { background: #424242; box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+    .weight-input, .reps-input { width: 80px; }
+    .metric-card { background: #757575; color: #fff; border-radius: 14px; padding: 1.5rem; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .metric-card.secondary { background: #616161; }
+    .metric-card.tertiary { background: #424242; }
     .metric-value { font-size: 2.5rem; font-weight: 800; }
     .metric-label { font-size: 0.9rem; opacity: 0.95; text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    .dashboard-highlight { 
-      background: #d5d5d5; 
-      border-radius: 14px; 
-      padding: 1.2rem 1.5rem; 
-      margin: 1rem 0;
-      border: 1px solid #9e9e9e;
-      color: #000;
-    }
+    .dashboard-highlight { background: #d5d5d5; border-radius: 14px; padding: 1.2rem 1.5rem; margin: 1rem 0; border: 1px solid #9e9e9e; color: #000; }
     .list-group-item { background: #f5f5f5; color: #000; border-color: #bdbdbd; }
     .table { color: #000; }
-    .table-bordered { border-color: #9e9e9e; }
     .table-bordered th, .table-bordered td { border-color: #9e9e9e; }
-    .alert-info { background: #cfcfcf; color: #000; border-color: #9e9e9e; }
     .btn-primary { background: #333; border-color: #222; color: #fff; }
-    .btn-primary:hover { background: #000; border-color: #000; }
+    .btn-primary:hover { background: #000; }
     .btn-outline-secondary { border-color: #666; color: #222; }
-    .btn-outline-secondary:hover { background: #555; color: #fff; }
     .btn-outline-dark { border-color: #333; color: #111; }
-    .btn-outline-dark:hover { background: #222; color: #fff; }
     .btn-success { background: #2e7d32; border-color: #1b5e20; color: #fff; }
     .text-muted { color: #333 !important; }
-    h1, h2, h3, h4, h5, h6 { color: #000; }
-    .badge.bg-secondary { background: #555 !important; color: #fff; }
   </style>
 </head>
 <body>
@@ -124,119 +57,60 @@
   <h1 class="mb-2 text-center fw-bold">📋 Weekly Fitness & Nutrition Tracker</h1>
   <p class="text-center mb-4" style="color:#333;">Parse plan → Log actual meals & lifts → Track body metrics</p>
   
-  <!-- TABS: Dashboard + Parse + Logs -->
-  <ul class="nav nav-tabs justify-content-center mb-4" id="mainTabs" role="tablist">
-    <li class="nav-item" role="presentation"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPane" type="button" role="tab">🏠 Dashboard</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="parse-tab" data-bs-toggle="tab" data-bs-target="#parsePane" type="button" role="tab">📥 Parse Plan</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="meals-log-tab" data-bs-toggle="tab" data-bs-target="#mealsLogPane" type="button" role="tab">🍽️ Meal Log</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="workout-log-tab" data-bs-toggle="tab" data-bs-target="#workoutLogPane" type="button" role="tab">🏋️ Workout Log</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="body-tab" data-bs-toggle="tab" data-bs-target="#bodyPane" type="button" role="tab">📊 Body Metrics</button></li>
+  <ul class="nav nav-tabs justify-content-center mb-4" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPane">🏠 Dashboard</button></li>
+    <li class="nav-item"><button class="nav-link" id="parse-tab" data-bs-toggle="tab" data-bs-target="#parsePane">📥 Parse Plan</button></li>
+    <li class="nav-item"><button class="nav-link" id="meals-log-tab" data-bs-toggle="tab" data-bs-target="#mealsLogPane">🍽️ Meal Log</button></li>
+    <li class="nav-item"><button class="nav-link" id="workout-log-tab" data-bs-toggle="tab" data-bs-target="#workoutLogPane">🏋️ Workout Log</button></li>
+    <li class="nav-item"><button class="nav-link" id="body-tab" data-bs-toggle="tab" data-bs-target="#bodyPane">📊 Body Metrics</button></li>
   </ul>
   
-  <div class="tab-content" id="mainTabsContent">
-    <!-- DASHBOARD PANE -->
-    <div class="tab-pane fade show active" id="dashboardPane" role="tabpanel">
-      <div id="dashboardContent">
-        <div class="text-center py-5" style="color:#333;">
-          <i class="bi bi-clipboard-data" style="font-size: 3rem;"></i>
-          <p class="mt-3">No data yet. Parse your plan and start logging to see your dashboard.</p>
-          <button class="btn btn-primary" onclick="document.getElementById('parse-tab').click()">📥 Parse Plan First</button>
-        </div>
-      </div>
+  <div class="tab-content">
+    <!-- Dashboard -->
+    <div class="tab-pane fade show active" id="dashboardPane">
+      <div id="dashboardContent"><div class="text-center py-5 text-muted"><i class="bi bi-clipboard-data" style="font-size:3rem;"></i><p class="mt-3">No data yet. Parse your plan first.</p></div></div>
     </div>
     
-    <!-- PARSE PANE -->
-    <div class="tab-pane fade" id="parsePane" role="tabpanel">
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-          <div class="card">
-            <div class="card-body">
-              <label class="form-label fw-bold">Paste your plan text below</label>
-              <textarea id="rawInput" class="form-control mb-3" rows="10" placeholder="Paste the full plan including Daily Schedule, Meal Plan, Workout Plan..."></textarea>
-              <div class="d-flex gap-2 flex-wrap">
-                <button id="parseBtn" class="btn btn-primary px-4"><i class="bi bi-search"></i> Parse Plan</button>
-                <button id="clearBtn" class="btn btn-outline-secondary">Clear</button>
-                <button id="exportJsonBtn" class="btn btn-outline-dark ms-auto" disabled>📥 Export JSON</button>
-              </div>
-              <div id="parseError" class="text-danger mt-2 small"></div>
-            </div>
-          </div>
-          
-          <div id="resultsContainer" style="display:none;">
-            <ul class="nav nav-tabs mt-3" id="resultTabs" role="tablist">
-              <li class="nav-item"><button class="nav-link active" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedulePane" type="button">📅 Schedule</button></li>
-              <li class="nav-item"><button class="nav-link" id="meals-tab" data-bs-toggle="tab" data-bs-target="#mealsPane" type="button">🍽️ Meal Plan</button></li>
-              <li class="nav-item"><button class="nav-link" id="workout-tab" data-bs-toggle="tab" data-bs-target="#workoutPane" type="button">🏋️ Workouts</button></li>
-              <li class="nav-item"><button class="nav-link" id="rehabSupps-tab" data-bs-toggle="tab" data-bs-target="#rehabSuppsPane" type="button">🧘 Rehab & Supps</button></li>
-              <li class="nav-item"><button class="nav-link" id="stop-tab" data-bs-toggle="tab" data-bs-target="#stopPane" type="button">⚠️ Stop Rules</button></li>
-            </ul>
-            <div class="tab-content mt-2">
-              <div class="tab-pane fade show active" id="schedulePane"></div>
-              <div class="tab-pane fade" id="mealsPane"></div>
-              <div class="tab-pane fade" id="workoutPane"></div>
-              <div class="tab-pane fade" id="rehabSuppsPane"></div>
-              <div class="tab-pane fade" id="stopPane"></div>
-            </div>
-          </div>
+    <!-- Parse -->
+    <div class="tab-pane fade" id="parsePane">
+      <div class="row justify-content-center"><div class="col-lg-10">
+        <div class="card"><div class="card-body">
+          <label class="form-label fw-bold">Paste plan text</label>
+          <textarea id="rawInput" class="form-control mb-3" rows="10" placeholder="Paste full plan..."></textarea>
+          <div class="d-flex gap-2"><button id="parseBtn" class="btn btn-primary px-4">🔍 Parse</button><button id="clearBtn" class="btn btn-outline-secondary">Clear</button><button id="exportJsonBtn" class="btn btn-outline-dark ms-auto" disabled>📥 JSON</button></div>
+          <div id="parseError" class="text-danger small mt-2"></div>
+        </div></div>
+        <div id="resultsContainer" style="display:none;">
+          <ul class="nav nav-tabs mt-3"><li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#schedulePane">📅</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#mealsPane">🍽️</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#workoutPane">🏋️</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#rehabSuppsPane">🧘</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stopPane">⚠️</button></li></ul>
+          <div class="tab-content mt-2"><div class="tab-pane fade show active" id="schedulePane"></div><div class="tab-pane fade" id="mealsPane"></div><div class="tab-pane fade" id="workoutPane"></div><div class="tab-pane fade" id="rehabSuppsPane"></div><div class="tab-pane fade" id="stopPane"></div></div>
         </div>
-      </div>
+      </div></div>
     </div>
     
-    <!-- MEAL LOG PANE -->
-    <div class="tab-pane fade" id="mealsLogPane" role="tabpanel">
-      <div id="mealLogContent">
-        <div class="text-center py-5" style="color:#333;">
-          <i class="bi bi-journal-text" style="font-size: 3rem;"></i>
-          <p class="mt-3">No meal plan parsed yet. Go to "Parse Plan" first.</p>
-        </div>
-      </div>
+    <!-- Meal Log -->
+    <div class="tab-pane fade" id="mealsLogPane">
+      <div id="mealLogContent"><div class="text-center py-5 text-muted"><i class="bi bi-journal-text" style="font-size:3rem;"></i><p>Parse a plan first.</p></div></div>
     </div>
     
-    <!-- WORKOUT LOG PANE -->
-    <div class="tab-pane fade" id="workoutLogPane" role="tabpanel">
-      <div id="workoutLogContent">
-        <div class="text-center py-5" style="color:#333;">
-          <i class="bi bi-activity" style="font-size: 3rem;"></i>
-          <p class="mt-3">No workout plan parsed yet. Go to "Parse Plan" first.</p>
-        </div>
-      </div>
+    <!-- Workout Log -->
+    <div class="tab-pane fade" id="workoutLogPane">
+      <div id="workoutLogContent"><div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div></div>
     </div>
     
-    <!-- BODY METRICS PANE -->
-    <div class="tab-pane fade" id="bodyPane" role="tabpanel">
-      <div class="row">
-        <div class="col-lg-6 mx-auto">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title fw-bold"><i class="bi bi-graph-up"></i> Log Body Metrics</h5>
-              <div class="row g-3 mt-2">
-                <div class="col-md-6">
-                  <label class="form-label">Date</label>
-                  <input type="date" id="bodyDate" class="form-control">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Weight (lbs)</label>
-                  <input type="number" id="bodyWeight" class="form-control" placeholder="e.g. 185.5" step="0.1">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Body Fat (lbs)</label>
-                  <input type="number" id="bodyFat" class="form-control" placeholder="e.g. 26.3" step="0.1">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Visceral Fat</label>
-                  <input type="number" id="visceralFat" class="form-control" placeholder="e.g. 5" step="0.1">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Skeletal Muscle (lbs)</label>
-                  <input type="number" id="skeletalMuscle" class="form-control" placeholder="e.g. 78.5" step="0.1">
-                </div>
-              </div>
-              <button id="saveBodyMetrics" class="btn btn-primary mt-3 w-100"><i class="bi bi-save"></i> Save Entry</button>
-              <div id="bodyMetricsHistory" class="mt-4"></div>
-            </div>
-          </div>
+    <!-- Body Metrics -->
+    <div class="tab-pane fade" id="bodyPane">
+      <div class="row"><div class="col-lg-6 mx-auto"><div class="card"><div class="card-body">
+        <h5 class="fw-bold"><i class="bi bi-graph-up"></i> Log Body Metrics</h5>
+        <div class="row g-3 mt-2">
+          <div class="col-md-6"><label class="form-label">Date</label><input type="date" id="bodyDate" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">Weight (lbs)</label><input type="number" id="bodyWeight" class="form-control" step="0.1"></div>
+          <div class="col-md-4"><label class="form-label">Body Fat (lbs)</label><input type="number" id="bodyFat" class="form-control" step="0.1"></div>
+          <div class="col-md-4"><label class="form-label">Visceral Fat</label><input type="number" id="visceralFat" class="form-control" step="0.1"></div>
+          <div class="col-md-4"><label class="form-label">Skeletal Muscle (lbs)</label><input type="number" id="skeletalMuscle" class="form-control" step="0.1"></div>
         </div>
-      </div>
+        <button id="saveBodyMetrics" class="btn btn-primary mt-3 w-100"><i class="bi bi-save"></i> Save Entry</button>
+        <div id="bodyMetricsHistory" class="mt-4"></div>
+      </div></div></div></div>
     </div>
   </div>
 </div>
@@ -244,45 +118,32 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   (function() {
-    // ---------- STORAGE KEYS ----------
     const STORAGE = {
       PARSED_PLAN: 'fitness_parsed_plan',
       MEAL_LOGS: 'fitness_meal_logs',
       WORKOUT_LOGS: 'fitness_workout_logs',
       BODY_METRICS: 'fitness_body_metrics'
     };
+    const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     
-    // ---------- PARSER ENGINE ----------
+    // ---------- PARSER (unchanged) ----------
     function parseFullPlan(text) {
       text = text.replace(/^[“"']+/, '').replace(/[”"']+$/, '').trim();
-      const sectionsRaw = text.split(/\n---+\n/);
-      let sections = sectionsRaw.map(s => s.trim()).filter(s => s);
-      
-      let primaryDirective = {};
-      let dailyScheduleText = null;
-      let mealPlanText = null;
-      let workoutPlanText = null;
-      let dailyRehabText = null;
-      let supplementText = null;
-      let stopRulesText = null;
-      
-      for (let sec of sections) {
+      const sectionsRaw = text.split(/\n---+\n/).map(s => s.trim()).filter(s => s);
+      let primaryDirective = {}, dailyScheduleText = null, mealPlanText = null, workoutPlanText = null, dailyRehabText = null, supplementText = null, stopRulesText = null;
+      for (let sec of sectionsRaw) {
         const lines = sec.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (lines.length === 0) continue;
-        const firstLine = lines[0].toLowerCase();
-        if (firstLine.includes('primary directive')) primaryDirective = parsePrimaryDirective(sec);
-        else if (firstLine.includes('daily schedule snapshot')) dailyScheduleText = sec;
-        else if (firstLine.includes('meal plan')) mealPlanText = sec;
-        else if (firstLine.includes('workout plan') || firstLine.includes('progression targets')) workoutPlanText = sec;
-        else if (firstLine.includes('daily rehab')) dailyRehabText = sec;
-        else if (firstLine.includes('supplement protocol')) supplementText = sec;
-        else if (firstLine.includes('stop rules')) stopRulesText = sec;
+        if (!lines.length) continue;
+        const first = lines[0].toLowerCase();
+        if (first.includes('primary directive')) primaryDirective = parsePrimaryDirective(sec);
+        else if (first.includes('daily schedule snapshot')) dailyScheduleText = sec;
+        else if (first.includes('meal plan')) mealPlanText = sec;
+        else if (first.includes('workout plan') || first.includes('progression targets')) workoutPlanText = sec;
+        else if (first.includes('daily rehab')) dailyRehabText = sec;
+        else if (first.includes('supplement protocol')) supplementText = sec;
+        else if (first.includes('stop rules')) stopRulesText = sec;
       }
-      
-      if (!primaryDirective || Object.keys(primaryDirective).length === 0) {
-        primaryDirective = parsePrimaryDirective(sections[0] || '');
-      }
-      
+      if (!Object.keys(primaryDirective).length) primaryDirective = parsePrimaryDirective(sectionsRaw[0]||'');
       return {
         primaryDirective,
         dailySchedule: dailyScheduleText ? parseDailySchedule(dailyScheduleText) : [],
@@ -293,203 +154,66 @@
         stopRules: stopRulesText ? parseStopRules(stopRulesText) : []
       };
     }
+    function parsePrimaryDirective(text) { const result = {}; text.split('\n').forEach(l=>{ if(l.includes('Primary Directive')) result.directive=l.split(':').slice(1).join(':').trim(); else if(l.includes('No BCAAs')||l.includes('No alcohol')) result.restrictions=l; else if(l.includes('Black coffee')) result.allowedDrinks=l; else if(l.match(/^\d+,\s*\d{4}/)) result.date=l; }); return result; }
+    function parseDailySchedule(text) { const lines=text.split('\n').filter(l=>l.trim()); let hi=lines.findIndex(l=>l.includes('Time')&&(l.includes('Mon')||l.includes('Tue'))); if(hi===-1) return[]; const days=lines[hi].split(/\s{2,}/).filter(t=>['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].includes(t.slice(0,3))).map(t=>t.slice(0,3)); let sched={}; days.forEach(d=>sched[d]=[]); for(let i=hi+1;i<lines.length;i++){ if(!/^\d{1,2}:\d{2}\s+(AM|PM)/i.test(lines[i])) break; const tk=lines[i].split(/\s{2,}/); const time=tk[0]; const acts=tk.slice(1,1+days.length).map(t=>t==='—'?'':t); days.forEach((d,idx)=>{ if(acts[idx]) sched[d].push({time,activity:acts[idx]}); }); } return sched; }
+    function parseMealPlan(text) { const lines=text.split('\n').filter(l=>l.trim()); const mealDays={}; let curDay=null,curName=null; const dayReg=/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i; lines.forEach(l=>{ if(l.match(/^(meal plan|salad kit rule|daily option|hydration)/i)) return; const dm=l.match(dayReg); if(dm){ curName=dm[1].charAt(0).toUpperCase()+dm[1].slice(1).toLowerCase(); curDay=[]; mealDays[curName]={title:l,meals:curDay}; } else if(l.startsWith('·')&&curDay){ const m=parseMealLine(l); if(m) curDay.push(m); } }); return mealDays; }
+    function parseMealLine(line){ const c=line.replace(/^·\s*/,''); const m=c.match(/^(.+?)\s*\(([^)]+)\)\s*:\s*(.+)/); return m?{meal:m[1].trim(),time:m[2].trim(),description:m[3].trim()}:null; }
+    function parseWorkoutPlan(text){ const lines=text.split('\n').filter(l=>l.trim()); const wos={}; let cur=null; const dReg=/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i; let intable=false,headers=[],rows=[]; function final(){ if(cur&&wos[cur]&&rows.length){ wos[cur].exercises=rows.map(r=>{const o={};headers.forEach((h,i)=>o[h]=r[i]||'');return o;}); } headers=[];rows=[];intable=false; } lines.forEach(l=>{ const dm=l.match(dReg); if(dm){ final(); cur=dm[1].charAt(0).toUpperCase()+dm[1].slice(1).toLowerCase(); wos[cur]={title:l,details:[],exercises:[]}; } else if(!cur) return; else if(l.match(/block.*exercise|exercise.*reps/i)){ intable=true; headers=l.split(/\s{2,}/).map(h=>h.trim().toLowerCase().replace(/[/\s]+/g,'_')); } else if(intable&&/^\d+/.test(l)){ rows.push(l.split(/\s{2,}/)); } else if(intable&&!l.trim()){ final(); } else if(l.startsWith('·')||l.startsWith('-')){ wos[cur].details.push(l.replace(/^[·\-]\s*/,'')); } }); final(); return wos; }
+    function parseRehabTable(text){ const lines=text.split('\n').filter(l=>l.trim()); const re=[]; let hf=false; lines.forEach(l=>{ if(l.toLowerCase().includes('exercise')&&l.toLowerCase().includes('reps')){ hf=true; return; } if(!hf||!(l.startsWith('·')||l.startsWith('-'))) return; const p=l.replace(/^[·\-]\s*/,'').split(/\s{2,}/); if(p.length>=2) re.push({exercise:p[0],reps_time:p[1],purpose:p.slice(2).join(' ')}); }); return re; }
+    function parseSupplements(text){ return text.split('\n').filter(l=>l.trim()&&!l.toLowerCase().includes('supplement protocol')&&!l.includes('No BCAAs')); }
+    function parseStopRules(text){ return text.split('\n').filter(l=>/^\d+\./.test(l)).map(l=>l.replace(/^\d+\.\s*/,'')); }
     
-    function parsePrimaryDirective(text) {
-      const result = {};
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      for (let line of lines) {
-        if (line.toLowerCase().includes('primary directive')) result.directive = line.split(':').slice(1).join(':').trim();
-        else if (line.includes('No BCAAs') || line.includes('No alcohol')) result.restrictions = line;
-        else if (line.includes('Black coffee') || line.includes('salted water')) result.allowedDrinks = line;
-        else if (line.match(/^\d+,\s*\d{4}/)) result.date = line;
-      }
-      return result;
-    }
+    // Storage
+    function save(key,data){ localStorage.setItem(key,JSON.stringify(data)); }
+    function load(key){ const d=localStorage.getItem(key); return d?JSON.parse(d):null; }
+    function getPlan(){ return load(STORAGE.PARSED_PLAN); }
+    function savePlan(p){ save(STORAGE.PARSED_PLAN,p); }
+    function getMealLogs(){ return load(STORAGE.MEAL_LOGS)||{}; }
+    function saveMealLogs(l){ save(STORAGE.MEAL_LOGS,l); }
+    function getWorkoutLogs(){ return load(STORAGE.WORKOUT_LOGS)||{}; }
+    function saveWorkoutLogs(l){ save(STORAGE.WORKOUT_LOGS,l); }
+    function getBodyMetrics(){ return load(STORAGE.BODY_METRICS)||[]; }
+    function saveBodyMetrics(m){ save(STORAGE.BODY_METRICS,m); }
     
-    function parseDailySchedule(text) {
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      let headerIndex = lines.findIndex(l => l.includes('Time') && (l.includes('Mon') || l.includes('Tue')));
-      if (headerIndex === -1) return [];
-      const headerTokens = lines[headerIndex].split(/\s{2,}/);
-      const daysOrder = headerTokens.filter(t => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].includes(t.slice(0,3))).map(t => t.slice(0,3));
-      if (daysOrder.length === 0) return [];
-      
-      const schedule = {};
-      daysOrder.forEach(d => schedule[d] = []);
-      for (let i = headerIndex+1; i < lines.length; i++) {
-        if (!/^\d{1,2}:\d{2}\s+(AM|PM)/i.test(lines[i])) break;
-        const tokens = lines[i].split(/\s{2,}/);
-        const time = tokens[0].trim();
-        const activities = tokens.slice(1, 1 + daysOrder.length).map(t => t.trim() === '—' ? '' : t.trim());
-        daysOrder.forEach((d, idx) => {
-          if (activities[idx]) schedule[d].push({ time, activity: activities[idx] });
-        });
-      }
-      return schedule;
-    }
+    // Render helpers
+    function renderSchedule(s){ if(!s||!Object.keys(s).length) return'<p class="text-muted">No schedule.</p>'; return['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].filter(d=>s[d]).map(d=>'<div class="mb-3"><h6 class="fw-bold">'+d+'</h6><ul class="list-group list-group-flush">'+s[d].map(e=>'<li class="list-group-item d-flex"><span class="badge-time me-2">'+e.time+'</span> '+e.activity+'</li>').join('')+'</ul></div>').join(''); }
+    function renderMealPlan(mp){ if(!mp||!Object.keys(mp).length) return'<p class="text-muted">No meal plan.</p>'; return DAYS.filter(d=>mp[d]).map(d=>'<div class="meal-day"><h6 class="fw-bold">'+mp[d].title+'</h6><ul class="list-group list-group-flush">'+mp[d].meals.map(m=>'<li class="list-group-item"><span class="badge bg-secondary me-2">'+m.meal+' ('+m.time+')</span> '+m.description+'</li>').join('')+'</ul></div>').join(''); }
+    function renderWorkouts(w){ if(!w||!Object.keys(w).length) return'<p class="text-muted">No workouts.</p>'; return DAYS.filter(d=>w[d]).map(d=>{const wo=w[d]; let h='<div class="card mb-3"><div class="card-body"><h6 class="fw-bold">'+wo.title+'</h6>'; if(wo.details.length) h+=wo.details.map(d=>'<p class="mb-1">• '+d+'</p>').join(''); if(wo.exercises?.length){ h+='<table class="table table-sm table-bordered mt-2"><thead><tr>'+Object.keys(wo.exercises[0]).map(k=>'<th>'+k.replace(/_/g,' ')+'</th>').join('')+'</tr></thead><tbody>'; wo.exercises.forEach(r=>h+='<tr>'+Object.values(r).map(v=>'<td>'+v+'</td>').join('')+'</tr>'); h+='</tbody></table>'; } return h+'</div></div>'; }).join(''); }
     
-    function parseMealPlan(text) {
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const mealDays = {};
-      let currentDay = null, currentDayName = null;
-      const dayRegex = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
-      
-      for (let line of lines) {
-        if (line.match(/^(meal plan|salad kit rule|daily option|hydration)/i)) continue;
-        const dayMatch = line.match(dayRegex);
-        if (dayMatch) {
-          currentDayName = dayMatch[1].charAt(0).toUpperCase() + dayMatch[1].slice(1).toLowerCase();
-          currentDay = [];
-          mealDays[currentDayName] = { title: line, meals: currentDay };
-        } else if (line.startsWith('·') && currentDay) {
-          const meal = parseMealLine(line);
-          if (meal) currentDay.push(meal);
-        }
-      }
-      return mealDays;
-    }
-    
-    function parseMealLine(line) {
-      const cleaned = line.replace(/^·\s*/, '');
-      const match = cleaned.match(/^(.+?)\s*\(([^)]+)\)\s*:\s*(.+)/);
-      return match ? { meal: match[1].trim(), time: match[2].trim(), description: match[3].trim() } : null;
-    }
-    
-    function parseWorkoutPlan(text) {
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const workouts = {};
-      let currentDay = null;
-      const dayRegex = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
-      let inTable = false, tableHeaders = [], tableRows = [];
-      
-      function finalizeDay() {
-        if (currentDay && workouts[currentDay] && tableRows.length) {
-          workouts[currentDay].exercises = tableRows.map(row => {
-            const obj = {};
-            tableHeaders.forEach((h, i) => obj[h] = row[i] || '');
-            return obj;
-          });
-        }
-        tableHeaders = []; tableRows = []; inTable = false;
-      }
-      
-      for (let line of lines) {
-        const dayMatch = line.match(dayRegex);
-        if (dayMatch) {
-          finalizeDay();
-          currentDay = dayMatch[1].charAt(0).toUpperCase() + dayMatch[1].slice(1).toLowerCase();
-          workouts[currentDay] = { title: line, details: [], exercises: [] };
-          continue;
-        }
-        if (!currentDay) continue;
-        if (line.match(/block.*exercise|exercise.*reps/i)) {
-          inTable = true;
-          tableHeaders = line.split(/\s{2,}/).map(h => h.trim().toLowerCase().replace(/[/\s]+/g, '_'));
-        } else if (inTable && /^\d+/.test(line)) {
-          tableRows.push(line.split(/\s{2,}/));
-        } else if (inTable && !line.trim()) {
-          finalizeDay();
-        } else if (line.startsWith('·') || line.startsWith('-')) {
-          workouts[currentDay].details.push(line.replace(/^[·\-]\s*/, ''));
-        }
-      }
-      finalizeDay();
-      return workouts;
-    }
-    
-    function parseRehabTable(text) {
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const rehab = [];
-      let headerFound = false;
-      for (let line of lines) {
-        if (line.toLowerCase().includes('exercise') && line.toLowerCase().includes('reps')) { headerFound = true; continue; }
-        if (!headerFound || !line.startsWith('·') && !line.startsWith('-')) continue;
-        const parts = line.replace(/^[·\-]\s*/, '').split(/\s{2,}/);
-        if (parts.length >= 2) rehab.push({ exercise: parts[0], reps_time: parts[1], purpose: parts.slice(2).join(' ') });
-      }
-      return rehab;
-    }
-    
-    function parseSupplements(text) {
-      return text.split('\n').map(l => l.trim()).filter(l => l && !l.toLowerCase().includes('supplement protocol') && !l.includes('No BCAAs'));
-    }
-    
-    function parseStopRules(text) {
-      return text.split('\n').map(l => l.trim()).filter(l => /^\d+\./.test(l)).map(l => l.replace(/^\d+\.\s*/, ''));
-    }
-    
-    // ---------- DATA MANAGEMENT ----------
-    function saveToStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-    function loadFromStorage(key) { const d = localStorage.getItem(key); return d ? JSON.parse(d) : null; }
-    
-    function getParsedPlan() { return loadFromStorage(STORAGE.PARSED_PLAN); }
-    function saveParsedPlan(plan) { saveToStorage(STORAGE.PARSED_PLAN, plan); }
-    function getMealLogs() { return loadFromStorage(STORAGE.MEAL_LOGS) || {}; }
-    function saveMealLogs(logs) { saveToStorage(STORAGE.MEAL_LOGS, logs); }
-    function getWorkoutLogs() { return loadFromStorage(STORAGE.WORKOUT_LOGS) || {}; }
-    function saveWorkoutLogs(logs) { saveToStorage(STORAGE.WORKOUT_LOGS, logs); }
-    function getBodyMetrics() { return loadFromStorage(STORAGE.BODY_METRICS) || []; }
-    function saveBodyMetrics(metrics) { saveToStorage(STORAGE.BODY_METRICS, metrics); }
-    
-    // ---------- RENDER FUNCTIONS ----------
-    function renderSchedule(schedule) {
-      if (!schedule || !Object.keys(schedule).length) return '<p style="color:#333;">No schedule.</p>';
-      return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].filter(d => schedule[d]).map(d => {
-        const events = schedule[d].map(e => `<li class="list-group-item d-flex"><span class="badge-time me-2">${e.time}</span> ${e.activity}</li>`).join('');
-        return `<div class="mb-3"><h6 class="fw-bold">${d}</h6><ul class="list-group list-group-flush">${events}</ul></div>`;
-      }).join('');
-    }
-    
-    function renderMealPlan(mealPlan) {
-      if (!mealPlan || !Object.keys(mealPlan).length) return '<p style="color:#333;">No meal plan.</p>';
-      return ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].filter(d => mealPlan[d]).map(d => {
-        const meals = mealPlan[d].meals.map(m => `<li class="list-group-item"><span class="badge bg-secondary me-2">${m.meal} (${m.time})</span> ${m.description}</li>`).join('');
-        return `<div class="meal-day"><h6 class="fw-bold">${mealPlan[d].title}</h6><ul class="list-group list-group-flush">${meals}</ul></div>`;
-      }).join('');
-    }
-    
-    function renderWorkouts(workouts) {
-      if (!workouts || !Object.keys(workouts).length) return '<p style="color:#333;">No workouts.</p>';
-      return ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].filter(d => workouts[d]).map(d => {
-        const wo = workouts[d];
-        let html = `<div class="card mb-3"><div class="card-body"><h6 class="fw-bold">${wo.title}</h6>`;
-        if (wo.details.length) html += wo.details.map(d => `<p class="mb-1">• ${d}</p>`).join('');
-        if (wo.exercises?.length) {
-          html += `<table class="table table-sm table-bordered mt-2"><thead><tr>${Object.keys(wo.exercises[0]).map(k => `<th>${k.replace(/_/g,' ')}</th>`).join('')}</tr></thead><tbody>`;
-          wo.exercises.forEach(row => html += `<tr>${Object.values(row).map(v => `<td>${v}</td>`).join('')}</tr>`);
-          html += `</tbody></table>`;
-        }
-        return html + `</div></div>`;
-      }).join('');
-    }
-    
-    // ---------- MEAL LOGGING UI ----------
-    function renderMealLogUI() {
-      const plan = getParsedPlan();
+    // ---------- MEAL LOG WITH DAY SELECTOR ----------
+    function renderMealLogUI(selectedDay = null) {
+      const plan = getPlan();
       if (!plan || !plan.mealPlan || !Object.keys(plan.mealPlan).length) {
-        document.getElementById('mealLogContent').innerHTML = '<div class="text-center py-5" style="color:#333;"><i class="bi bi-journal-text" style="font-size:3rem;"></i><p>Parse a plan first.</p></div>';
+        document.getElementById('mealLogContent').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-journal-text"></i><p>Parse a plan first.</p></div>';
         return;
       }
-      
       const mealLogs = getMealLogs();
       const today = new Date().toISOString().split('T')[0];
+      // Default to first day that exists in plan if none selected
+      const availableDays = DAYS.filter(d => plan.mealPlan[d]);
+      const currentDay = selectedDay && availableDays.includes(selectedDay) ? selectedDay : (availableDays[0] || 'Monday');
       
-      let html = `<div class="row"><div class="col-12"><div class="card"><div class="card-body">
+      let html = `<div class="card"><div class="card-body">
         <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square"></i> Daily Meal Log</h5>
-        <div class="mb-3"><label class="form-label">Log Date</label><input type="date" id="mealLogDate" class="form-control" value="${today}" style="max-width:250px;"></div>`;
+        <div class="row mb-3">
+          <div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="mealLogDate" class="form-control" value="${today}"></div>
+          <div class="col-md-4"><label class="form-label">Select Day</label>
+            <select id="mealDaySelect" class="form-select">${availableDays.map(d => `<option value="${d}" ${d === currentDay ? 'selected' : ''}>${d}</option>`).join('')}</select>
+          </div>
+        </div>
+        <div id="mealDayPlan">`;
       
-      ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(day => {
-        if (!plan.mealPlan[day]) return;
-        html += `<h6 class="section-title mt-4">${plan.mealPlan[day].title}</h6>`;
-        plan.mealPlan[day].meals.forEach((meal, idx) => {
-          const mealKey = `${day}_${idx}`;
+      const dayPlan = plan.mealPlan[currentDay];
+      if (dayPlan) {
+        dayPlan.meals.forEach((meal, idx) => {
+          const mealKey = `${currentDay}_${idx}`;
           const log = mealLogs[mealKey] || {};
           html += `
             <div class="meal-log-row border rounded p-3 mb-3">
               <div class="planned-meal"><strong>${meal.meal} (${meal.time})</strong><br>Planned: ${meal.description}</div>
               <div class="mt-2 actual-meal-entry p-2 rounded">
                 <label class="form-label small mb-1 fw-semibold">What I actually ate:</label>
-                <textarea class="form-control actual-meal-text" data-meal-key="${mealKey}" rows="2" placeholder="Describe what you actually ate...">${log.description || ''}</textarea>
+                <textarea class="form-control actual-meal-text" data-meal-key="${mealKey}" rows="2">${log.description || ''}</textarea>
                 <div class="form-check mt-2">
                   <input class="form-check-input adherence-check" type="checkbox" data-meal-key="${mealKey}" ${log.adherent ? 'checked' : ''}>
                   <label class="form-check-label">Adherent to plan</label>
@@ -497,68 +221,77 @@
               </div>
             </div>`;
         });
-      });
+      }
       
-      html += `<button id="saveMealLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save Meal Log</button></div></div></div></div>`;
+      html += `</div><button id="saveMealLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save ${currentDay} Meal Log</button></div></div>`;
       document.getElementById('mealLogContent').innerHTML = html;
+      
+      document.getElementById('mealDaySelect').addEventListener('change', function() {
+        renderMealLogUI(this.value);
+      });
       
       document.getElementById('saveMealLogBtn').addEventListener('click', () => {
         const date = document.getElementById('mealLogDate').value;
-        const mealLogs = getMealLogs();
-        document.querySelectorAll('.actual-meal-text').forEach(textarea => {
-          const key = textarea.dataset.mealKey;
-          const checkbox = document.querySelector(`.adherence-check[data-meal-key="${key}"]`);
-          mealLogs[key] = {
-            date: date,
-            description: textarea.value,
-            adherent: checkbox ? checkbox.checked : false
-          };
+        const logs = getMealLogs();
+        document.querySelectorAll('.actual-meal-text').forEach(ta => {
+          const key = ta.dataset.mealKey;
+          const cb = document.querySelector(`.adherence-check[data-meal-key="${key}"]`);
+          logs[key] = { date, description: ta.value, adherent: cb ? cb.checked : false };
         });
-        saveMealLogs(mealLogs);
+        saveMealLogs(logs);
         alert('Meal log saved!');
         renderDashboard();
       });
     }
     
-    // ---------- WORKOUT LOGGING UI ----------
-    function renderWorkoutLogUI() {
-      const plan = getParsedPlan();
+    // ---------- WORKOUT LOG WITH DAY SELECTOR ----------
+    function renderWorkoutLogUI(selectedDay = null) {
+      const plan = getPlan();
       if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) {
-        document.getElementById('workoutLogContent').innerHTML = '<div class="text-center py-5" style="color:#333;"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>';
+        document.getElementById('workoutLogContent').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>';
         return;
       }
-      
       const workoutLogs = getWorkoutLogs();
       const today = new Date().toISOString().split('T')[0];
+      const availableDays = DAYS.filter(d => plan.workouts[d] && plan.workouts[d].exercises?.length);
+      const currentDay = selectedDay && availableDays.includes(selectedDay) ? selectedDay : (availableDays[0] || 'Monday');
       
-      let html = `<div class="card"><div class="card-body"><h5 class="fw-bold"><i class="bi bi-bar-chart"></i> Workout Log</h5>
-        <div class="mb-3"><label class="form-label">Log Date</label><input type="date" id="workoutLogDate" class="form-control" value="${today}" style="max-width:250px;"></div>`;
+      let html = `<div class="card"><div class="card-body">
+        <h5 class="fw-bold"><i class="bi bi-bar-chart"></i> Workout Log</h5>
+        <div class="row mb-3">
+          <div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="workoutLogDate" class="form-control" value="${today}"></div>
+          <div class="col-md-4"><label class="form-label">Select Day</label>
+            <select id="workoutDaySelect" class="form-select">${availableDays.map(d => `<option value="${d}" ${d === currentDay ? 'selected' : ''}>${d}</option>`).join('')}</select>
+          </div>
+        </div>
+        <div id="workoutDayPlan">`;
       
-      ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(day => {
-        const wo = plan.workouts[day];
-        if (!wo || !wo.exercises?.length) return;
-        html += `<h6 class="section-title">${wo.title}</h6>`;
+      const wo = plan.workouts[currentDay];
+      if (wo && wo.exercises) {
         wo.exercises.forEach((ex, idx) => {
-          const exKey = `${day}_ex_${idx}`;
+          const exKey = `${currentDay}_ex_${idx}`;
           const log = workoutLogs[exKey] || {};
           const exName = ex.exercise || ex.block || Object.values(ex)[0] || 'Exercise';
           html += `
             <div class="exercise-log-row">
               <div class="row align-items-center">
-                <div class="col-md-4"><strong>${exName}</strong><br><small style="color:#333;">Target: ${ex.reps_set || ex.weight_target || 'See plan'}</small></div>
-                <div class="col-md-3"><label class="form-label small">Weight (lbs)</label>
-                  <input type="number" class="form-control weight-input workout-weight" data-ex-key="${exKey}" value="${log.weight || ''}" placeholder="lbs" step="0.5"></div>
-                <div class="col-md-3"><label class="form-label small">Reps</label>
-                  <input type="number" class="form-control reps-input workout-reps" data-ex-key="${exKey}" value="${log.reps || ''}" placeholder="reps"></div>
-                <div class="col-md-2"><label class="form-label small">Sets</label>
-                  <input type="number" class="form-control workout-sets" data-ex-key="${exKey}" value="${log.sets || ''}" placeholder="sets"></div>
+                <div class="col-md-4"><strong>${exName}</strong><br><small>Target: ${ex.reps_set || ex.weight_target || 'See plan'}</small></div>
+                <div class="col-md-3"><label class="form-label small">Weight (lbs)</label><input type="number" class="form-control weight-input workout-weight" data-ex-key="${exKey}" value="${log.weight || ''}" step="0.5"></div>
+                <div class="col-md-3"><label class="form-label small">Reps</label><input type="number" class="form-control reps-input workout-reps" data-ex-key="${exKey}" value="${log.reps || ''}"></div>
+                <div class="col-md-2"><label class="form-label small">Sets</label><input type="number" class="form-control workout-sets" data-ex-key="${exKey}" value="${log.sets || ''}"></div>
               </div>
             </div>`;
         });
-      });
+      } else {
+        html += '<p class="text-muted">No exercises defined for this day.</p>';
+      }
       
-      html += `<button id="saveWorkoutLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save Workout Log</button></div></div>`;
+      html += `</div><button id="saveWorkoutLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save ${currentDay} Workout Log</button></div></div>`;
       document.getElementById('workoutLogContent').innerHTML = html;
+      
+      document.getElementById('workoutDaySelect').addEventListener('change', function() {
+        renderWorkoutLogUI(this.value);
+      });
       
       document.getElementById('saveWorkoutLogBtn').addEventListener('click', () => {
         const date = document.getElementById('workoutLogDate').value;
@@ -568,7 +301,7 @@
           const repsEl = document.querySelector(`.workout-reps[data-ex-key="${key}"]`);
           const setsEl = document.querySelector(`.workout-sets[data-ex-key="${key}"]`);
           logs[key] = {
-            date: date,
+            date,
             weight: input.value ? parseFloat(input.value) : null,
             reps: repsEl?.value ? parseInt(repsEl.value) : null,
             sets: setsEl?.value ? parseInt(setsEl.value) : null
@@ -580,153 +313,100 @@
       });
     }
     
-    // ---------- BODY METRICS & DASHBOARD ----------
-    function renderBodyMetricsHistory() {
+    // Body metrics & dashboard
+    function renderBodyHistory() {
       const metrics = getBodyMetrics();
-      if (!metrics.length) {
-        document.getElementById('bodyMetricsHistory').innerHTML = '<p style="color:#333;" class="mt-3">No entries yet.</p>';
-        return;
-      }
-      const sorted = [...metrics].sort((a,b) => new Date(b.date) - new Date(a.date));
-      let html = '<h6 class="fw-bold mt-4">📋 History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight (lbs)</th><th>Body Fat (lbs)</th><th>Visceral Fat</th><th>Muscle (lbs)</th></tr></thead><tbody>';
-      sorted.slice(0, 10).forEach(m => {
-        html += `<tr><td>${m.date}</td><td>${m.weight || '-'}</td><td>${m.bodyFat || '-'}</td><td>${m.visceralFat || '-'}</td><td>${m.skeletalMuscle || '-'}</td></tr>`;
-      });
-      html += '</tbody></table></div>';
-      document.getElementById('bodyMetricsHistory').innerHTML = html;
+      if (!metrics.length) { document.getElementById('bodyMetricsHistory').innerHTML = '<p class="text-muted mt-3">No entries.</p>'; return; }
+      const sorted = [...metrics].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      let html = '<h6 class="fw-bold mt-4">History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight</th><th>BF(lbs)</th><th>Visceral</th><th>Muscle(lbs)</th></tr></thead><tbody>';
+      sorted.slice(0,10).forEach(m=>html+=`<tr><td>${m.date}</td><td>${m.weight||'-'}</td><td>${m.bodyFat||'-'}</td><td>${m.visceralFat||'-'}</td><td>${m.skeletalMuscle||'-'}</td></tr>`);
+      html+='</tbody></table></div>'; document.getElementById('bodyMetricsHistory').innerHTML=html;
     }
     
     function renderDashboard() {
-      const plan = getParsedPlan();
-      const bodyMetrics = getBodyMetrics();
-      const mealLogs = getMealLogs();
-      const workoutLogs = getWorkoutLogs();
-      
-      if (!plan) {
-        document.getElementById('dashboardContent').innerHTML = '<div class="text-center py-5" style="color:#333;"><i class="bi bi-clipboard-data" style="font-size:3rem;"></i><p>No plan parsed. Start by parsing your plan.</p></div>';
-        return;
-      }
-      
-      const latestBody = bodyMetrics.length ? bodyMetrics.sort((a,b) => new Date(b.date) - new Date(a.date))[0] : null;
-      const totalMealsLogged = Object.values(mealLogs).filter(l => l.description).length;
-      const adherentMeals = Object.values(mealLogs).filter(l => l.adherent).length;
-      const totalWorkoutsLogged = Object.values(workoutLogs).filter(l => l.weight || l.reps).length;
-      
-      let html = `
-        <div class="row g-4">
-          <div class="col-12"><h4 class="fw-bold"><i class="bi bi-speedometer2"></i> Dashboard</h4></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latestBody?.weight || '—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latestBody?.bodyFat || '—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latestBody?.visceralFat || '—'}</div><div class="metric-label">Visceral Fat</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latestBody?.skeletalMuscle || '—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div>
-        </div>
-        <div class="dashboard-highlight mt-4">
-          <div class="row text-center">
-            <div class="col-4"><span class="fw-bold fs-5">${totalMealsLogged}</span><br><small>Meals Logged</small></div>
-            <div class="col-4"><span class="fw-bold fs-5">${adherentMeals}</span><br><small>Adherent</small></div>
-            <div class="col-4"><span class="fw-bold fs-5">${totalWorkoutsLogged}</span><br><small>Exercises Logged</small></div>
-          </div>
-        </div>`;
-      
-      if (latestBody) {
-        html += `<div class="mt-3" style="color:#333;"><small>📅 Latest entry: ${latestBody.date}</small></div>`;
-      }
-      if (plan.primaryDirective?.directive) {
-        html += `<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`;
-      }
-      
+      const plan = getPlan();
+      const body = getBodyMetrics();
+      const meals = getMealLogs();
+      const wLogs = getWorkoutLogs();
+      if (!plan) { document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted"><i class="bi bi-clipboard-data"></i><p>No plan parsed.</p></div>'; return; }
+      const latest = body.length ? body.sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
+      const totalMeals = Object.values(meals).filter(l=>l.description).length;
+      const adherent = Object.values(meals).filter(l=>l.adherent).length;
+      const totalWOs = Object.values(wLogs).filter(l=>l.weight||l.reps).length;
+      let html = `<div class="row g-4"><div class="col-12"><h4 class="fw-bold">Dashboard</h4></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.weight||'—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latest?.bodyFat||'—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latest?.visceralFat||'—'}</div><div class="metric-label">Visceral Fat</div></div></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.skeletalMuscle||'—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div></div>
+        <div class="dashboard-highlight mt-4"><div class="row text-center"><div class="col-4"><span class="fw-bold fs-5">${totalMeals}</span><br><small>Meals Logged</small></div><div class="col-4"><span class="fw-bold fs-5">${adherent}</span><br><small>Adherent</small></div><div class="col-4"><span class="fw-bold fs-5">${totalWOs}</span><br><small>Exercises Logged</small></div></div></div>`;
+      if (latest) html += `<div class="mt-3 text-muted small">📅 Latest: ${latest.date}</div>`;
+      if (plan.primaryDirective?.directive) html += `<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`;
       document.getElementById('dashboardContent').innerHTML = html;
     }
     
-    // Initial load
-    function initializeApp() {
-      renderDashboard();
-      renderBodyMetricsHistory();
-      
-      const plan = getParsedPlan();
+    // Init
+    function init() {
+      renderDashboard(); renderBodyHistory();
+      const plan = getPlan();
       if (plan) {
         document.getElementById('schedulePane').innerHTML = renderSchedule(plan.dailySchedule);
         document.getElementById('mealsPane').innerHTML = renderMealPlan(plan.mealPlan);
         document.getElementById('workoutPane').innerHTML = renderWorkouts(plan.workouts);
-        document.getElementById('rehabSuppsPane').innerHTML = `<h5 class="section-title">🧘 Rehab</h5>${plan.rehab.map(r => `<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')}<h5 class="section-title mt-3">💊 Supplements</h5><ul>${plan.supplements.map(s => `<li>${s}</li>`).join('')}</ul>`;
-        document.getElementById('stopPane').innerHTML = plan.stopRules.map(r => `<div class="stop-rule">${r}</div>`).join('');
-        document.getElementById('resultsContainer').style.display = 'block';
+        document.getElementById('rehabSuppsPane').innerHTML = '<h5 class="section-title">🧘 Rehab</h5>'+plan.rehab.map(r=>`<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')+'<h5 class="section-title mt-3">💊 Supplements</h5><ul>'+plan.supplements.map(s=>`<li>${s}</li>`).join('')+'</ul>';
+        document.getElementById('stopPane').innerHTML = plan.stopRules.map(r=>`<div class="stop-rule">${r}</div>`).join('');
+        document.getElementById('resultsContainer').style.display='block';
       }
     }
     
-    // ---------- EVENT BINDINGS ----------
-    document.getElementById('parseBtn').addEventListener('click', () => {
+    document.getElementById('parseBtn').addEventListener('click',()=>{
       const raw = document.getElementById('rawInput').value.trim();
-      if (!raw) { document.getElementById('parseError').textContent = 'Paste text first.'; return; }
-      try {
-        const plan = parseFullPlan(raw);
-        saveParsedPlan(plan);
-        document.getElementById('schedulePane').innerHTML = renderSchedule(plan.dailySchedule);
-        document.getElementById('mealsPane').innerHTML = renderMealPlan(plan.mealPlan);
-        document.getElementById('workoutPane').innerHTML = renderWorkouts(plan.workouts);
-        document.getElementById('rehabSuppsPane').innerHTML = `<h5 class="section-title">🧘 Rehab</h5>${plan.rehab.map(r => `<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')}<h5 class="section-title mt-3">💊 Supplements</h5><ul>${plan.supplements.map(s => `<li>${s}</li>`).join('')}</ul>`;
-        document.getElementById('stopPane').innerHTML = plan.stopRules.map(r => `<div class="stop-rule">${r}</div>`).join('');
-        document.getElementById('resultsContainer').style.display = 'block';
-        document.getElementById('exportJsonBtn').disabled = false;
-        document.getElementById('parseError').textContent = '';
-        renderDashboard();
-        renderMealLogUI();
-        renderWorkoutLogUI();
-      } catch(e) {
-        document.getElementById('parseError').textContent = 'Error: ' + e.message;
-      }
+      if(!raw){ document.getElementById('parseError').textContent='Paste text first.'; return; }
+      try{
+        const plan = parseFullPlan(raw); savePlan(plan);
+        document.getElementById('schedulePane').innerHTML=renderSchedule(plan.dailySchedule);
+        document.getElementById('mealsPane').innerHTML=renderMealPlan(plan.mealPlan);
+        document.getElementById('workoutPane').innerHTML=renderWorkouts(plan.workouts);
+        document.getElementById('rehabSuppsPane').innerHTML='<h5 class="section-title">🧘 Rehab</h5>'+plan.rehab.map(r=>`<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')+'<h5 class="section-title mt-3">💊 Supplements</h5><ul>'+plan.supplements.map(s=>`<li>${s}</li>`).join('')+'</ul>';
+        document.getElementById('stopPane').innerHTML=plan.stopRules.map(r=>`<div class="stop-rule">${r}</div>`).join('');
+        document.getElementById('resultsContainer').style.display='block';
+        document.getElementById('exportJsonBtn').disabled=false;
+        document.getElementById('parseError').textContent='';
+        renderDashboard(); renderMealLogUI(); renderWorkoutLogUI();
+      }catch(e){ document.getElementById('parseError').textContent='Error: '+e.message; }
     });
     
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      document.getElementById('rawInput').value = '';
-      document.getElementById('resultsContainer').style.display = 'none';
-      document.getElementById('exportJsonBtn').disabled = true;
+    document.getElementById('clearBtn').addEventListener('click',()=>{
+      document.getElementById('rawInput').value='';
+      document.getElementById('resultsContainer').style.display='none';
+      document.getElementById('exportJsonBtn').disabled=true;
     });
-    
-    document.getElementById('exportJsonBtn').addEventListener('click', () => {
-      const plan = getParsedPlan();
-      if (!plan) return;
-      const blob = new Blob([JSON.stringify(plan, null, 2)], {type: 'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'fitness_plan.json';
-      a.click();
+    document.getElementById('exportJsonBtn').addEventListener('click',()=>{
+      const plan=getPlan(); if(!plan) return;
+      const blob=new Blob([JSON.stringify(plan,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='fitness_plan.json'; a.click();
     });
-    
-    document.getElementById('saveBodyMetrics').addEventListener('click', () => {
-      const date = document.getElementById('bodyDate').value;
-      const weight = document.getElementById('bodyWeight').value;
-      const bodyFat = document.getElementById('bodyFat').value;
-      const visceralFat = document.getElementById('visceralFat').value;
-      const skeletalMuscle = document.getElementById('skeletalMuscle').value;
-      if (!date) { alert('Select a date'); return; }
-      const metrics = getBodyMetrics();
+    document.getElementById('saveBodyMetrics').addEventListener('click',()=>{
+      const date=document.getElementById('bodyDate').value;
+      if(!date){ alert('Select date'); return; }
+      const metrics=getBodyMetrics();
       metrics.push({
         date,
-        weight: weight ? parseFloat(weight) : null,
-        bodyFat: bodyFat ? parseFloat(bodyFat) : null,
-        visceralFat: visceralFat ? parseFloat(visceralFat) : null,
-        skeletalMuscle: skeletalMuscle ? parseFloat(skeletalMuscle) : null
+        weight: document.getElementById('bodyWeight').value?parseFloat(document.getElementById('bodyWeight').value):null,
+        bodyFat: document.getElementById('bodyFat').value?parseFloat(document.getElementById('bodyFat').value):null,
+        visceralFat: document.getElementById('visceralFat').value?parseFloat(document.getElementById('visceralFat').value):null,
+        skeletalMuscle: document.getElementById('skeletalMuscle').value?parseFloat(document.getElementById('skeletalMuscle').value):null
       });
       saveBodyMetrics(metrics);
-      document.getElementById('bodyDate').value = '';
-      document.getElementById('bodyWeight').value = '';
-      document.getElementById('bodyFat').value = '';
-      document.getElementById('visceralFat').value = '';
-      document.getElementById('skeletalMuscle').value = '';
-      renderBodyMetricsHistory();
-      renderDashboard();
+      ['bodyDate','bodyWeight','bodyFat','visceralFat','skeletalMuscle'].forEach(id=>document.getElementById(id).value='');
+      renderBodyHistory(); renderDashboard();
     });
     
-    document.getElementById('meals-log-tab').addEventListener('click', renderMealLogUI);
-    document.getElementById('workout-log-tab').addEventListener('click', renderWorkoutLogUI);
-    document.getElementById('dashboard-tab').addEventListener('click', renderDashboard);
+    document.getElementById('meals-log-tab').addEventListener('click',()=>renderMealLogUI());
+    document.getElementById('workout-log-tab').addEventListener('click',()=>renderWorkoutLogUI());
+    document.getElementById('dashboard-tab').addEventListener('click',renderDashboard);
     
-    initializeApp();
-    if (getParsedPlan()) {
-      renderMealLogUI();
-      renderWorkoutLogUI();
-    }
+    init();
+    if(getPlan()){ renderMealLogUI(); renderWorkoutLogUI(); }
   })();
 </script>
 </body>
