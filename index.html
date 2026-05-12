@@ -7,14 +7,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
-            --bg: #0f172a; --surface: #1e293b; --surface2: #273549; --border: #334155;
-            --text: #e2e8f0; --text2: #94a3b8; --accent: #22d3bb; --red: #ef4444; --green: #22c55e;
-            --amber: #f59e0b; --radius: 16px; --radius-sm: 10px;
-            --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
-            --tab-height: 72px; --header-height: 56px; --safe-bottom: env(safe-area-inset-bottom, 16px);
+            --bg:#0f172a;--surface:#1e293b;--surface2:#273549;--border:#334155;--text:#e2e8f0;--text2:#94a3b8;
+            --accent:#22d3bb;--red:#ef4444;--green:#22c55e;--amber:#f59e0b;--radius:16px;--radius-sm:10px;
+            --font:system-ui,-apple-system,'Segoe UI',sans-serif;--tab-height:72px;--header-height:56px;--safe-bottom:env(safe-area-inset-bottom,16px);
         }
         *{box-sizing:border-box;margin:0;padding:0}
         html{font-size:15px;-webkit-tap-highlight-color:transparent}
@@ -49,7 +46,7 @@
         .stat-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center;border:1px solid var(--border)}
         .stat-value{font-size:1.5rem;font-weight:800;letter-spacing:-1px;color:var(--accent)}
         .stat-label{font-size:0.65rem;color:var(--text2);margin-top:2px}
-        .timer-display{font-size:4rem;font-weight:900;text-align:center;letter-spacing:-3px;font-family:monospace;color:var(--accent)}
+        .timer-display{font-size:4rem;font-weight:900;text-align:center;letter-spacing:-3px;font-family:monospace;color:var(--accent);margin:8px 0}
         .timer-label{text-align:center;font-size:0.8rem;color:var(--text2);font-weight:600;margin-bottom:4px}
         .progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:8px 0}
         .progress-fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s}
@@ -82,7 +79,6 @@
 <div class="header"><span class="header-title">🏷️ JadeTracker</span><span class="header-badge" id="headerDate">No Plan</span></div>
 <div class="toast" id="toast"></div>
 <div class="main-content" id="mainContent">
-    <!-- Dashboard -->
     <div class="view active" id="view-dashboard">
         <div class="card"><div class="card-title">📋 Plan Status</div><div id="planStatusContent"><p style="color:var(--text2)">No plan loaded. Go to Docs → paste plan.</p></div></div>
         <div class="card"><div class="card-title">📊 Body Metrics</div><div class="stats-grid" id="dashStats"></div></div>
@@ -92,21 +88,17 @@
         <div class="toggle-row"><span>🔔 Notify meals</span><label class="switch"><input type="checkbox" id="notifyToggle" onchange="App.toggleNotifications(this.checked)"><span class="slider"></span></label></div>
         <button class="btn btn-accent btn-block" onclick="App.switchView('view-export')">📄 Weekly PDF</button>
     </div>
-    <!-- Body Comp -->
     <div class="view" id="view-bodycomp">
         <div class="card"><div class="card-title">📸 Log Body Comp</div>
             <div class="input-group"><label>Date</label><input type="date" id="bcDate"></div>
-            <div class="input-group"><label>Images</label><input type="file" id="bcImages" accept="image/*" multiple onchange="App.previewImages()"><div class="thumbnail-row" id="imagePreviews"></div></div>
             <div class="input-row"><div class="input-group"><label>Weight (lbs)</label><input type="number" id="bcWeight" step="0.1"></div><div class="input-group"><label>Body Fat (lbs)</label><input type="number" id="bcFat" step="0.1"></div></div>
             <div class="input-row"><div class="input-group"><label>Muscle (lbs)</label><input type="number" id="bcMuscle" step="0.1"></div><div class="input-group"><label>Visceral Fat cm²</label><input type="number" id="bcVFat" step="0.1"></div></div>
             <div class="input-group"><label>Notes</label><textarea id="bcNotes" rows="2"></textarea></div>
-            <button class="btn btn-accent btn-block" onclick="App.scanAndLogImages()">🔍 Scan & Log</button>
-            <button class="btn btn-outline btn-block" style="margin-top:6px" onclick="App.addBodyCompEntry()">➕ Manual Log</button>
+            <button class="btn btn-accent btn-block" onclick="App.addBodyCompEntry()">➕ Log Entry</button>
         </div>
         <div class="card"><div class="card-title">📈 Trends</div><div class="graph-container"><canvas id="bodyCompChart"></canvas></div></div>
-        <div class="card"><div class="card-title">📋 History</div><table id="bcTable" class="data-table"><thead><tr><th>Date</th><th>Wt</th><th>BF%</th><th>Muscle</th><th>VFat</th><th>Img</th><th>Del</th></tr></thead><tbody></tbody></table></div>
+        <div class="card"><div class="card-title">📋 History</div><table id="bcTable"><thead><tr><th>Date</th><th>Wt</th><th>BF%</th><th>Muscle</th><th>VFat</th><th>Del</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <!-- Meals -->
     <div class="view" id="view-meals">
         <div class="card"><div class="card-title">🍽️ Daily Meals</div>
             <div class="input-group"><label>Week of (Sunday)</label><input type="date" id="mealWeekStart" onchange="App.updateMealCalendar()"></div>
@@ -116,7 +108,6 @@
             <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.saveDayMeals()">💾 Save Meals</button>
         </div>
     </div>
-    <!-- Workouts -->
     <div class="view" id="view-workouts">
         <div class="card"><div class="card-title">🏋️ Daily Workout</div>
             <div class="input-group"><label>Date</label><input type="date" id="woDate" onchange="App.updateWorkoutCalendar()"></div>
@@ -136,22 +127,31 @@
         </div>
         <div class="card"><div class="card-title">📋 History</div><div id="woLog" style="max-height:300px;overflow-y:auto"></div></div>
     </div>
-    <!-- Documents -->
     <div class="view" id="view-documents">
-        <div class="card"><div class="card-title">📥 Load Week Plan</div><p style="color:var(--text2);font-size:0.75rem;margin-bottom:8px">Paste any weekly plan. It will parse meals, workouts, targets, stop rules & supplements.</p>
-            <textarea id="planPaste" rows="10" placeholder="Paste your plan here..."></textarea>
+        <div class="card"><div class="card-title">📥 Load Week Plan</div>
+            <textarea id="planPaste" rows="10" placeholder="Paste your weekly plan here..."></textarea>
             <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.loadPlanFromPaste()">🔃 Parse & Load</button>
-            <div id="planPreview" style="display:none;margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;font-size:0.75rem;"></div>
-            <div class="upload-zone" style="margin-top:12px" onclick="document.getElementById('planFile').click()"><div style="font-size:2rem">📄</div><p>Or upload PDF/TXT</p></div>
+            <div style="text-align:center;margin:12px 0">— or —</div>
+            <div class="upload-zone" onclick="document.getElementById('planFile').click()"><div style="font-size:2rem">📄</div><p>Upload PDF/TXT</p></div>
             <input type="file" id="planFile" accept=".pdf,.txt" style="display:none" onchange="App.handlePlanUpload(this)">
+            <div id="planPreview" style="display:none;margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;font-size:0.75rem;"></div>
         </div>
         <div class="card"><div class="card-title">💊 Supplements</div><div id="supplementList"></div></div>
         <div class="card"><div class="card-title">⚠️ Injuries / Stop Rules</div><div id="injuryList"></div><button class="btn btn-sm btn-outline" onclick="App.addManualInjury()">➕ Add</button></div>
     </div>
-    <!-- Export -->
     <div class="view" id="view-export">
-        <div class="card"><div class="card-title">📄 Weekly PDF</div><div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel"></div><div class="input-group"><label>Context</label><textarea id="exportContext" rows="2"></textarea></div><button class="btn btn-accent btn-block" onclick="App.generateWeeklyPDF()">📥 Generate PDF</button><button class="btn btn-outline btn-block" onclick="App.copyForDeepSeek()">📋 Copy Text</button></div>
-        <div class="card"><div class="card-title">💾 Data</div><button class="btn btn-outline btn-block" onclick="App.exportJSON()">📦 Export JSON</button><button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="App.importJSON(this)"><button class="btn btn-danger btn-block" onclick="App.resetAll()">🗑️ Reset All</button></div>
+        <div class="card"><div class="card-title">📄 Weekly PDF</div>
+            <div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel"></div>
+            <div class="input-group"><label>Context</label><textarea id="exportContext" rows="2"></textarea></div>
+            <button class="btn btn-accent btn-block" onclick="App.generateWeeklyPDF()">📥 Generate PDF</button>
+            <button class="btn btn-outline btn-block" onclick="App.copyForDeepSeek()">📋 Copy Text for DeepSeek</button>
+        </div>
+        <div class="card"><div class="card-title">💾 Data</div>
+            <button class="btn btn-outline btn-block" onclick="App.exportJSON()">📦 Export JSON</button>
+            <button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="App.importJSON(this)">
+            <button class="btn btn-danger btn-block" onclick="App.resetAll()">🗑️ Reset All</button>
+        </div>
     </div>
 </div>
 <div class="tab-bar">
@@ -165,7 +165,7 @@
 
 <script>
 (function() {
-  const STORAGE = 'jadetracker_final';
+  const STORAGE = 'jadetracker_prod';
   const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -184,75 +184,76 @@
   function fmtTime(sec){ const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0'); return `${m}:${s}` }
   function weekDays(s){ const d=new Date(s+'T00:00:00'); if(isNaN(d))return[]; return Array.from({length:7},(_,i)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+i)) }
 
-  // ---------- SIMPLE PARSER ----------
+  // ---------- PARSER ----------
   function parseAnyPlan(text){
-    const res = { mealPlan:{}, workoutPlan:{}, injuries:[], progressionTargets:[], supplements:[], stopRules:[] };
-    // Normalize: replace emoji and extra spaces, keep newlines
+    const res = { mealPlan:{}, workoutPlan:{}, stopRules:[], progressionTargets:[], supplements:[], weekLabel:'', focus:'' };
     let clean = text.replace(/[^\S\n]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
-    // Week label
     const wm = clean.match(/WEEK\s*(\d+)/i);
     if(wm) res.weekLabel = 'Week '+wm[1];
     const fm = clean.match(/Focus:\s*(.+)/i);
     if(fm) res.focus = fm[1].trim();
 
     const lines = clean.split('\n');
-    // Detect day headers (line starting with a day name or short)
-    const dayIdx = [];
+    const dayHeaders = [];
     lines.forEach((line,i)=>{
-      const m = line.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/i) ||
+      const m = line.match(/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\b/i) ||
                 line.match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i);
       if(m){
         let day = m[0].charAt(0).toUpperCase()+m[0].slice(1).toLowerCase();
         const map={mon:'Monday',tue:'Tuesday',wed:'Wednesday',thu:'Thursday',fri:'Friday',sat:'Saturday',sun:'Sunday'};
         if(map[day.toLowerCase()]) day = map[day.toLowerCase()];
-        dayIdx.push({day, idx:i});
+        dayHeaders.push({day, idx:i});
       }
     });
-    if(!dayIdx.length) return res; // no days found
+    if(!dayHeaders.length) return res;
 
-    dayIdx.sort((a,b)=>a.idx-b.idx);
-    for(let i=0;i<dayIdx.length;i++){
-      const cur = dayIdx[i];
-      const end = i+1<dayIdx.length ? dayIdx[i+1].idx : lines.length;
+    dayHeaders.sort((a,b)=>a.idx-b.idx);
+    for(let i=0; i<dayHeaders.length; i++){
+      const cur = dayHeaders[i];
+      const end = i+1<dayHeaders.length ? dayHeaders[i+1].idx : lines.length;
       const blockLines = lines.slice(cur.idx, end);
-      const block = blockLines.join('\n');
+      const blockText = blockLines.join('\n');
 
-      // Parse meals: lines with time like "4:30 AM" followed by description
-      const mealRegex = /(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm))\s*[:.\-–—)\]]?\s*(.*)/g;
-      let m;
-      const meals = [];
-      while((m=mealRegex.exec(block))!==null){
-        meals.push({time:m[1].trim(), planned:m[2].trim()});
+      // extract meals
+      const mealRegex = /(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm))/gi;
+      let timeMatch;
+      while((timeMatch = mealRegex.exec(blockText)) !== null){
+        const time = timeMatch[1].trim();
+        const line = blockText.substring(timeMatch.index).split('\n')[0].trim();
+        let description = line.substring(line.indexOf(time) + time.length).replace(/^[\s:.\-–—)\]]+/,'').trim();
+        if(description){
+          if(!res.mealPlan[cur.day]) res.mealPlan[cur.day] = [];
+          if(!res.mealPlan[cur.day].some(m=>m.time===time)){
+            res.mealPlan[cur.day].push({time, planned:description});
+          }
+        }
       }
-      if(meals.length) res.mealPlan[cur.day] = meals;
 
-      // Parse workouts: look for exercise patterns (reps, sets, weight, time)
+      // extract workouts
       const exPattern = /(\d{1,2}\s*x\s*\d|\d{1,2}\s*reps|\d{1,2}\s*sec|\d{1,2}\s*min|\d{2,3}\s*lbs|\d{2,3}\s*kg)/i;
-      if(exPattern.test(block)){
+      if(exPattern.test(blockText)){
         const wo = {type:'', details:'', intensity:false, exercises:[]};
         wo.type = blockLines[0].replace(new RegExp(cur.day,'i'),'').replace(/^[\s—–-]+/,'').trim() || 'Workout';
         if(/judo|randori|newaza/i.test(wo.type)) wo.intensity = true;
-        // Details: lines before first exercise line
-        let details = [];
-        for(let j=1;j<blockLines.length;j++){
+        let detailLines = [];
+        for(let j=1; j<blockLines.length; j++){
           if(exPattern.test(blockLines[j])) break;
-          details.push(blockLines[j]);
+          detailLines.push(blockLines[j]);
         }
-        wo.details = details.join(' | ');
-        // Extract exercises
+        wo.details = detailLines.join(' | ');
         const exLines = blockLines.filter(l=>exPattern.test(l));
         exLines.forEach(line=>{
-          const ex = {name:'', sets:'', reps:'', weight:'', time:'', target:''};
           const parts = line.split(/\t|\s{2,}/).filter(p=>p.trim());
+          const ex = {name:'', sets:'', reps:'', weight:'', time:'', target:''};
           if(parts.length>=2){
             ex.name = parts[0].replace(/^\d+\.\s*/,'').trim();
             parts.forEach(p=>{
-              if(/(\d{1,2}\s*x\s*\d)/.test(p)) ex.sets = p;
-              else if(/(\d{1,2}\s*reps)/i.test(p)) ex.reps = p;
-              else if(/(\d{1,2}\s*sec)/i.test(p)) ex.time = p;
-              else if(/(\d{1,2}\s*min)/i.test(p)) ex.time = p;
-              else if(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i.test(p)) ex.weight = p;
-              else if(/(\d+\+\s*total|Beat\s*\d+|Goal)/i.test(p)) ex.target = p;
+              if(/(\d{1,2}\s*x\s*\d)/.test(p)) ex.sets=p;
+              else if(/(\d{1,2}\s*reps)/i.test(p)) ex.reps=p;
+              else if(/(\d{1,2}\s*sec)/i.test(p)) ex.time=p;
+              else if(/(\d{1,2}\s*min)/i.test(p)) ex.time=p;
+              else if(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i.test(p)) ex.weight=p;
+              else if(/(\d+\+\s*total|Beat\s*\d+|Goal)/i.test(p)) ex.target=p;
             });
           } else {
             const timeM = line.match(/(\d{1,2}\s*min|\d{1,2}\s*sec)/i);
@@ -273,13 +274,13 @@
       }
     }
 
-    // Stop rules: lines containing pain/stop keywords
+    // Stop rules
     lines.forEach(l=>{
       const t = l.replace(/^[\s•\-\d]+[\.\)]?\s*/,'').trim();
       if(t && /stop|pain|ache|shift|numbness|warning|off/i.test(t) && t.length>5) res.stopRules.push(t);
     });
 
-    // Progression tracker: table after "Day  Metric  Target"
+    // Progression tracker
     const progStart = clean.search(/Day\s*Metric\s*Target/i);
     if(progStart>=0){
       const progText = clean.substring(progStart);
@@ -296,22 +297,36 @@
       if(new RegExp('\\b'+sn.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')+'\\b','i').test(clean))
         if(!res.supplements.some(s=>s.name===sn)) res.supplements.push({name:sn,dose:'',timing:''});
     });
+
     return res;
   }
 
   function applyParsed(parsed){
     let changes = [];
-    if(parsed.mealPlan && Object.keys(parsed.mealPlan).length){ Store.mealPlan=parsed.mealPlan; changes.push(`${Object.values(parsed.mealPlan).flat().length} meals`); }
-    if(parsed.workoutPlan && Object.keys(parsed.workoutPlan).length){ Store.workoutPlan=parsed.workoutPlan; changes.push(`${Object.keys(parsed.workoutPlan).length} workout days`); }
-    parsed.stopRules.forEach(r=>{ if(!Store.injuries.some(i=>i.name===r)) Store.injuries.push({id:U(),name:r,status:'Active',source:'Stop Rule'}) });
+    if(parsed.mealPlan){
+      if(!Store.mealPlan) Store.mealPlan = {};
+      for(const day in parsed.mealPlan){
+        if(!Store.mealPlan[day]) Store.mealPlan[day] = [];
+        parsed.mealPlan[day].forEach(m=>{
+          if(!Store.mealPlan[day].some(x=>x.time===m.time)) Store.mealPlan[day].push(m);
+        });
+      }
+      changes.push(`${Object.values(parsed.mealPlan).flat().length} meals`);
+    }
+    if(parsed.workoutPlan){
+      if(!Store.workoutPlan) Store.workoutPlan = {};
+      for(const day in parsed.workoutPlan) Store.workoutPlan[day] = parsed.workoutPlan[day];
+      changes.push(`${Object.keys(parsed.workoutPlan).length} workout days`);
+    }
+    parsed.stopRules.forEach(r=>{ if(!Store.injuries.some(i=>i.name===r)) Store.injuries.push({id:U(),name:r,status:'Active',source:'Stop Rule'}); });
     if(parsed.stopRules.length) changes.push(`${parsed.stopRules.length} stop rules`);
     parsed.progressionTargets.forEach(pt=>{
       const ex = Store.progressionTargets.find(t=>t.metric===pt.metric && t.day===pt.day);
-      if(!ex) Store.progressionTargets.push({...pt,id:U()});
+      if(!ex) Store.progressionTargets.push({...pt,id:U(),actual:pt.actual||''});
       else if(!ex.target) ex.target = pt.target;
     });
     if(parsed.progressionTargets.length) changes.push(`${parsed.progressionTargets.length} targets`);
-    parsed.supplements.forEach(sp=>{ if(!Store.supplements.some(s=>s.name===sp.name)) Store.supplements.push(sp) });
+    parsed.supplements.forEach(sp=>{ if(!Store.supplements.some(s=>s.name===sp.name)) Store.supplements.push(sp); });
     if(parsed.supplements.length) changes.push(`${parsed.supplements.length} supplements`);
     if(parsed.weekLabel) Store.settings.weekLabel = parsed.weekLabel;
     if(parsed.focus) Store.planMeta.focus = parsed.focus;
@@ -365,7 +380,7 @@
       if(v==='view-export'){ document.getElementById('exportWeekLabel').value=Store.settings.weekLabel||''; document.getElementById('exportContext').value=Store.planMeta.focus||''; }
     },
     renderDash(){
-      const bc=Store.bodyComp,l=bc.length?bc[bc.length-1]:null,p=bc.length>1?bc[bc.length-2]:null;
+      const bc=Store.bodyComp,l=bc.length?bc[bc.length-1]:null;
       document.getElementById('dashStats').innerHTML = `
         <div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight</div></div>
         <div class="stat-card"><div class="stat-value">${l?.fatPercentage?.toFixed(1)??'--'}%</div><div class="stat-label">Body Fat</div></div>
@@ -382,21 +397,16 @@
       document.getElementById('headerDate').textContent = Store.settings.weekLabel||'No Plan';
     },
     getMealAdherence(){ const ws=Store.settings.mealWeekStart; if(!ws)return{total:0,done:0,pct:0}; const st=new Date(ws+'T00:00:00'), end=new Date(st); end.setDate(end.getDate()+7); const meals=Store.mealLog.filter(m=>{const d=new Date(m._ts);return d>=st&&d<end}); const done=meals.filter(m=>m.completed).length; return{total:meals.length,done,pct:meals.length?done/meals.length*100:0}; },
-    // Body comp methods (simplified, fully functional)
-    renderBCTable(){ const t=document.querySelector('#bcTable tbody'); t.innerHTML = Store.bodyComp.slice().reverse().map(b=>`<tr><td>${b.date}</td><td>${b.weight?.toFixed(1)??'--'}</td><td>${b.fatPercentage?.toFixed(1)??'--'}%</td><td>${b.skeletalMuscle?.toFixed(1)??'--'}</td><td>${b.visceralFat?.toFixed(1)??'--'}</td><td>${b.imageData?'📷':''}</td><td><button class="btn btn-sm btn-danger" onclick="App.deleteBodyComp('${b.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan="7">No entries</td></tr>'; },
+    renderBCTable(){ const t=document.querySelector('#bcTable tbody'); t.innerHTML = Store.bodyComp.slice().reverse().map(b=>`<tr><td>${b.date}</td><td>${b.weight?.toFixed(1)??'--'}</td><td>${b.fatPercentage?.toFixed(1)??'--'}%</td><td>${b.skeletalMuscle?.toFixed(1)??'--'}</td><td>${b.visceralFat?.toFixed(1)??'--'}</td><td><button class="btn btn-sm btn-danger" onclick="App.deleteBodyComp('${b.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan="6">No entries</td></tr>'; },
     deleteBodyComp(id){ Store.bodyComp=Store.bodyComp.filter(b=>b.id!==id); S(); this.renderBCTable(); this.renderBCChart(); this.renderDash(); },
     renderBCChart(){ const c=document.getElementById('bodyCompChart'); if(!c)return; if(this.chart)this.chart.destroy(); const d=Store.bodyComp; if(!d.length)return; const labels=d.map(e=>e.date),ds=[]; if(d.some(e=>e.weight!=null))ds.push({label:'Weight',data:d.map(e=>e.weight),borderColor:'#22d3bb'}); if(d.some(e=>e.fatPercentage!=null))ds.push({label:'BF%',data:d.map(e=>e.fatPercentage),borderColor:'#ef4444'}); if(d.some(e=>e.skeletalMuscle!=null))ds.push({label:'Muscle',data:d.map(e=>e.skeletalMuscle),borderColor:'#3b82f6'}); this.chart=new Chart(c,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false}}); },
-    previewImages(){ const f=document.getElementById('bcImages').files,c=document.getElementById('imagePreviews'); c.innerHTML=''; for(let i=0;i<f.length;i++){const r=new FileReader();r.onload=e=>{const img=document.createElement('img');img.src=e.target.result;img.style.width='50px';img.style.height='50px';c.appendChild(img)};r.readAsDataURL(f[i])} },
-    async scanAndLogImages(){ /* tesseract + manual log combination */ T('Image scan not fully implemented in this demo; use manual log.', true); },
-    addBodyCompEntry(){ const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0]; const w=parseFloat(document.getElementById('bcWeight').value)||null, fl=parseFloat(document.getElementById('bcFat').value)||null, m=parseFloat(document.getElementById('bcMuscle').value)||null, v=parseFloat(document.getElementById('bcVFat').value)||null; if(!w&&fl==null&&!m&&!v){T('Enter a value',true);return} Store.bodyComp.push({id:U(),date,weight:w,bodyFatLbs:fl,fatPercentage:w&&fl?fl/w*100:null,skeletalMuscle:m,visceralFat:v,notes:document.getElementById('bcNotes').value,_timestamp:new Date().toISOString()}); Store.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date)); S(); this.renderBCTable(); this.renderBCChart(); this.renderDash(); T('Logged'); },
-    // Meals
+    addBodyCompEntry(){ const date=document.getElementById('bcDate').value||new Date().toISOString().split('T')[0]; const w=parseFloat(document.getElementById('bcWeight').value)||null, fl=parseFloat(document.getElementById('bcFat').value)||null, m=parseFloat(document.getElementById('bcMuscle').value)||null, v=parseFloat(document.getElementById('bcVFat').value)||null; if(!w&&fl==null&&!m&&!v){T('Enter a value',true);return} const fatPct = w&&fl ? fl/w*100 : null; Store.bodyComp.push({id:U(),date,weight:w,bodyFatLbs:fl,fatPercentage:fatPct,skeletalMuscle:m,visceralFat:v,notes:document.getElementById('bcNotes').value,_timestamp:new Date().toISOString()}); Store.bodyComp.sort((a,b)=>new Date(a.date)-new Date(b.date)); S(); this.renderBCTable(); this.renderBCChart(); this.renderDash(); T('Logged'); },
     initMealView(){ if(!Store.settings.mealWeekStart){ const d=new Date(); d.setDate(d.getDate()-d.getDay()); Store.settings.mealWeekStart=d.toISOString().split('T')[0]; S() } document.getElementById('mealWeekStart').value=Store.settings.mealWeekStart; this.updateMealCalendar(); },
     updateMealCalendar(){ const w=document.getElementById('mealWeekStart'), s=document.getElementById('mealDayStrip'); if(!w||!s)return; const wv=w.value; if(!wv)return; Store.settings.mealWeekStart=wv; S(); const days=weekDays(wv); const sd=Store.settings.mealDay; s.innerHTML=days.map((d,i)=>{const fd=DAYS[d.getDay()];return`<div class="wday-chip ${fd===sd?'active':''}" onclick="App.selectMealDay('${fd}')">${DAYS_SHORT[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</div>`}).join(''); },
     selectMealDay(d){ Store.settings.mealDay=d; S(); this.updateMealCalendar(); this.loadMeals(); },
     addCustomMeal(){ document.getElementById('dailyMealPlanContainer').insertAdjacentHTML('beforeend',`<div class="workout-exercise-card"><input class="meal-custom-time" placeholder="Time"><input class="meal-custom-planned" placeholder="Planned" style="margin:4px 0"><div class="input-row"><input class="meal-actual" placeholder="Actual"><input class="meal-notes" placeholder="Notes"></div><label><input type="checkbox" class="meal-done"> Done</label></div>`); },
     loadMeals(){ const day=Store.settings.mealDay, ws=Store.settings.mealWeekStart; if(!day||!ws)return; const planned = (Store.mealPlan||{})[day]||[]; const existing = Store.mealLog.filter(m=>m.day===day&&m.weekStart===ws); const c=document.getElementById('dailyMealPlanContainer'); let html=''; planned.forEach(p=>{const s=existing.find(e=>e.time===p.time)||{};html+=`<div class="workout-exercise-card ${s.completed?'meal-locked':''}"><strong>${p.time}</strong><p style="font-size:0.75rem;color:var(--text2)">${p.planned}</p><div class="input-row"><input class="meal-actual" data-time="${p.time}" value="${s.actual||''}" placeholder="Actual"><input class="meal-notes" data-time="${p.time}" value="${s.notes||''}" placeholder="Notes"></div><label><input type="checkbox" class="meal-done" data-time="${p.time}" ${s.completed?'checked':''}> Done</label></div>`}); c.innerHTML=html||'<p style="color:var(--text2)">No meals planned.</p>'; },
     saveDayMeals(){ const day=Store.settings.mealDay, ws=Store.settings.mealWeekStart; if(!day||!ws){T('Select day',true);return} const newMeals=[]; document.querySelectorAll('#dailyMealPlanContainer .workout-exercise-card').forEach(card=>{ const timeEl=card.querySelector('strong')||card.querySelector('.meal-custom-time'); const time=timeEl?(timeEl.textContent||timeEl.value):''; const plannedEl=card.querySelector('.meal-custom-planned'); const actualEl=card.querySelector('.meal-actual'), notesEl=card.querySelector('.meal-notes'); const checked=card.querySelector('.meal-done')?.checked||false; newMeals.push({id:U(),day,weekStart:ws,time,planned:plannedEl?plannedEl.value:'',actual:actualEl?.value||'',notes:notesEl?.value||'',completed:checked,_ts:new Date().toISOString()}); }); Store.mealLog=Store.mealLog.filter(m=>!(m.day===day&&m.weekStart===ws)); Store.mealLog.push(...newMeals); S(); this.renderDash(); this.loadMeals(); T('Meals saved!'); },
-    // Workouts
     initWoView(){ if(!document.getElementById('woDate').value) document.getElementById('woDate').valueAsDate=new Date(); this.updateWorkoutCalendar(); },
     updateWorkoutCalendar(){ const d=document.getElementById('woDate'), s=document.getElementById('woDayStrip'); if(!d||!s)return; const dt=new Date(d.value+'T00:00:00'); if(isNaN(dt))return; const sd=Store.settings.woDay||DAYS[dt.getDay()]; s.innerHTML=DAYS.map((day,i)=>{const nd=new Date(dt);nd.setDate(dt.getDate()-dt.getDay()+i);return`<div class="wday-chip ${day===sd?'active':''}" onclick="App.selectWoDay('${day}')">${DAYS_SHORT[i]} ${nd.getDate()}/${nd.getMonth()+1}</div>`}).join(''); },
     selectWoDay(d){ Store.settings.woDay=d; S(); this.updateWorkoutCalendar(); this.loadWorkout(); },
@@ -404,19 +414,69 @@
     loadWorkout(){ const day=Store.settings.woDay, date=document.getElementById('woDate')?.value; if(!day||!date)return; const plan=Store.workoutPlan||{}, dp=plan[day]||{type:'Rest',exercises:[]}; const saved=Store.workoutLog.find(w=>w.date===date)||{}; const c=document.getElementById('dailyWorkoutPlanContainer'); let html=`<h3>${dp.type||'Rest'}</h3>${dp.details?`<p style="color:var(--text2);font-size:0.8rem">${dp.details}</p>`:''}`; (dp.exercises||[]).forEach((ex,i)=>{const s=saved.exercises?.[i]||{};html+=`<div class="workout-exercise-card"><strong>${ex.name}</strong><div style="font-size:0.7rem;color:var(--text2)">${[ex.sets,ex.reps,ex.weight,ex.time].filter(Boolean).join(' | ')}</div><div class="input-row"><input class="ex-reps" value="${s.actualReps||''}" placeholder="Reps"><input class="ex-weight" value="${s.actualWeight||''}" placeholder="Weight"></div><input class="ex-notes" value="${s.notes||''}" placeholder="Notes"></div>`}); c.innerHTML=html||'<p>No template</p>'; },
     saveDayWorkout(){ const day=Store.settings.woDay, date=document.getElementById('woDate')?.value; if(!day||!date){T('Select date',true);return} const wo={id:U(),date,day,type:Store.workoutPlan?.[day]?.type||'Custom',exercises:[]}; document.querySelectorAll('#dailyWorkoutPlanContainer .workout-exercise-card').forEach(card=>{const nameEl=card.querySelector('strong')||card.querySelector('.ex-custom-name');const name=nameEl?(nameEl.textContent||nameEl.value):'';const reps=card.querySelector('.ex-reps')?.value||'', weight=card.querySelector('.ex-weight')?.value||'', notes=card.querySelector('.ex-notes')?.value||'';wo.exercises.push({exercise:name,actualReps:reps,actualWeight:weight,notes});}); Store.workoutLog=Store.workoutLog.filter(w=>!(w.date===date)); Store.workoutLog.push(wo); S(); this.renderWoHist(); this.loadWorkout(); this.renderDash(); T('Workout saved!'); },
     renderWoHist(){ const d=document.getElementById('woLog'); d.innerHTML = Store.workoutLog.slice(-10).reverse().map(w=>`<div style="background:var(--surface2);padding:8px;border-radius:8px;margin-bottom:4px"><b>${w.date} — ${w.type}</b><br>${(w.exercises||[]).map(e=>`${e.exercise}: ${e.actualReps||'--'} reps ${e.actualWeight||''}`).join('<br>')}</div>`).join('')||'<p style="color:var(--text2)">No workouts</p>'; },
-    // Docs
     loadPlanFromPaste(){ const text=document.getElementById('planPaste').value.trim(); if(!text){T('Paste plan',true);return} this._applyPlan(text); },
-    handlePlanUpload(input){ const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=async e=>{ let t=''; if(f.name.endsWith('.pdf')){ if(typeof pdfjsLib==='undefined'){T('PDF library missing',true);return} try{ const pdf=await pdfjsLib.getDocument(new Uint8Array(e.target.result)).promise; for(let i=1;i<=pdf.numPages;i++){t+=(await(await pdf.getPage(i)).getTextContent()).items.map(it=>it.str).join(' ')+' '} }catch(ex){T('PDF error',true);return} } else t=e.target.result; this._applyPlan(t); }; if(f.name.endsWith('.pdf'))r.readAsArrayBuffer(f); else r.readAsText(f); input.value=''; },
-    _applyPlan(text){ const parsed = parseAnyPlan(text); const changes = applyParsed(parsed); document.getElementById('planPreview').style.display='block'; document.getElementById('planPreview').innerHTML = changes.length ? `✅ Loaded: ${changes.join(' | ')}` : '⚠️ No meals/workouts detected.'; T(changes.length?`Plan loaded`:'No plan found',!changes.length); this.renderDash(); },
+    handlePlanUpload(input){
+      const f=input.files[0]; if(!f)return;
+      const r=new FileReader();
+      r.onload = async e => {
+        let t='';
+        if(f.name.endsWith('.pdf')){
+          if(typeof pdfjsLib==='undefined'){ T('PDF library missing',true); return; }
+          try{
+            const pdf = await pdfjsLib.getDocument({data:new Uint8Array(e.target.result)}).promise;
+            for(let i=1; i<=pdf.numPages; i++){
+              const pg = await pdf.getPage(i);
+              const textContent = await pg.getTextContent();
+              t += textContent.items.map(it=>it.str).join(' ') + '\n';
+            }
+          } catch(ex){ T('PDF error: '+ex.message,true); return; }
+        } else {
+          t = e.target.result;
+        }
+        this._applyPlan(t);
+      };
+      if(f.name.endsWith('.pdf')) r.readAsArrayBuffer(f);
+      else r.readAsText(f);
+      input.value='';
+    },
+    _applyPlan(text){
+      const parsed = parseAnyPlan(text);
+      const changes = applyParsed(parsed);
+      const preview = document.getElementById('planPreview');
+      preview.style.display='block';
+      preview.innerHTML = changes.length ? `✅ Loaded: ${changes.join(' | ')}` : '⚠️ No meals/workouts detected.';
+      T(changes.length?`Plan loaded`:'No plan found',!changes.length);
+      this.renderDash();
+      if(document.getElementById('view-meals').classList.contains('active')) this.loadMeals();
+      if(document.getElementById('view-workouts').classList.contains('active')) this.loadWorkout();
+    },
     renderInjuries(){ const d=document.getElementById('injuryList'); d.innerHTML = Store.injuries.map(i=>`<div class="injury-badge ${i.status==='Resolved'?'injury-resolved':''}"><span>⚠️ ${i.name}</span><select onchange="App.updateInjuryStatus('${i.id}',this.value)"><option ${i.status==='Active'?'selected':''}>Active</option><option ${i.status==='Resolved'?'selected':''}>Resolved</option></select><button class="btn btn-sm btn-danger" onclick="App.deleteInjury('${i.id}')">✕</button></div>`).join('')||'<p style="color:var(--text2)">No injuries</p>'; },
     updateInjuryStatus(id,s){ const i=Store.injuries.find(x=>x.id===id); if(i){i.status=s;S();this.renderInjuries();this.renderDash();} },
     deleteInjury(id){ Store.injuries=Store.injuries.filter(i=>i.id!==id); S(); this.renderInjuries(); this.renderDash(); },
     addManualInjury(){ const n=prompt('Injury:'); if(n){Store.injuries.push({id:U(),name:n,status:'Active',source:'Manual'});S();this.renderInjuries();this.renderDash();} },
     renderSupps(){ document.getElementById('supplementList').innerHTML = Store.supplements.map(s=>`<div class="supplement-card"><b>${s.name}</b> ${s.dose} ${s.timing}</div>`).join('')||'<p style="color:var(--text2)">None</p>'; },
     async toggleNotifications(on){ if(on&&Notification.permission==='default'){ const p=await Notification.requestPermission(); if(p!=='granted') on=false; } Store.settings.notify=on; S(); document.getElementById('notifyToggle').checked=on; T(`Notifications ${on?'on':'off'}`); },
-    // Export
-    generateWeeklyPDF(){ if(typeof jspdf==='undefined'){T('PDF library missing',true);return} const {jsPDF}=jspdf; const doc=new jsPDF(); let y=20; const add=(t,s=12,bold=false)=>{ doc.setFont('Helvetica',bold?'bold':'normal'); doc.setFontSize(s); doc.text(t,20,y); y+=8; }; add('JADE PARKER WEEKLY REPORT',14,true); add(`Week: ${Store.settings.weekLabel}`); add(`Body: ${Store.bodyComp.slice(-1)[0]?.weight||'--'} lbs`); doc.save('jadetracker-report.pdf'); T('PDF generated'); },
-    copyForDeepSeek(){ let t=`Week: ${Store.settings.weekLabel}\n`; Store.workoutLog.slice(-5).forEach(w=>{t+=`${w.date} ${w.type}\n`;(w.exercises||[]).forEach(e=>t+=`  ${e.exercise}: ${e.actualReps} reps ${e.actualWeight}\n`)}); navigator.clipboard.writeText(t).then(()=>T('Copied!')); },
+    generateWeeklyPDF(){
+      if(typeof jspdf==='undefined'){T('PDF library missing',true);return}
+      const {jsPDF}=jspdf; const doc=new jsPDF(); let y=20;
+      const add=(t,s=12,bold=false)=>{ doc.setFont('Helvetica',bold?'bold':'normal'); doc.setFontSize(s); doc.text(t,20,y); y+=8; };
+      add('JADE PARKER WEEKLY REPORT',14,true);
+      add(`Week: ${Store.settings.weekLabel}`);
+      const bc = Store.bodyComp.slice(-1)[0];
+      add(`Weight: ${bc?.weight?.toFixed(1)??'--'} lbs | BF: ${bc?.fatPercentage?.toFixed(1)??'--'}% | Muscle: ${bc?.skeletalMuscle?.toFixed(1)??'--'} lbs`);
+      add('Injuries:'); Store.injuries.filter(i=>i.status!=='Resolved').forEach(i=>add(`⚠️ ${i.name}`));
+      add('Workouts:'); Store.workoutLog.slice(-7).reverse().forEach(w=>{ add(`${w.date} - ${w.type}`); (w.exercises||[]).forEach(e=>add(`  ${e.exercise}: ${e.actualReps||'--'} reps ${e.actualWeight||''}`,10)); });
+      doc.save('jadetracker-weekly.pdf');
+      T('PDF saved');
+    },
+    copyForDeepSeek(){
+      let t=`JadeTracker - ${Store.settings.weekLabel} Report\n`;
+      const bc = Store.bodyComp.slice(-1)[0];
+      t+=`Body: ${bc?.weight?.toFixed(1)??'--'}lbs, BF ${bc?.fatPercentage?.toFixed(1)??'--'}%, Muscle ${bc?.skeletalMuscle?.toFixed(1)??'--'}lbs\n`;
+      t+=`Meals logged: ${this.getMealAdherence().done}\n`;
+      Store.workoutLog.slice(-5).reverse().forEach(w=>{ t+=`${w.date} ${w.type}\n`; (w.exercises||[]).forEach(e=>t+=`  ${e.exercise}: ${e.actualReps||'--'} reps ${e.actualWeight||''}\n`); });
+      navigator.clipboard.writeText(t).then(()=>T('Copied!'));
+    },
     exportJSON(){ const b=new Blob([JSON.stringify(Store,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='jadetracker-backup.json'; a.click(); },
     importJSON(input){ const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(confirm('Replace data?')){Store=d;S();location.reload()} }catch(ex){T('Invalid file',true)} }; r.readAsText(f); input.value=''; },
     resetAll(){ if(confirm('DELETE ALL?')){ localStorage.removeItem(STORAGE); location.reload(); } }
