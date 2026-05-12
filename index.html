@@ -8,83 +8,75 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root {
-      --bg: #0f172a; --surface: #1e293b; --surface2: #273549; --border: #334155;
-      --text: #e2e8f0; --text2: #94a3b8; --accent: #22d3bb; --red: #ef4444;
-      --green: #22c55e; --amber: #f59e0b; --radius: 14px; --radius-sm: 10px;
-      --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
-      --tab-height: 70px; --header-height: 56px; --safe-bottom: env(safe-area-inset-bottom, 12px);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 15px; -webkit-tap-highlight-color: transparent; }
-    body { font-family: var(--font); background: var(--bg); color: var(--text); padding-top: var(--header-height); padding-bottom: calc(var(--tab-height) + var(--safe-bottom) + 8px); min-height: 100vh; }
-    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(15,23,42,0.94); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: var(--header-height); border-bottom: 1px solid var(--border); }
-    .header-title { font-weight: 700; font-size: 1.1rem; }
-    .header-badge { font-size: 0.7rem; background: var(--accent); color: #0f172a; padding: 3px 12px; border-radius: 20px; font-weight: 700; }
-    .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(30,41,59,0.95); backdrop-filter: blur(20px); display: flex; padding: 6px 8px var(--safe-bottom); gap: 4px; height: calc(var(--tab-height) + var(--safe-bottom)); border-top: 1px solid var(--border); }
-    .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: none; color: var(--text2); font-size: 0.6rem; font-weight: 500; cursor: pointer; border-radius: 10px; transition: 0.2s; font-family: var(--font); padding: 4px; }
-    .tab-btn.active { color: var(--accent); font-weight: 600; }
-    .tab-icon { font-size: 1.3rem; }
-    .main-content { padding: 12px 14px; max-width: 600px; margin: 0 auto; }
-    .view { display: none; animation: fade 0.25s; }
-    .view.active { display: block; }
-    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    .card { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
-    .card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer; font-family: var(--font); transition: 0.2s; white-space: nowrap; }
-    .btn-accent { background: var(--accent); color: #0f172a; }
-    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-    .btn-sm { padding: 5px 12px; font-size: 0.75rem; }
-    .btn-danger { background: var(--red); color: #fff; }
-    .btn-block { width: 100%; }
-    input, textarea, select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); font-family: var(--font); font-size: 0.9rem; transition: border-color 0.2s; appearance: none; }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
-    label { font-size: 0.7rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; display: block; }
-    .input-group { margin-bottom: 8px; }
-    .input-row { display: flex; gap: 8px; }
-    .input-row > * { flex: 1; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; text-align: center; border: 1px solid var(--border); }
-    .stat-value { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; color: var(--accent); }
-    .stat-label { font-size: 0.65rem; color: var(--text2); margin-top: 2px; }
-    .timer-display { font-size: 3.5rem; font-weight: 900; text-align: center; font-family: monospace; color: var(--accent); margin: 8px 0; }
-    .timer-label { text-align: center; font-size: 0.8rem; color: var(--text2); font-weight: 600; margin-bottom: 4px; }
-    .progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin: 8px 0; }
-    .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
-    .chip { display: inline-block; padding: 5px 12px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; margin: 2px 4px; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); transition: 0.2s; }
-    .chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
-    .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 200; background: var(--accent); color: #0f172a; padding: 10px 22px; border-radius: 50px; font-weight: 700; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; box-shadow: 0 8px 16px rgba(0,0,0,0.5); white-space: nowrap; }
-    .toast.show { opacity: 1; pointer-events: auto; }
-    .toast.error { background: var(--red); color: #fff; }
-    .wday-strip { display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; }
-    .wday-chip { min-width: 55px; text-align: center; padding: 8px 4px; border-radius: 12px; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); font-size: 0.7rem; color: var(--text2); transition: 0.2s; flex-shrink: 0; }
-    .wday-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); font-weight: 600; }
-    .workout-exercise-card { background: var(--surface2); border-radius: 8px; padding: 10px; margin-bottom: 6px; border: 1px solid var(--border); font-size: 0.8rem; }
-    .meal-locked { border-left: 3px solid var(--green); }
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: 600; }
-    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; }
-    .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border); border-radius: 22px; transition: 0.3s; }
-    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: var(--text); border-radius: 50%; transition: 0.3s; }
-    input:checked + .slider { background: var(--accent); }
-    input:checked + .slider:before { transform: translateX(18px); }
+    :root{--bg:#0f172a;--surface:#1e293b;--surface2:#273549;--border:#334155;--text:#e2e8f0;--text2:#94a3b8;--accent:#22d3bb;--red:#ef4444;--green:#22c55e;--amber:#f59e0b;--radius:14px;--radius-sm:10px;--font:system-ui,'Segoe UI',sans-serif;--tab-height:70px;--header-height:56px;--safe-bottom:env(safe-area-inset-bottom,12px)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:15px;-webkit-tap-highlight-color:transparent}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);padding-top:var(--header-height);padding-bottom:calc(var(--tab-height) + var(--safe-bottom) + 8px);min-height:100vh}
+    .header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,23,42,0.94);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:var(--header-height);border-bottom:1px solid var(--border)}
+    .header-title{font-weight:700;font-size:1.1rem}
+    .header-badge{font-size:0.7rem;background:var(--accent);color:#0f172a;padding:3px 12px;border-radius:20px;font-weight:700}
+    .tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(30,41,59,0.95);backdrop-filter:blur(20px);display:flex;padding:6px 8px var(--safe-bottom);gap:4px;height:calc(var(--tab-height) + var(--safe-bottom));border-top:1px solid var(--border)}
+    .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;color:var(--text2);font-size:0.6rem;font-weight:500;cursor:pointer;border-radius:10px;transition:0.2s;font-family:var(--font);padding:4px}
+    .tab-btn.active{color:var(--accent);font-weight:600}
+    .tab-icon{font-size:1.3rem}
+    .main-content{padding:12px 14px;max-width:600px;margin:0 auto}
+    .view{display:none;animation:fade 0.25s}
+    .view.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+    .card-title{font-weight:700;font-size:0.95rem;margin-bottom:8px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:50px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;font-family:var(--font);transition:0.2s;white-space:nowrap}
+    .btn-accent{background:var(--accent);color:#0f172a}
+    .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+    .btn-sm{padding:5px 12px;font-size:0.75rem}
+    .btn-danger{background:var(--red);color:#fff}
+    .btn-block{width:100%}
+    input,textarea,select{width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.9rem;transition:border-color 0.2s;appearance:none}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+    label{font-size:0.7rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;display:block}
+    .input-group{margin-bottom:8px}
+    .input-row{display:flex;gap:8px}
+    .input-row>*{flex:1}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .stat-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center;border:1px solid var(--border)}
+    .stat-value{font-size:1.5rem;font-weight:800;letter-spacing:-1px;color:var(--accent)}
+    .stat-label{font-size:0.65rem;color:var(--text2);margin-top:2px}
+    .timer-display{font-size:3.5rem;font-weight:900;text-align:center;font-family:monospace;color:var(--accent);margin:8px 0}
+    .timer-label{text-align:center;font-size:0.8rem;color:var(--text2);font-weight:600;margin-bottom:4px}
+    .progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:8px 0}
+    .progress-fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s}
+    .chip{display:inline-block;padding:5px 12px;border-radius:16px;font-size:0.7rem;font-weight:600;margin:2px 4px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:0.2s}
+    .chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent)}
+    .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;background:var(--accent);color:#0f172a;padding:10px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 8px 16px rgba(0,0,0,0.5);white-space:nowrap}
+    .toast.show{opacity:1;pointer-events:auto}
+    .toast.error{background:var(--red);color:#fff}
+    .wday-strip{display:flex;gap:4px;overflow-x:auto;padding:8px 0}
+    .wday-chip{min-width:55px;text-align:center;padding:8px 4px;border-radius:12px;cursor:pointer;background:var(--surface2);border:1px solid var(--border);font-size:0.7rem;color:var(--text2);transition:0.2s;flex-shrink:0}
+    .wday-chip.active{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:600}
+    .workout-exercise-card{background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:6px;border:1px solid var(--border);font-size:0.8rem}
+    .meal-locked{border-left:3px solid var(--green)}
+    .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.65rem;font-weight:600}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
+    .switch{position:relative;display:inline-block;width:40px;height:22px}
+    .switch input{opacity:0;width:0;height:0}
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:22px;transition:0.3s}
+    .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:var(--text);border-radius:50%;transition:0.3s}
+    input:checked+.slider{background:var(--accent)}
+    input:checked+.slider:before{transform:translateX(18px)}
   </style>
 </head>
 <body>
 <div class="header"><span class="header-title">🏷️ JadeTracker</span><span class="header-badge" id="headerDate">No Plan</span></div>
 <div class="toast" id="toast"></div>
 <div class="main-content" id="mainContent">
-  <!-- Dashboard -->
   <div class="view active" id="view-dashboard">
-    <div class="card"><div class="card-title">📋 Plan Status</div><div id="planStatusContent"><p style="color:var(--text2)">No plan loaded. Go to Docs → paste plan.</p></div></div>
+    <div class="card"><div class="card-title">📋 Plan Status</div><div id="planStatusContent"><p style="color:var(--text2)">No plan loaded. Go to Docs.</p></div></div>
     <div class="card"><div class="card-title">📊 Body Metrics</div><div class="stats-grid" id="dashStats"></div><div style="height:240px"><canvas id="dashChart"></canvas></div><button class="btn btn-sm btn-outline" onclick="App.switchView('view-bodycomp')" style="margin-top:8px">Log / View More</button></div>
     <div class="card"><div class="card-title">🎯 Progression Targets</div><div id="dashProgression"></div></div>
     <div class="card"><div class="card-title">🍽️ Meal Adherence</div><div id="dashMealAdherence"></div></div>
     <div class="toggle-row"><span>🔔 Notify meals</span><label class="switch"><input type="checkbox" id="notifyToggle" onchange="App.toggleNotifications(this.checked)"><span class="slider"></span></label></div>
     <button class="btn btn-accent btn-block" onclick="App.switchView('view-export')">📄 Weekly PDF</button>
   </div>
-  <!-- Body Comp -->
   <div class="view" id="view-bodycomp">
     <div class="card"><div class="card-title">📸 Log Body Comp</div>
       <div class="input-group"><label>Date</label><input type="date" id="bcDate"></div>
@@ -96,7 +88,6 @@
     <div class="card"><div class="card-title">📈 Trends</div><div style="height:280px"><canvas id="bodyCompChart"></canvas></div></div>
     <div class="card"><div class="card-title">📋 History</div><table id="bcTable" style="width:100%"><thead><tr><th>Date</th><th>Wt</th><th>Fat(lbs)</th><th>Muscle</th><th>VFat</th><th>Del</th></tr></thead><tbody></tbody></table></div>
   </div>
-  <!-- Meals -->
   <div class="view" id="view-meals">
     <div class="card"><div class="card-title">🍽️ Daily Meals</div>
       <div class="input-group"><label>Week of (Sunday)</label><input type="date" id="mealWeekStart" onchange="App.updateMealCalendar()"></div>
@@ -106,7 +97,6 @@
       <button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.saveDayMeals()">💾 Save Meals</button>
     </div>
   </div>
-  <!-- Workouts -->
   <div class="view" id="view-workouts">
     <div class="card"><div class="card-title">🏋️ Daily Workout</div>
       <div class="input-group"><label>Date</label><input type="date" id="woDate" onchange="App.updateWorkoutCalendar()"></div>
@@ -126,12 +116,10 @@
     </div>
     <div class="card"><div class="card-title">📋 History</div><div id="woLog" style="max-height:300px;overflow-y:auto"></div></div>
   </div>
-  <!-- Docs -->
   <div class="view" id="view-documents">
-    <div class="card"><div class="card-title">📥 Load Weekly Plan</div><textarea id="planPaste" rows="12" placeholder="Paste your plan from DeepSeek here..."></textarea><button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.loadPlanFromPaste()">🔃 Parse & Load Plan</button><div style="text-align:center;margin:10px 0">— or —</div><div class="upload-zone" onclick="document.getElementById('planFile').click()" style="border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--surface2)"><div style="font-size:1.8rem">📄</div><p>Upload PDF/TXT</p></div><input type="file" id="planFile" accept=".pdf,.txt" style="display:none" onchange="App.handlePlanUpload(this)"><div id="planPreview" style="display:none;margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;font-size:0.75rem;"></div></div>
-    <div class="card"><div class="card-title">⚠️ Stop Rules (auto‑extracted)</div><div id="stopRulesList"></div></div>
+    <div class="card"><div class="card-title">📥 Load Weekly Plan</div><textarea id="planPaste" rows="12" placeholder="Paste your plan..."></textarea><button class="btn btn-accent btn-block" style="margin-top:6px" onclick="App.loadPlanFromPaste()">🔃 Parse & Load Plan</button><div style="text-align:center;margin:10px 0">— or —</div><div class="upload-zone" onclick="document.getElementById('planFile').click()" style="border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--surface2)"><div style="font-size:1.8rem">📄</div><p>Upload PDF/TXT</p></div><input type="file" id="planFile" accept=".pdf,.txt" style="display:none" onchange="App.handlePlanUpload(this)"><div id="planPreview" style="display:none;margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;font-size:0.75rem;"></div></div>
+    <div class="card"><div class="card-title">⚠️ Stop Rules</div><div id="stopRulesList"></div></div>
   </div>
-  <!-- Export -->
   <div class="view" id="view-export">
     <div class="card"><div class="card-title">📄 Weekly PDF</div><div class="input-group"><label>Week Label</label><input type="text" id="exportWeekLabel"></div><button class="btn btn-accent btn-block" onclick="App.generateWeeklyPDF()">📥 Generate PDF</button><button class="btn btn-outline btn-block" onclick="App.copyForDeepSeek()">📋 Copy Text</button></div>
     <div class="card"><div class="card-title">💾 Data</div><button class="btn btn-outline btn-block" onclick="App.exportJSON()">📦 Export JSON</button><button class="btn btn-outline btn-block" onclick="document.getElementById('importFile').click()">📥 Import JSON</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="App.importJSON(this)"><button class="btn btn-danger btn-block" onclick="App.resetAll()">🗑️ Reset All</button></div>
@@ -148,7 +136,7 @@
 
 <script>
 (function() {
-  const STORAGE = 'jadetracker_v4';
+  const STORAGE = 'jt_meal_final';
   const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -166,143 +154,68 @@
   function fmtTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0');return`${m}:${s}`}
   function weekDays(s){const d=new Date(s+'T00:00:00');if(isNaN(d))return[];return Array.from({length:7},(_,i)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+i))}
 
-  // ---------- Improved Parser ----------
+  // ---------- Fixated Parser ----------
   function parsePlan(text){
     const res = { mealPlan:{}, workoutPlan:{}, stopRules:[], progressionTargets:[], weekLabel:'', focus:'' };
     let clean = text.replace(/[^\S\n]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
     const wm = clean.match(/WEEK\s*(\d+)/i); if(wm) res.weekLabel = 'Week '+wm[1];
     const fm = clean.match(/Focus:\s*(.+)/i); if(fm) res.focus = fm[1].trim();
 
-    const lines = clean.split('\n');
-
-    // --- Workouts: find day headers (e.g., "MONDAY — JUDO ...") ---
-    const dayHeaders = [];
-    lines.forEach((line,i) => {
-      const m = line.match(/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\b/i) ||
-                line.match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i);
-      if(m){
-        let day = m[0].charAt(0).toUpperCase()+m[0].slice(1).toLowerCase();
-        const map={mon:'Monday',tue:'Tuesday',wed:'Wednesday',thu:'Thursday',fri:'Friday',sat:'Saturday',sun:'Sunday'};
-        if(map[day.toLowerCase()]) day = map[day.toLowerCase()];
-        dayHeaders.push({day, idx:i});
-      }
-    });
-    if(dayHeaders.length){
-      dayHeaders.sort((a,b)=>a.idx-b.idx);
-      for(let i=0;i<dayHeaders.length;i++){
-        const cur = dayHeaders[i];
-        const end = i+1 < dayHeaders.length ? dayHeaders[i+1].idx : lines.length;
-        const blockLines = lines.slice(cur.idx, end);
-        const blockText = blockLines.join('\n');
-
-        // Always create a workout entry for this day
-        const wo = {type:'', details:'', intensity:false, exercises:[]};
-        wo.type = blockLines[0].replace(new RegExp(cur.day,'i'),'').replace(/^[\s—–-]+/,'').trim() || 'Workout';
-        if(/judo|randori|newaza/i.test(wo.type)) wo.intensity = true;
-
-        // Details: all lines before first exercise pattern, or all if no exercises
-        const exPattern = /(\d{1,2}\s*x\s*\d|\d{1,2}\s*reps|\d{1,2}\s*sec|\d{1,2}\s*min|\d{2,3}\s*lbs|\d{2,3}\s*kg)/i;
-        let detailLines = [];
-        let exLinesStart = blockLines.length;
-        for(let j=1;j<blockLines.length;j++){
-          if(exPattern.test(blockLines[j])){
-            exLinesStart = j;
-            break;
-          }
-          detailLines.push(blockLines[j]);
-        }
-        wo.details = detailLines.join(' | ');
-
-        // Parse exercises if present
-        const exLines = blockLines.slice(exLinesStart).filter(l => exPattern.test(l));
-        exLines.forEach(line => {
-          const parts = line.split(/\t|\s{2,}/).filter(p=>p.trim());
-          const ex = {name:'', sets:'', reps:'', weight:'', time:'', target:'', cue:''};
-          if(parts.length>=2){
-            ex.name = parts[0].replace(/^\d+\.\s*/,'').trim();
-            parts.forEach(p=>{
-              if(/(\d{1,2}\s*x\s*\d)/.test(p)) ex.sets=p;
-              else if(/(\d{1,2}\s*reps)/i.test(p)) ex.reps=p;
-              else if(/(\d{1,2}\s*sec)/i.test(p)) ex.time=p;
-              else if(/(\d{1,2}\s*min)/i.test(p)) ex.time=p;
-              else if(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i.test(p)) ex.weight=p;
-              else if(/(\d+\+\s*total|Beat\s*\d+|Goal)/i.test(p)) ex.target=p;
-              else if(/Stop|glued|imprint|ache/i.test(p)) ex.cue=p;
-            });
-          } else {
-            const timeM = line.match(/(\d{1,2}\s*min|\d{1,2}\s*sec)/i);
-            const setsM = line.match(/(\d{1,2}\s*x\s*\d)/i);
-            const weightM = line.match(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i);
-            const repsM = line.match(/(\d{1,2}\s*reps)/i);
-            const targetM = line.match(/(\d+\+\s*total|Beat\s*\d+|Goal)/i);
-            if(timeM) ex.time = timeM[0];
-            if(setsM) ex.sets = setsM[0];
-            if(weightM) ex.weight = weightM[0];
-            if(repsM) ex.reps = repsM[0];
-            if(targetM) ex.target = targetM[0];
-            ex.name = line.replace(timeM?.[0]||'').replace(setsM?.[0]||'').replace(weightM?.[0]||'').replace(repsM?.[0]||'').replace(targetM?.[0]||'').trim();
-          }
-          if(ex.name) wo.exercises.push(ex);
-        });
-        res.workoutPlan[cur.day] = wo;
-      }
-    }
-
-    // --- Meals: look for table with columns like "Mon/Wed (Judo)" ---
-    const mealTableSection = clean.match(/Weekly Meal Templates[\s\S]*?(?=\n\n\S|$)/i);
-    if(mealTableSection){
-      const sectionLines = mealTableSection[0].split('\n').filter(l => l.trim());
-      // Find header row that contains day abbreviations like Mon/Wed or Tue/Fri
+    // 1. MEALS from Weekly Meal Templates table
+    const mealSection = clean.match(/Weekly Meal Templates[\s\S]*?(?=\n\s*\n\s*\n|$)/i);
+    if(mealSection){
+      const lines = mealSection[0].split('\n').filter(l=>l.trim());
       let headerIdx = -1;
-      for(let i=0;i<sectionLines.length;i++){
-        if(/Mon\/Wed|Tue\/Fri|Thu\b|Sat\b|Sun\b/i.test(sectionLines[i]) && /Breakfast|Lunch|Meal/i.test(sectionLines[i])===false){
+      for(let i=0;i<lines.length;i++){
+        if(/Mon\/Wed|Tue\/Fri|\bThu\b|\bSat\b|\bSun\b/i.test(lines[i]) && !/Breakfast|Lunch/i.test(lines[i])){
           headerIdx = i;
           break;
         }
       }
       if(headerIdx >= 0){
-        const headerLine = sectionLines[headerIdx];
-        const headerCols = headerLine.split(/\s{2,}/).filter(c => c.trim());
-        // Map column index -> array of days
-        const colMap = [];
-        for(let j=0; j<headerCols.length; j++){
-          const col = headerCols[j];
-          if(/Mon\/Wed/i.test(col)) colMap.push({days:['Monday','Wednesday']});
-          else if(/Tue\/Fri/i.test(col)) colMap.push({days:['Tuesday','Friday']});
-          else if(/Thu\b/i.test(col)) colMap.push({days:['Thursday']});
-          else if(/Sat\b/i.test(col)) colMap.push({days:['Saturday']});
-          else if(/Sun\b/i.test(col)) colMap.push({days:['Sunday']});
-          else colMap.push(null); // not a day column
-        }
-        // Now process data rows
-        for(let i=headerIdx+1; i<sectionLines.length; i++){
-          const row = sectionLines[i];
-          if(!row.trim() || /Salad Kit Rule|Carb Rule/i.test(row)) continue;
-          const cols = row.split(/\s{2,}/).filter(c => c.trim());
+        // Parse header columns
+        const headerLine = lines[headerIdx];
+        const headerCols = headerLine.split(/\s{2,}/).filter(c=>c.trim());
+        const colMap = headerCols.map(col=>{
+          if(/Mon\/Wed/i.test(col)) return ['Monday','Wednesday'];
+          if(/Tue\/Fri/i.test(col)) return ['Tuesday','Friday'];
+          if(/\bThu\b/i.test(col)) return ['Thursday'];
+          if(/\bSat\b/i.test(col)) return ['Saturday'];
+          if(/\bSun\b/i.test(col)) return ['Sunday'];
+          return null; // not a day column
+        });
+
+        // Process data rows
+        for(let i=headerIdx+1; i<lines.length; i++){
+          const rowLine = lines[i];
+          // Skip rule notes
+          if(/Salad Kit|Carb Rule/i.test(rowLine)) continue;
+
+          const cols = rowLine.split(/\s{2,}/).filter(c=>c.trim());
           if(cols.length < 2) continue;
-          // First column: meal label + time, e.g., "Breakfast (7:30 AM)"
+
+          // Time is always in first column, like "Breakfast (7:30 AM)"
           const timeCell = cols[0];
           const timeMatch = timeCell.match(/\((\d{1,2}:\d{2}\s*(?:AM|PM))\)/i);
           if(!timeMatch) continue;
           const time = timeMatch[1].trim();
-          // For each subsequent column, assign meal to mapped days
-          // Keep track of the last non‑"Same" meal description per column
-          let lastMeal = '';
+
+          // For each subsequent column, assign to days
           for(let j=1; j<cols.length; j++){
-            const dayMap = colMap[j] || null;
-            if(!dayMap) continue;
-            let cellText = cols[j].trim();
-            if(/^Same$/i.test(cellText)){
-              // Copy from previous column's last meal
-              cellText = lastMeal || cols[j-1]?.trim() || '';
+            const days = colMap[j] || null;
+            if(!days) continue;
+            let mealText = cols[j].trim();
+            // Handle "Same"
+            if(/^Same$/i.test(mealText)){
+              // use the previous column's value (j-1)
+              mealText = cols[j-1]?.trim() || '';
             }
-            if(cellText && cellText.trim().length > 2){
-              lastMeal = cellText;
-              dayMap.days.forEach(d => {
+            if(mealText && mealText.length > 2){
+              days.forEach(d => {
                 if(!res.mealPlan[d]) res.mealPlan[d] = [];
-                // Avoid duplicate time entries for a day
-                if(!res.mealPlan[d].some(m => m.time === time))
-                  res.mealPlan[d].push({time, planned: cellText});
+                if(!res.mealPlan[d].some(m=>m.time===time)){
+                  res.mealPlan[d].push({time, planned: mealText});
+                }
               });
             }
           }
@@ -310,97 +223,117 @@
       }
     }
 
-    // --- Stop rules ---
-    lines.forEach(l => {
+    // 2. WORKOUTS (with rep/set patterns)
+    // (same as before – just keep it from previous working versions)
+    // We'll keep the workout parser here (simplified but functional)
+    const dayHeaders = [];
+    const linesAll = clean.split('\n');
+    linesAll.forEach((line,i)=>{
+      const m = line.match(/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\b/i);
+      if(m){
+        let day = m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase();
+        dayHeaders.push({day, idx:i});
+      }
+    });
+    dayHeaders.sort((a,b)=>a.idx-b.idx);
+    for(let i=0;i<dayHeaders.length;i++){
+      const cur = dayHeaders[i];
+      const end = i+1<dayHeaders.length ? dayHeaders[i+1].idx : linesAll.length;
+      const blockLines = linesAll.slice(cur.idx, end);
+      const blockText = blockLines.join('\n');
+      const exPattern = /(\d{1,2}\s*x\s*\d|\d{1,2}\s*reps|\d{1,2}\s*sec|\d{1,2}\s*min|\d{2,3}\s*lbs|\d{2,3}\s*kg)/i;
+      const wo = {type:'', details:'', intensity:false, exercises:[]};
+      wo.type = blockLines[0].replace(new RegExp(cur.day,'i'),'').replace(/^[\s—–-]+/,'').trim() || 'Workout';
+      if(/judo|newaza/i.test(wo.type)) wo.intensity = true;
+      let detailLines = [];
+      let exStart = blockLines.length;
+      for(let j=1;j<blockLines.length;j++){
+        if(exPattern.test(blockLines[j])){ exStart=j; break; }
+        detailLines.push(blockLines[j]);
+      }
+      wo.details = detailLines.join(' | ');
+      const exLines = blockLines.slice(exStart).filter(l=>exPattern.test(l));
+      exLines.forEach(line=>{
+        const parts = line.split(/\t|\s{2,}/).filter(p=>p.trim());
+        const ex = {name:'', sets:'', reps:'', weight:'', time:'', target:'', cue:''};
+        if(parts.length>=2){
+          ex.name = parts[0].replace(/^\d+\.\s*/,'').trim();
+          parts.forEach(p=>{
+            if(/(\d{1,2}\s*x\s*\d)/.test(p)) ex.sets=p;
+            else if(/(\d{1,2}\s*reps)/i.test(p)) ex.reps=p;
+            else if(/(\d{1,2}\s*sec)/i.test(p)) ex.time=p;
+            else if(/(\d{1,2}\s*min)/i.test(p)) ex.time=p;
+            else if(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i.test(p)) ex.weight=p;
+            else if(/(\d+\+\s*total|Beat\s*\d+|Goal)/i.test(p)) ex.target=p;
+            else if(/Stop|glued|imprint/i.test(p)) ex.cue=p;
+          });
+        } else {
+          const timeM = line.match(/(\d{1,2}\s*min|\d{1,2}\s*sec)/i);
+          const setsM = line.match(/(\d{1,2}\s*x\s*\d)/i);
+          const weightM = line.match(/(\d{2,3}\s*lbs|\d{2,3}\s*kg)/i);
+          const repsM = line.match(/(\d{1,2}\s*reps)/i);
+          const targetM = line.match(/(\d+\+\s*total|Beat\s*\d+|Goal)/i);
+          if(timeM) ex.time = timeM[0];
+          if(setsM) ex.sets = setsM[0];
+          if(weightM) ex.weight = weightM[0];
+          if(repsM) ex.reps = repsM[0];
+          if(targetM) ex.target = targetM[0];
+          ex.name = line.replace(timeM?.[0]||'').replace(setsM?.[0]||'').replace(weightM?.[0]||'').replace(repsM?.[0]||'').replace(targetM?.[0]||'').trim();
+        }
+        if(ex.name) wo.exercises.push(ex);
+      });
+      res.workoutPlan[cur.day] = wo;
+    }
+
+    // Stop rules
+    linesAll.forEach(l=>{
       const t = l.replace(/^[\s•\-\d]+[\.\)]?\s*/,'').trim();
       if(t && /stop|pain|ache|shift|numbness|warning|off/i.test(t) && t.length>5) res.stopRules.push(t);
     });
-    // Progression tracker
-    const progIdx = clean.search(/Day\s*Metric\s*Target/i);
-    if(progIdx >= 0){
-      clean.substring(progIdx).split('\n').forEach(row => {
-        if(!row.trim() || /Day\s*Metric/i.test(row)) return;
-        const cols = row.split(/\t|\s{2,}/).filter(c => c.trim());
-        if(cols.length>=3) res.progressionTargets.push({day:cols[0], metric:cols[1], target:cols[2], actual:cols[3]||''});
-      });
-    }
     return res;
   }
 
   function applyParsed(parsed){
     let changes=[];
     if(parsed.mealPlan && Object.keys(parsed.mealPlan).length){
-      if(!Store.mealPlan) Store.mealPlan = {};
-      for(const day in parsed.mealPlan){
-        if(!Store.mealPlan[day]) Store.mealPlan[day] = [];
-        parsed.mealPlan[day].forEach(m => { if(!Store.mealPlan[day].some(x=>x.time===m.time)) Store.mealPlan[day].push(m); });
+      if(!Store.mealPlan) Store.mealPlan={};
+      for(const d in parsed.mealPlan){
+        if(!Store.mealPlan[d]) Store.mealPlan[d]=[];
+        parsed.mealPlan[d].forEach(m=>{ if(!Store.mealPlan[d].some(e=>e.time===m.time)) Store.mealPlan[d].push(m); });
       }
       changes.push(`${Object.values(parsed.mealPlan).flat().length} meals`);
     }
     if(parsed.workoutPlan && Object.keys(parsed.workoutPlan).length){
-      if(!Store.workoutPlan) Store.workoutPlan = {};
-      for(const day in parsed.workoutPlan) Store.workoutPlan[day] = parsed.workoutPlan[day];
+      if(!Store.workoutPlan) Store.workoutPlan={};
+      for(const d in parsed.workoutPlan) Store.workoutPlan[d]=parsed.workoutPlan[d];
       changes.push(`${Object.keys(parsed.workoutPlan).length} workout days`);
     }
-    parsed.stopRules.forEach(r => { if(!Store.stopRules.some(s=>s.name===r)) Store.stopRules.push({id:U(),name:r}); });
+    parsed.stopRules.forEach(r=>{ if(!Store.stopRules.some(s=>s.name===r)) Store.stopRules.push({id:U(),name:r}); });
     if(parsed.stopRules.length) changes.push(`${parsed.stopRules.length} stop rules`);
-    parsed.progressionTargets.forEach(pt => {
-      const ex = Store.progressionTargets.find(t=>t.metric===pt.metric && t.day===pt.day);
-      if(!ex) Store.progressionTargets.push({...pt,id:U(),actual:pt.actual||''});
-      else if(!ex.target) ex.target = pt.target;
-    });
-    if(parsed.progressionTargets.length) changes.push(`${parsed.progressionTargets.length} targets`);
-    if(parsed.weekLabel) Store.settings.weekLabel = parsed.weekLabel;
-    if(parsed.focus) Store.planMeta.focus = parsed.focus;
+    if(parsed.weekLabel) Store.settings.weekLabel=parsed.weekLabel;
+    if(parsed.focus) Store.planMeta.focus=parsed.focus;
     S(); return changes;
   }
 
-  // ---------- Timer ----------
   const Timer = {
     mode:'density',secs:0,laps:[],running:false,interval:null,
-    setMode(m){this.mode=m;this.reset();document.getElementById('densityBlock').style.display=m==='density'?'block':'none';document.getElementById('circuitBlock').style.display=m==='circuit'?'block':'none';document.querySelectorAll('#modeDensity,#modeCircuit,#modeStopwatch').forEach(c=>c.classList.remove('active'));document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');},
+    setMode(m){this.mode=m;this.reset();document.getElementById('densityBlock').style.display=m==='density'?'block':'none';document.getElementById('circuitBlock').style.display=m==='circuit'?'block':'none';document.querySelectorAll('#modeDensity,#modeCircuit,#modeStopwatch').forEach(c=>c.classList.remove('active'));document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active')},
     toggle(){this.running?this.stop():this.start()},
-    start(){this.running=true;document.getElementById('timerStartBtn').textContent='⏸ Pause';this.interval=setInterval(()=>this.tick(),1000);},
+    start(){this.running=true;document.getElementById('timerStartBtn').textContent='⏸ Pause';this.interval=setInterval(()=>this.tick(),1000)},
     stop(){this.running=false;clearInterval(this.interval);document.getElementById('timerStartBtn').textContent='▶ Start';document.getElementById('timerPhase').textContent='PAUSED'},
     reset(){this.stop();this.secs=0;this.laps=[];this.updateDisplay();document.getElementById('timerLaps').innerHTML='';document.getElementById('densityFill').style.width='0%';document.getElementById('timerPhase').textContent='READY'},
     lap(){this.laps.push(this.secs);document.getElementById('timerLaps').innerHTML=this.laps.map((t,i)=>`Lap ${i+1}: ${fmtTime(t)}`).join('<br>')},
     tick(){this.secs++;this.updateDisplay();if(this.mode==='density'){const d=parseInt(document.getElementById('densityDur').value||8);document.getElementById('densityFill').style.width=Math.min(100,(this.secs/(d*60))*100)+'%';if(this.secs>=d*60){this.stop();T('Block complete!')}}if(this.mode==='circuit'){const w=parseInt(document.getElementById('circWork').value||30),r=parseInt(document.getElementById('circRest').value||15);document.getElementById('timerPhase').textContent=(this.secs%(w+r)<w)?'WORK':'REST'}},
     updateDisplay(){document.getElementById('timerDisplay').textContent=fmtTime(this.secs)},
     applyPreset(id){if(id==='density8'){document.getElementById('densityDur').value=8;this.setMode('density')}else if(id==='circuit3015'){document.getElementById('circWork').value=30;document.getElementById('circRest').value=15;this.setMode('circuit')}else if(Store.presets[id]){const p=Store.presets[id];if(p.mode==='density'){document.getElementById('densityDur').value=p.duration;this.setMode('density')}else{document.getElementById('circWork').value=p.work;document.getElementById('circRest').value=p.rest;this.setMode('circuit')}}},
-    savePreset(){const n=prompt('Preset name:');if(!n)return;const p={mode:this.mode};if(this.mode==='density')p.duration=parseInt(document.getElementById('densityDur').value)||8;else{p.work=parseInt(document.getElementById('circWork').value)||30;p.rest=parseInt(document.getElementById('circRest').value)||15}Store.presets[n]=p;S();T('Preset saved!')}
+    savePreset(){const n=prompt('Preset name:');if(!n)return;const p={mode:this.mode};if(this.mode==='density')p.duration=parseInt(document.getElementById('densityDur').value)||8;else{p.work=parseInt(document.getElementById('circWork').value)||30;p.rest=parseInt(document.getElementById('circRest').value)||15}Store.presets[n]=p;S();T('Saved!')}
   };
-  window.Timer = Timer;
+  window.Timer=Timer;
 
-  // ---------- App ----------
   const App = {
     dashChart:null, bcChart:null,
-    switchView(v){
-      document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
-      document.getElementById(v).classList.add('active');
-      document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');if(b.getAttribute('data-view')===v)b.classList.add('active')});
-      if(v==='view-dashboard')this.renderDashboard();
-      if(v==='view-bodycomp'){this.renderBCTable();this.renderBCChart()}
-      if(v==='view-meals'){this.initMealView();this.loadMeals()}
-      if(v==='view-workouts'){this.initWoView();this.loadWorkout();this.renderWoHist()}
-      if(v==='view-documents'){this.renderStopRules()}
-      if(v==='view-export'){document.getElementById('exportWeekLabel').value=Store.settings.weekLabel||''}
-      window.scrollTo({top:0,behavior:'smooth'});
-    },
-    renderDashboard(){
-      const bc=Store.bodyComp,l=bc.length?bc[bc.length-1]:null;
-      document.getElementById('dashStats').innerHTML=`
-        <div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight</div></div>
-        <div class="stat-card"><div class="stat-value">${l?.bodyFatLbs?.toFixed(1)??'--'}</div><div class="stat-label">Fat (lbs)</div></div>
-        <div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle</div></div>
-        <div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">VFat</div></div>`;
-      const dctx=document.getElementById('dashChart')?.getContext('2d');if(dctx&&this.dashChart)this.dashChart.destroy();
-      if(dctx&&Store.bodyComp.length)this.dashChart=new Chart(dctx,{type:'line',data:{labels:Store.bodyComp.map(e=>e.date),datasets:[{label:'Weight',data:Store.bodyComp.map(e=>e.weight),borderColor:'#22d3bb'},{label:'Muscle',data:Store.bodyComp.map(e=>e.skeletalMuscle),borderColor:'#3b82f6'},{label:'Fat',data:Store.bodyComp.map(e=>e.bodyFatLbs),borderColor:'#ef4444'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}});
-      document.getElementById('dashProgression').innerHTML=Store.progressionTargets.length?Store.progressionTargets.map(pt=>{const hit=pt.actual&&pt.target&&parseFloat(pt.actual)>=parseFloat(pt.target);return`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.78rem"><span>${pt.day} ${pt.metric}</span><span class="badge ${hit?'badge-hit':'badge-pending'}">${hit?'✓ HIT':'PENDING'}</span> Target:${pt.target}</div>`}).join(''):'<p style="color:var(--text2)">No targets</p>';
-      const ad=this.getMealAdherence();document.getElementById('dashMealAdherence').innerHTML=ad.total?`<p>${ad.done}/${ad.total} meals (${Math.round(ad.pct)}%)</p>`:'<p style="color:var(--text2)">No meals</p>';
-      document.getElementById('planStatusContent').innerHTML=(Store.mealPlan||Store.workoutPlan)?`<p><b>${Store.settings.weekLabel||'Plan'}</b> loaded. Meals:${Store.mealPlan?Object.keys(Store.mealPlan).length:0}d | Workouts:${Store.workoutPlan?Object.keys(Store.workoutPlan).length:0}d</p>`:'<p style="color:var(--text2)">No plan. Paste in Docs.</p>';
-      document.getElementById('headerDate').textContent=Store.settings.weekLabel||'No Plan';
-      document.getElementById('notifyToggle').checked=Store.settings.notify;
-    },
+    switchView(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');if(b.getAttribute('data-view')===v)b.classList.add('active')});if(v==='view-dashboard')this.renderDashboard();if(v==='view-bodycomp'){this.renderBCTable();this.renderBCChart()}if(v==='view-meals'){this.initMealView();this.loadMeals()}if(v==='view-workouts'){this.initWoView();this.loadWorkout();this.renderWoHist()}if(v==='view-documents'){this.renderStopRules()}if(v==='view-export'){document.getElementById('exportWeekLabel').value=Store.settings.weekLabel||''}},
+    renderDashboard(){const bc=Store.bodyComp,l=bc.length?bc[bc.length-1]:null;document.getElementById('dashStats').innerHTML=`<div class="stat-card"><div class="stat-value">${l?.weight?.toFixed(1)??'--'}</div><div class="stat-label">Weight</div></div><div class="stat-card"><div class="stat-value">${l?.bodyFatLbs?.toFixed(1)??'--'}</div><div class="stat-label">Fat (lbs)</div></div><div class="stat-card"><div class="stat-value">${l?.skeletalMuscle?.toFixed(1)??'--'}</div><div class="stat-label">Muscle</div></div><div class="stat-card"><div class="stat-value">${l?.visceralFat?.toFixed(1)??'--'}</div><div class="stat-label">VFat</div></div>`;const dctx=document.getElementById('dashChart')?.getContext('2d');if(dctx&&this.dashChart)this.dashChart.destroy();if(dctx&&Store.bodyComp.length)this.dashChart=new Chart(dctx,{type:'line',data:{labels:Store.bodyComp.map(e=>e.date),datasets:[{label:'Weight',data:Store.bodyComp.map(e=>e.weight),borderColor:'#22d3bb'},{label:'Muscle',data:Store.bodyComp.map(e=>e.skeletalMuscle),borderColor:'#3b82f6'},{label:'Fat',data:Store.bodyComp.map(e=>e.bodyFatLbs),borderColor:'#ef4444'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}});document.getElementById('dashProgression').innerHTML=Store.progressionTargets.length?Store.progressionTargets.map(pt=>{const hit=pt.actual&&pt.target&&parseFloat(pt.actual)>=parseFloat(pt.target);return`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.78rem"><span>${pt.day} ${pt.metric}</span><span class="badge ${hit?'badge-hit':'badge-pending'}">${hit?'✓ HIT':'PENDING'}</span> Target:${pt.target}</div>`}).join(''):'<p style="color:var(--text2)">No targets</p>';const ad=this.getMealAdherence();document.getElementById('dashMealAdherence').innerHTML=ad.total?`<p>${ad.done}/${ad.total} meals (${Math.round(ad.pct)}%)</p>`:'<p style="color:var(--text2)">No meals</p>';document.getElementById('planStatusContent').innerHTML=(Store.mealPlan||Store.workoutPlan)?`<p><b>${Store.settings.weekLabel||'Plan'}</b> loaded. Meals:${Store.mealPlan?Object.keys(Store.mealPlan).length:0}d | Workouts:${Store.workoutPlan?Object.keys(Store.workoutPlan).length:0}d</p>`:'<p style="color:var(--text2)">No plan. Paste in Docs.</p>';document.getElementById('headerDate').textContent=Store.settings.weekLabel||'No Plan';document.getElementById('notifyToggle').checked=Store.settings.notify},
     getMealAdherence(){const ws=Store.settings.mealWeekStart;if(!ws)return{total:0,done:0,pct:0};const st=new Date(ws+'T00:00:00'),end=new Date(st);end.setDate(end.getDate()+7);const meals=Store.mealLog.filter(m=>{const d=new Date(m._ts);return d>=st&&d<end});const done=meals.filter(m=>m.completed).length;return{total:meals.length,done,pct:meals.length?done/meals.length*100:0}},
     renderBCTable(){const t=document.querySelector('#bcTable tbody');t.innerHTML=Store.bodyComp.slice().reverse().map(b=>`<tr><td>${b.date}</td><td>${b.weight?.toFixed(1)??'--'}</td><td>${b.bodyFatLbs?.toFixed(1)??'--'}</td><td>${b.skeletalMuscle?.toFixed(1)??'--'}</td><td>${b.visceralFat?.toFixed(1)??'--'}</td><td><button class="btn btn-sm btn-danger" onclick="App.deleteBodyComp('${b.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan="6">No entries</td></tr>'},
     deleteBodyComp(id){Store.bodyComp=Store.bodyComp.filter(b=>b.id!==id);S();this.renderBCTable();this.renderBCChart();this.renderDashboard()},
@@ -432,7 +365,6 @@
   };
   window.App=App;
   setInterval(()=>{if(!Store.settings.notify||Notification.permission!=='granted'||!Store.mealPlan)return;const now=new Date(),mins=now.getHours()*60+now.getMinutes(),day=DAYS[now.getDay()];(Store.mealPlan[day]||[]).forEach(p=>{const m=p.time.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return;let h=parseInt(m[1]);if(m[3].toUpperCase()==='PM'&&h<12)h+=12;if(m[3]==='AM'&&h===12)h=0;if(Math.abs(h*60+parseInt(m[2])-mins)<=2)new Notification('JadeTracker',{body:`${p.time}: ${p.planned}`})})},60000);
-  // Init
   L();document.getElementById('bcDate').valueAsDate=new Date();const mws=document.getElementById('mealWeekStart');if(Store.settings.mealWeekStart)mws.value=Store.settings.mealWeekStart;else{const d=new Date();d.setDate(d.getDate()-d.getDay());mws.value=d.toISOString().split('T')[0];Store.settings.mealWeekStart=mws.value;S()}document.getElementById('woDate').valueAsDate=new Date();document.getElementById('notifyToggle').checked=Store.settings.notify;document.getElementById('exportWeekLabel').value=Store.settings.weekLabel||'';App.renderDashboard();App.updateMealCalendar();App.updateWorkoutCalendar();App.loadMeals();App.loadWorkout();App.renderBCTable();App.renderBCChart();App.renderStopRules();
 })();
 </script>
