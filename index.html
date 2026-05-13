@@ -33,7 +33,6 @@
     .planned-meal { background: #d9d9d9; border-left: 4px solid var(--primary); padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; }
     .actual-meal-entry { background: #e0e0e0; border-left: 4px solid var(--success); margin-top: 0.5rem; }
     .exercise-log-row { background: #e8e8e8; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid var(--border); }
-    .weight-input, .reps-input { width: 80px; }
     .metric-card { background: #757575; color: #fff; border-radius: 14px; padding: 1.5rem; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
     .metric-card.secondary { background: #616161; }
     .metric-card.tertiary { background: #424242; }
@@ -51,6 +50,9 @@
     .text-muted { color: #333 !important; }
     .judo-slider-container { background: #e8e8e8; border-radius: 8px; padding: 1rem; margin: 1rem 0; border: 1px solid var(--border); }
     .judo-slider-container label { font-weight: 600; display: block; margin-bottom: 0.5rem; }
+    .workout-table th { background: #d0d0d0; font-weight: 700; }
+    .target-cell { background: #f0f0e0; }
+    .actual-input { width: 80px; }
   </style>
 </head>
 <body>
@@ -297,7 +299,16 @@
       });
     }
     
-    // ---------- WORKOUT LOG (with Judo slider) ----------
+    // ---------- WORKOUT LOG (table with targets) ----------
+    function extractTarget(ex) {
+      let reps = '', weight = '';
+      for (let key in ex) {
+        if (key.includes('reps')) reps = ex[key];
+        if (key.includes('weight')) weight = ex[key];
+      }
+      return { reps, weight };
+    }
+    
     function renderWorkoutLogUI(selectedDay = null) {
       const plan = getPlan();
       if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) {
@@ -326,7 +337,7 @@
         <div id="workoutDayPlan">`;
       
       if (wo) {
-        // Show details (common for all)
+        // Always show details
         if (wo.details && wo.details.length > 0) {
           html += `<div class="mb-3"><h6>Workout Details</h6><ul class="list-group list-group-flush">`;
           wo.details.forEach(d => html += `<li class="list-group-item">${d}</li>`);
@@ -334,7 +345,7 @@
         }
         
         if (isJudo) {
-          // Judo days: slider for "how it felt"
+          // Judo slider
           const judoKey = `${currentDay}_judo_feel`;
           const savedFeel = workoutLogs[judoKey] ? workoutLogs[judoKey].feel : 5;
           html += `
@@ -344,30 +355,32 @@
               <div class="d-flex justify-content-between"><span>1</span><span class="fw-bold" id="judoFeelValue">${savedFeel}</span><span>10</span></div>
             </div>`;
         } else if (wo.exercises && wo.exercises.length > 0) {
-          // Regular workout days with table
+          // Regular workout days - table with targets and actual inputs
+          html += `<div class="table-responsive"><table class="table table-bordered workout-table">
+            <thead><tr><th>Exercise</th><th>Target Reps</th><th>Target Weight</th><th>Actual Weight (lbs)</th><th>Actual Reps</th><th>Actual Sets</th></tr></thead><tbody>`;
           wo.exercises.forEach((ex, idx) => {
             const exKey = `${currentDay}_ex_${idx}`;
             const log = workoutLogs[exKey] || {};
             const exName = ex.exercise || ex.block || Object.values(ex)[0] || 'Exercise';
-            html += `
-              <div class="exercise-log-row">
-                <div class="row align-items-center">
-                  <div class="col-md-4"><strong>${exName}</strong><br><small>Target: ${ex.reps_set || ex.weight_target || 'See plan'}</small></div>
-                  <div class="col-md-3"><label class="form-label small">Weight (lbs)</label><input type="number" class="form-control weight-input workout-weight" data-ex-key="${exKey}" value="${log.weight || ''}" step="0.5"></div>
-                  <div class="col-md-3"><label class="form-label small">Reps</label><input type="number" class="form-control reps-input workout-reps" data-ex-key="${exKey}" value="${log.reps || ''}"></div>
-                  <div class="col-md-2"><label class="form-label small">Sets</label><input type="number" class="form-control workout-sets" data-ex-key="${exKey}" value="${log.sets || ''}"></div>
-                </div>
-              </div>`;
+            const target = extractTarget(ex);
+            html += `<tr>
+              <td><strong>${exName}</strong></td>
+              <td class="target-cell">${target.reps || '—'}</td>
+              <td class="target-cell">${target.weight || '—'}</td>
+              <td><input type="number" class="form-control actual-input workout-weight" data-ex-key="${exKey}" value="${log.weight || ''}" step="0.5" placeholder="lbs"></td>
+              <td><input type="number" class="form-control actual-input workout-reps" data-ex-key="${exKey}" value="${log.reps || ''}" placeholder="reps"></td>
+              <td><input type="number" class="form-control actual-input workout-sets" data-ex-key="${exKey}" value="${log.sets || ''}" placeholder="sets"></td>
+            </tr>`;
           });
+          html += `</tbody></table></div>`;
         } else {
-          html += '<p class="text-muted">No logging inputs for this day (details only).</p>';
+          html += '<p class="text-muted">No exercises or logging inputs for this day (details only).</p>';
         }
       }
       
       html += `</div><button id="saveWorkoutLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save ${currentDay} Workout Log</button></div></div>`;
       document.getElementById('workoutLogContent').innerHTML = html;
       
-      // Live update of slider value display
       if (isJudo) {
         const slider = document.getElementById('judoFeelSlider');
         const valueDisplay = document.getElementById('judoFeelValue');
