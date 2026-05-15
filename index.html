@@ -9,20 +9,23 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Fitness Tracker v2.6</title>
+  <title>Fitness Tracker v2.7</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root { --bg: #e0e0e0; --card-bg: #f5f5f5; --primary: #1a1a1a; --success: #2e7d32; --warning: #f57c00; --text: #000; --border: #bdbdbd; }
     body { background: var(--bg); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: var(--text); padding-bottom: 3rem; -webkit-tap-highlight-color: transparent; }
-    .container { max-width: 1300px; margin-top: 1.5rem; position: relative; }
-    .version-badge { position: absolute; top: 0; right: 0; background: #333; color: white; padding: 0.3rem 0.8rem; border-radius: 0 0 0 12px; font-size: 0.8rem; opacity: 0.9; }
+    .container { max-width: 1300px; margin: 1.5rem auto 0; position: relative; padding: 0 15px; }
+    .version-badge { position: absolute; top: 0; right: 15px; background: #333; color: white; padding: 0.3rem 0.8rem; border-radius: 0 0 0 12px; font-size: 0.8rem; opacity: 0.9; }
     .card { background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,0.1); border-radius: 12px; }
     .badge-time { background: var(--primary); color: white; }
     .meal-day { background: #e8e8e8; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border); }
-    .nav-tabs .nav-link { font-weight: 500; border: none; color: #333; }
-    .nav-tabs .nav-link.active { color: #000; border-bottom: 3px solid #000; background: transparent; font-weight: 700; }
+    .nav-tabs { border-bottom: 1px solid #9e9e9e; }
+    .nav-tabs .nav-link { font-weight: 500; border: none; color: #333; background: transparent; padding: 0.5rem 1rem; }
+    .nav-tabs .nav-link.active { color: #000; border-bottom: 3px solid #000; font-weight: 700; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
     .planned-meal { background: #d9d9d9; border-left: 4px solid var(--primary); padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; }
     .actual-meal-entry { background: #e0e0e0; border-left: 4px solid var(--success); margin-top: 0.5rem; }
     .workout-note-row { background: #e8e8e8; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid var(--border); }
@@ -36,34 +39,29 @@
     .btn-success:hover { background: #1b5e20; }
     .chart-container { position: relative; height: 250px; width: 100%; margin: 1rem 0; }
     .stop-rule { background: #fff3cd; border-left: 5px solid var(--warning); padding: 0.6rem 1rem; margin-bottom: 0.5rem; border-radius: 6px; font-weight: 500; color: #000; }
-    @media (max-width: 576px) {
-      .container { margin-top: 0.5rem; }
-      .nav-tabs .nav-link { font-size: 0.8rem; padding: 0.4rem 0.6rem; }
-    }
   </style>
 </head>
 <body>
 <div class="container">
-  <div class="version-badge">v2.6</div>
+  <div class="version-badge">v2.7</div>
   <h1 class="mb-2 text-center fw-bold">📋 Weekly Fitness & Nutrition Tracker</h1>
   <p class="text-center mb-4" style="color:#333;">Parse plan → Log actual meals & lifts → Track body metrics</p>
-  
-  <ul class="nav nav-tabs justify-content-center mb-4" id="mainTabs" role="tablist">
-    <li class="nav-item" role="presentation"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPane" type="button" role="tab" aria-selected="true">🏠 Dashboard</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="parse-tab" data-bs-toggle="tab" data-bs-target="#parsePane" type="button" role="tab" aria-selected="false">📥 Parse Plan</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="meals-log-tab" data-bs-toggle="tab" data-bs-target="#mealsLogPane" type="button" role="tab" aria-selected="false">🍽️ Meal Log</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="workout-log-tab" data-bs-toggle="tab" data-bs-target="#workoutLogPane" type="button" role="tab" aria-selected="false">🏋️ Workout Log</button></li>
-    <li class="nav-item" role="presentation"><button class="nav-link" id="body-tab" data-bs-toggle="tab" data-bs-target="#bodyPane" type="button" role="tab" aria-selected="false">📊 Body Metrics</button></li>
+
+  <!-- Main navigation tabs – now with custom tab handler -->
+  <ul class="nav nav-tabs justify-content-center mb-4" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" data-tab="dashboardPane">🏠 Dashboard</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="parsePane">📥 Parse Plan</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="mealsLogPane">🍽️ Meal Log</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="workoutLogPane">🏋️ Workout Log</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="bodyPane">📊 Body Metrics</button></li>
   </ul>
-  
+
+  <!-- Tab panes -->
   <div class="tab-content" id="mainTabsContent">
-    <!-- Dashboard -->
-    <div class="tab-pane fade show active" id="dashboardPane" role="tabpanel" aria-labelledby="dashboard-tab">
+    <div class="tab-pane active" id="dashboardPane">
       <div id="dashboardContent"><div class="text-center py-5 text-muted">Parse your plan to start.</div></div>
     </div>
-    
-    <!-- Parse -->
-    <div class="tab-pane fade" id="parsePane" role="tabpanel" aria-labelledby="parse-tab">
+    <div class="tab-pane" id="parsePane">
       <div class="row justify-content-center"><div class="col-lg-10">
         <div class="card"><div class="card-body">
           <label class="form-label fw-bold">Paste plan text</label>
@@ -76,36 +74,30 @@
           <div id="parseError" class="text-danger small mt-2"></div>
         </div></div>
         <div id="resultsContainer" style="display:none;">
-          <ul class="nav nav-tabs mt-3" role="tablist">
-            <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#schedulePane" type="button">📅</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#mealsPane" type="button">🍽️</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#workoutPane" type="button">🏋️</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#rehabSuppsPane" type="button">🧘</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stopPane" type="button">⚠️</button></li>
+          <ul class="nav nav-tabs mt-3" id="resultTabs">
+            <li class="nav-item"><button class="nav-link active" data-subtab="schedulePane">📅</button></li>
+            <li class="nav-item"><button class="nav-link" data-subtab="mealsPane">🍽️</button></li>
+            <li class="nav-item"><button class="nav-link" data-subtab="workoutPane">🏋️</button></li>
+            <li class="nav-item"><button class="nav-link" data-subtab="rehabSuppsPane">🧘</button></li>
+            <li class="nav-item"><button class="nav-link" data-subtab="stopPane">⚠️</button></li>
           </ul>
           <div class="tab-content mt-2">
-            <div class="tab-pane fade show active" id="schedulePane" role="tabpanel"></div>
-            <div class="tab-pane fade" id="mealsPane" role="tabpanel"></div>
-            <div class="tab-pane fade" id="workoutPane" role="tabpanel"></div>
-            <div class="tab-pane fade" id="rehabSuppsPane" role="tabpanel"></div>
-            <div class="tab-pane fade" id="stopPane" role="tabpanel"></div>
+            <div class="tab-pane active" id="schedulePane"></div>
+            <div class="tab-pane" id="mealsPane"></div>
+            <div class="tab-pane" id="workoutPane"></div>
+            <div class="tab-pane" id="rehabSuppsPane"></div>
+            <div class="tab-pane" id="stopPane"></div>
           </div>
         </div>
       </div></div>
     </div>
-    
-    <!-- Meal Log -->
-    <div class="tab-pane fade" id="mealsLogPane" role="tabpanel" aria-labelledby="meals-log-tab">
+    <div class="tab-pane" id="mealsLogPane">
       <div id="mealLogContent"><div class="text-center py-5 text-muted">Parse a plan first.</div></div>
     </div>
-    
-    <!-- Workout Log -->
-    <div class="tab-pane fade" id="workoutLogPane" role="tabpanel" aria-labelledby="workout-log-tab">
+    <div class="tab-pane" id="workoutLogPane">
       <div id="workoutLogContent"><div class="text-center py-5 text-muted">Parse a plan first.</div></div>
     </div>
-    
-    <!-- Body Metrics -->
-    <div class="tab-pane fade" id="bodyPane" role="tabpanel" aria-labelledby="body-tab">
+    <div class="tab-pane" id="bodyPane">
       <div class="row"><div class="col-lg-6 mx-auto"><div class="card"><div class="card-body">
         <h5 class="fw-bold"><i class="bi bi-graph-up"></i> Log Body Metrics</h5>
         <div class="row g-3 mt-2">
@@ -124,12 +116,49 @@
 
 <script>
   (function() {
+    // ---------- TAB SWITCHING (custom, no Bootstrap dependency) ----------
+    function setupTabs(navSelector, paneContainer) {
+      const nav = document.querySelector(navSelector);
+      if (!nav) return;
+      const panes = paneContainer ? paneContainer.querySelectorAll('.tab-pane') : document.querySelectorAll('.tab-pane');
+      nav.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        e.preventDefault();
+        const targetId = btn.dataset.tab || btn.dataset.subtab;
+        if (!targetId) return;
+
+        // Deactivate all buttons in this nav
+        nav.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Activate corresponding pane (search within the same scope if subtabs)
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
+          // If it's a subtab, only affect panes within the same parent
+          const parent = targetPane.closest('.tab-content');
+          if (parent) {
+            parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          }
+          targetPane.classList.add('active');
+        }
+      });
+    }
+
+    // Set up main tabs
+    setupTabs('#mainTabs', document.getElementById('mainTabsContent'));
+    // Set up result subtabs (once the resultsContainer exists)
+    setupTabs('#resultTabs', document.getElementById('resultsContainer'));
+
+    // Ensure the first pane is active on load (already set in HTML)
+    
+    // ---------- STORAGE ----------
     const STORAGE = { PARSED_PLAN: 'fitness_parsed_plan', MEAL_LOGS: 'fitness_meal_logs', WORKOUT_LOGS: 'fitness_workout_logs', BODY_METRICS: 'fitness_body_metrics' };
     const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     const DAY_ABBR = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     const DAY_REGEX = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
 
-    // ---------- PARSERS (optimised) ----------
+    // ---------- PARSERS ----------
     function parseWorkoutPlan(text){
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       const workouts = {};
@@ -188,7 +217,7 @@
     function parseSupplements(text){ return text.split('\n').filter(l=>l.trim()&&!l.toLowerCase().includes('supplement protocol')&&!l.includes('No BCAAs')); }
     function parseStopRules(text){ return text.split('\n').filter(l=>/^\d+\./.test(l)).map(l=>l.replace(/^\d+\.\s*/,'')); }
 
-    // Storage helpers
+    // Storage
     const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
     const load=k=>JSON.parse(localStorage.getItem(k)||'null');
     const getPlan=()=>load(STORAGE.PARSED_PLAN);
@@ -205,7 +234,7 @@
     function renderMealPlan(mp){ if(!mp||!Object.keys(mp).length) return'<p class="text-muted">No meal plan.</p>'; return DAYS.filter(d=>mp[d]).map(d=>'<div class="meal-day"><h6 class="fw-bold">'+mp[d].title+'</h6><ul class="list-group list-group-flush">'+mp[d].meals.map(m=>'<li class="list-group-item"><span class="badge bg-secondary me-2">'+m.meal+' ('+m.time+')</span> '+m.description+'</li>').join('')+'</ul></div>').join(''); }
     function renderWorkouts(w){ if(!w||!Object.keys(w).length) return'<p class="text-muted">No workouts.</p>'; return DAYS.filter(d=>w[d]).map(d=>{const wo=w[d]; let h='<div class="card mb-3"><div class="card-body"><h6 class="fw-bold">'+wo.title+'</h6>'; if(wo.details.length) h+=wo.details.map(d=>'<p class="mb-1">• '+d+'</p>').join(''); return h+'</div></div>'; }).join(''); }
 
-    // Meal Log UI
+    // Meal Log UI (unchanged)
     function renderMealLogUI(selectedDay = null) {
       const plan = getPlan(); if (!plan || !plan.mealPlan || !Object.keys(plan.mealPlan).length) { document.getElementById('mealLogContent').innerHTML='<div class="text-center py-5 text-muted">Parse a plan first.</div>'; return; }
       const mealLogs = getMealLogs(); const today = new Date().toISOString().split('T')[0];
@@ -225,26 +254,24 @@
       const plan = getPlan();
       if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) { document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>'; return; }
       const workoutLogs = getWorkoutLogs(); const today = new Date().toISOString().split('T')[0];
-      const availableDays = DAYS.filter(d => plan.workouts[d] && (plan.workouts[d].details?.length));
-      if (!availableDays.length) { document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted"><p>No exercise data found in the plan.</p></div>'; return; }
+      const availableDays = DAYS.filter(d => plan.workouts[d] && plan.workouts[d].details.length);
+      if (!availableDays.length) { document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted"><p>No exercise data found.</p></div>'; return; }
       const currentDay = selectedDay && availableDays.includes(selectedDay) ? selectedDay : availableDays[0];
       const wo = plan.workouts[currentDay]; const isJudo = wo && wo.title.toLowerCase().includes('judo');
       let html = `<div class="card"><div class="card-body"><h5 class="fw-bold"><i class="bi bi-bar-chart"></i> Workout Log</h5><div class="row mb-3"><div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="workoutLogDate" class="form-control" value="${today}"></div><div class="col-md-4"><label class="form-label">Select Day</label><select id="workoutDaySelect" class="form-select">${availableDays.map(d => `<option value="${d}" ${d===currentDay?'selected':''}>${d}</option>`).join('')}</select></div></div><div id="workoutDayPlan">`;
       if (wo) {
         if (isJudo) {
-          if (wo.details?.length) { html += `<div class="mb-3"><h6>Workout Details</h6><ul class="list-group list-group-flush">`+ wo.details.map(d=>`<li class="list-group-item">${d}</li>`).join('') +`</ul></div>`; }
+          if (wo.details.length) { html += `<div class="mb-3"><h6>Workout Details</h6><ul class="list-group list-group-flush">`+ wo.details.map(d=>`<li class="list-group-item">${d}</li>`).join('') +`</ul></div>`; }
           const judoKey=`${currentDay}_judo_feel`; const savedFeel=workoutLogs[judoKey]?.feel||5;
           html += `<div class="judo-slider-container" style="background:#e8e8e8;border-radius:8px;padding:1rem;margin:1rem 0;"><label>How did Judo feel? (1=terrible, 10=amazing)</label><input type="range" class="form-range" id="judoFeelSlider" min="1" max="10" value="${savedFeel}" step="1"><div class="d-flex justify-content-between"><span>1</span><span class="fw-bold" id="judoFeelValue">${savedFeel}</span><span>10</span></div></div>`;
-        } else if (wo.details?.length) {
+        } else {
           html += `<div class="mb-3"><h6>Planned Exercises</h6>`;
           wo.details.forEach((detail, idx) => {
             const noteKey = `${currentDay}_note_${idx}`;
             const savedNote = workoutLogs[noteKey]?.note || '';
-            html += `<div class="workout-note-row"><div class="planned-meal"><strong>${detail}</strong></div><div class="mt-2 actual-meal-entry p-2 rounded"><label class="form-label small mb-1 fw-semibold">Actual performance (weight, reps, sets, notes)</label><textarea class="form-control workout-note-text" data-note-key="${noteKey}" rows="2">${savedNote}</textarea></div></div>`;
+            html += `<div class="workout-note-row"><div class="planned-meal"><strong>${detail}</strong></div><div class="mt-2 actual-meal-entry p-2 rounded"><label class="form-label small mb-1 fw-semibold">Actual performance</label><textarea class="form-control workout-note-text" data-note-key="${noteKey}" rows="2">${savedNote}</textarea></div></div>`;
           });
           html += `</div>`;
-        } else {
-          html += '<p class="text-muted">No exercises or details for this day.</p>';
         }
       }
       html += `</div><button id="saveWorkoutLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save ${currentDay} Workout Log</button></div></div>`;
@@ -281,165 +308,58 @@
       if (weightChart) weightChart.destroy();
       weightChart = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Weight (lbs)',
-            data: weights,
-            borderColor: '#1a1a1a',
-            backgroundColor: 'rgba(26,26,26,0.1)',
-            tension: 0.1,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { beginAtZero: false } }
-        }
+        data: { labels, datasets: [{ label: 'Weight (lbs)', data: weights, borderColor: '#1a1a1a', backgroundColor: 'rgba(26,26,26,0.1)', tension: 0.1, fill: true }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
       });
     }
 
     function generateExportText() {
-      const plan = getPlan();
-      const body = getBodyMetrics();
-      const meals = getMealLogs();
-      const wLogs = getWorkoutLogs();
-      let text = "## User Progress Data\n\n";
-      text += "### Body Metrics History\n";
+      const plan = getPlan(); const body = getBodyMetrics(); const meals = getMealLogs(); const wLogs = getWorkoutLogs();
+      let text = "## User Progress Data\n\n### Body Metrics History\n";
       if (body.length) {
         text += "Date, Weight (lbs), Body Fat (lbs), Visceral Fat, Skeletal Muscle (lbs)\n";
-        const sorted = [...body].sort((a,b) => new Date(b.date) - new Date(a.date));
-        sorted.forEach(m => text += `${m.date}, ${m.weight||''}, ${m.bodyFat||''}, ${m.visceralFat||''}, ${m.skeletalMuscle||''}\n`);
+        [...body].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(m => text += `${m.date}, ${m.weight||''}, ${m.bodyFat||''}, ${m.visceralFat||''}, ${m.skeletalMuscle||''}\n`);
       } else text += "No entries yet.\n";
       text += "\n### Meal Logs\n";
-      const mealDays = Object.keys(plan?.mealPlan || {});
-      if (mealDays.length) {
-        mealDays.forEach(day => {
-          const dayPlan = plan.mealPlan[day]; if (!dayPlan) return;
-          text += `\nDay: ${day}\n`;
-          dayPlan.meals.forEach((meal, idx) => {
-            const key = `${day}_${idx}`;
-            const log = meals[key] || {};
-            text += `- ${meal.meal} (${meal.time}) Planned: ${meal.description} | Actual: ${log.description || '—'} | Adherent: ${log.adherent ? 'Yes' : 'No'}\n`;
-          });
-        });
-      } else text += "No meal plan parsed.\n";
+      Object.keys(plan?.mealPlan||{}).forEach(day => { const dp=plan.mealPlan[day]; if(!dp) return; text += `\nDay: ${day}\n`; dp.meals.forEach((meal,idx)=>{ const key=`${day}_${idx}`; const log=meals[key]||{}; text += `- ${meal.meal} (${meal.time}) Planned: ${meal.description} | Actual: ${log.description||'—'} | Adherent: ${log.adherent?'Yes':'No'}\n`; }); });
       text += "\n### Workout Logs\n";
-      const woDays = Object.keys(plan?.workouts || {});
-      if (woDays.length) {
-        woDays.forEach(day => {
-          const wo = plan.workouts[day]; if (!wo) return;
-          text += `\nDay: ${day} (${wo.title})\n`;
-          if (wo.title.toLowerCase().includes('judo')) {
-            const judoKey = `${day}_judo_feel`;
-            const feel = wLogs[judoKey]?.feel;
-            text += `- Judo Feel: ${feel ? feel+'/10' : '—'}\n`;
-          } else {
-            wo.details.forEach((detail, idx) => {
-              const noteKey = `${day}_note_${idx}`;
-              const note = wLogs[noteKey]?.note || '—';
-              text += `- Exercise: ${detail}\n  Actual: ${note}\n`;
-            });
-          }
-        });
-      } else text += "No workout plan parsed.\n";
+      Object.keys(plan?.workouts||{}).forEach(day => { const wo=plan.workouts[day]; if(!wo) return; text += `\nDay: ${day} (${wo.title})\n`; if(wo.title.toLowerCase().includes('judo')){ const feel=wLogs[`${day}_judo_feel`]?.feel; text += `- Judo Feel: ${feel?feel+'/10':'—'}\n`; } else { wo.details.forEach((detail,idx)=>{ const note=wLogs[`${day}_note_${idx}`]?.note||'—'; text += `- Exercise: ${detail}\n  Actual: ${note}\n`; }); } });
       return text;
     }
 
     async function copyToClipboard(text) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (err) {
-        // Fallback
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        const success = document.execCommand('copy');
-        document.body.removeChild(ta);
-        return success;
+      try { await navigator.clipboard.writeText(text); return true; } catch (err) {
+        const ta = document.createElement('textarea'); ta.value = text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); return true;
       }
     }
 
     function showExportModal() {
       const exportText = generateExportText();
-      const modalHtml = `
-        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exportModalLabel">📤 Export Data for DeepSeek</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <p class="small text-muted">Copy the text below and paste it to DeepSeek to get an updated plan.</p>
-                <textarea class="form-control" rows="15" readonly id="exportTextarea">${exportText}</textarea>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-primary" id="copyExportBtn"><i class="bi bi-clipboard"></i> Copy to Clipboard</button>
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>`;
-      const modalContainer = document.createElement('div');
-      modalContainer.innerHTML = modalHtml;
-      document.body.appendChild(modalContainer);
-      const modalEl = document.getElementById('exportModal');
-      const bsModal = new bootstrap.Modal(modalEl);
-      bsModal.show();
-      
-      document.getElementById('copyExportBtn').addEventListener('click', async () => {
-        const ta = document.getElementById('exportTextarea');
-        const success = await copyToClipboard(ta.value);
-        if (success) alert('Copied to clipboard!');
-        else alert('Copy failed. Please select and copy manually.');
-      });
-      
+      const modalHtml = `<div class="modal fade" id="exportModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">📤 Export Data for DeepSeek</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-muted">Copy the text below and paste it to DeepSeek to get an updated plan.</p><textarea class="form-control" rows="15" readonly id="exportTextarea">${exportText}</textarea></div><div class="modal-footer"><button class="btn btn-primary" id="copyExportBtn"><i class="bi bi-clipboard"></i> Copy to Clipboard</button><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>`;
+      const modalContainer = document.createElement('div'); modalContainer.innerHTML = modalHtml; document.body.appendChild(modalContainer);
+      const modalEl = document.getElementById('exportModal'); const bsModal = new bootstrap.Modal(modalEl); bsModal.show();
+      document.getElementById('copyExportBtn').addEventListener('click', async () => { const ta=document.getElementById('exportTextarea'); const success=await copyToClipboard(ta.value); alert(success?'Copied!':'Copy failed'); });
       modalEl.addEventListener('hidden.bs.modal', () => modalContainer.remove());
     }
 
     function renderDashboard() {
-      const plan = getPlan();
-      const body = getBodyMetrics();
-      const meals = getMealLogs();
-      const wLogs = getWorkoutLogs();
+      const plan = getPlan(); const body = getBodyMetrics(); const meals = getMealLogs(); const wLogs = getWorkoutLogs();
       if (!plan) { document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>'; return; }
       const latest = body.length ? body.sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
       const totalMeals = Object.values(meals).filter(l=>l.description).length;
       const adherent = Object.values(meals).filter(l=>l.adherent).length;
       const totalWOs = Object.values(wLogs).filter(l=>l.note||l.feel).length;
-      
-      let html = `
-        <div class="row g-4">
-          <div class="col-12 d-flex justify-content-between align-items-center flex-wrap">
-            <h4 class="fw-bold">Dashboard</h4>
-            <button class="btn btn-outline-dark" id="exportDataBtn"><i class="bi bi-download"></i> Export Data</button>
-          </div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.weight||'—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latest?.bodyFat||'—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latest?.visceralFat||'—'}</div><div class="metric-label">Visceral Fat</div></div></div>
-          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.skeletalMuscle||'—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div>
-        </div>
-        <div class="dashboard-highlight mt-4">
-          <div class="row text-center">
-            <div class="col-4"><span class="fw-bold fs-5">${totalMeals}</span><br><small>Meals Logged</small></div>
-            <div class="col-4"><span class="fw-bold fs-5">${adherent}</span><br><small>Adherent</small></div>
-            <div class="col-4"><span class="fw-bold fs-5">${totalWOs}</span><br><small>Workouts Logged</small></div>
-          </div>
-        </div>`;
-      
-      if (latest) html += `<div class="mt-3 text-muted small">📅 Latest entry: ${latest.date}</div>`;
+      let html = `<div class="row g-4"><div class="col-12 d-flex justify-content-between align-items-center"><h4 class="fw-bold">Dashboard</h4><button class="btn btn-outline-dark" id="exportDataBtn"><i class="bi bi-download"></i> Export Data</button></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.weight||'—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latest?.bodyFat||'—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latest?.visceralFat||'—'}</div><div class="metric-label">Visceral Fat</div></div></div>
+        <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.skeletalMuscle||'—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div></div>
+        <div class="dashboard-highlight mt-4"><div class="row text-center"><div class="col-4"><span class="fw-bold fs-5">${totalMeals}</span><br><small>Meals Logged</small></div><div class="col-4"><span class="fw-bold fs-5">${adherent}</span><br><small>Adherent</small></div><div class="col-4"><span class="fw-bold fs-5">${totalWOs}</span><br><small>Workouts Logged</small></div></div></div>`;
+      if (latest) html += `<div class="mt-3 text-muted small">📅 Latest: ${latest.date}</div>`;
       if (plan.primaryDirective?.directive) html += `<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`;
       if (body.length > 1) html += `<div class="card mt-4"><div class="card-body"><h6 class="fw-bold">📈 Weight Trend</h6><div class="chart-container"><canvas id="weightChartCanvas"></canvas></div></div></div>`;
-      
       document.getElementById('dashboardContent').innerHTML = html;
-      const exportBtn = document.getElementById('exportDataBtn');
-      if (exportBtn) exportBtn.addEventListener('click', showExportModal);
+      document.getElementById('exportDataBtn')?.addEventListener('click', showExportModal);
       if (body.length > 1) setTimeout(renderWeightChart, 100);
     }
 
@@ -456,7 +376,7 @@
       }
     }
 
-    // Event listeners
+    // Button events
     document.getElementById('parseBtn').addEventListener('click',()=>{
       const raw = document.getElementById('rawInput').value.trim();
       if(!raw){ document.getElementById('parseError').textContent='Paste text first.'; return; }
@@ -472,12 +392,9 @@
         renderDashboard(); renderMealLogUI(); renderWorkoutLogUI();
       }catch(e){ document.getElementById('parseError').textContent='Error: '+e.message; }
     });
-
     document.getElementById('clearBtn').addEventListener('click',()=>{
-      document.getElementById('rawInput').value='';
-      document.getElementById('resultsContainer').style.display='none';
-      document.getElementById('exportJsonBtn').disabled=true;
-      localStorage.removeItem(STORAGE.PARSED_PLAN);
+      document.getElementById('rawInput').value=''; document.getElementById('resultsContainer').style.display='none';
+      document.getElementById('exportJsonBtn').disabled=true; localStorage.removeItem(STORAGE.PARSED_PLAN);
       document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>';
       if (weightChart) { weightChart.destroy(); weightChart = null; }
       document.getElementById('mealLogContent').innerHTML = '<div class="text-center py-5 text-muted">Parse a plan first.</div>';
@@ -485,10 +402,8 @@
     });
     document.getElementById('exportJsonBtn').addEventListener('click',()=>{ const plan=getPlan(); if(!plan) return; const blob=new Blob([JSON.stringify(plan,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='fitness_plan.json'; a.click(); });
     document.getElementById('saveBodyMetrics').addEventListener('click',()=>{ const date=document.getElementById('bodyDate').value; if(!date){ alert('Select date'); return; } const metrics=getBodyMetrics(); metrics.push({date,weight:document.getElementById('bodyWeight').value?parseFloat(document.getElementById('bodyWeight').value):null,bodyFat:document.getElementById('bodyFat').value?parseFloat(document.getElementById('bodyFat').value):null,visceralFat:document.getElementById('visceralFat').value?parseFloat(document.getElementById('visceralFat').value):null,skeletalMuscle:document.getElementById('skeletalMuscle').value?parseFloat(document.getElementById('skeletalMuscle').value):null}); saveBodyMetrics(metrics); ['bodyDate','bodyWeight','bodyFat','visceralFat','skeletalMuscle'].forEach(id=>document.getElementById(id).value=''); renderBodyHistory(); renderDashboard(); });
-    document.getElementById('meals-log-tab').addEventListener('click',()=>renderMealLogUI());
-    document.getElementById('workout-log-tab').addEventListener('click',()=>renderWorkoutLogUI());
-    document.getElementById('dashboard-tab').addEventListener('click',renderDashboard);
 
+    // Initial load
     init();
     if(getPlan()){ renderMealLogUI(); renderWorkoutLogUI(); }
   })();
