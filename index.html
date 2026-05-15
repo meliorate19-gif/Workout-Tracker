@@ -6,9 +6,10 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Fitness Tracker v2.4</title>
+  <title>Fitness Tracker v2.5</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root { --bg: #e0e0e0; --card-bg: #f5f5f5; --primary: #1a1a1a; --success: #2e7d32; --warning: #f57c00; --text: #000; --border: #bdbdbd; }
     body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); padding-bottom: 3rem; }
@@ -28,11 +29,12 @@
     .dashboard-highlight { background: #d5d5d5; border-radius: 14px; padding: 1.2rem 1.5rem; margin: 1rem 0; border: 1px solid #9e9e9e; }
     .btn-primary { background: #333; border-color: #222; color: #fff; }
     .btn-success { background: #2e7d32; border-color: #1b5e20; color: #fff; }
+    .chart-container { position: relative; height: 250px; width: 100%; margin: 1rem 0; }
   </style>
 </head>
 <body>
 <div class="container">
-  <div class="version-badge">v2.4</div>
+  <div class="version-badge">v2.5</div>
   <h1 class="mb-2 text-center fw-bold">📋 Weekly Fitness & Nutrition Tracker</h1>
   <p class="text-center mb-4" style="color:#333;">Parse plan → Log actual meals & lifts → Track body metrics</p>
   
@@ -45,7 +47,9 @@
   </ul>
   
   <div class="tab-content">
-    <div class="tab-pane fade show active" id="dashboardPane"><div id="dashboardContent"><div class="text-center py-5 text-muted">Parse your plan to start.</div></div></div>
+    <div class="tab-pane fade show active" id="dashboardPane">
+      <div id="dashboardContent"><div class="text-center py-5 text-muted">Parse your plan to start.</div></div>
+    </div>
     <div class="tab-pane fade" id="parsePane">
       <div class="row justify-content-center"><div class="col-lg-10">
         <div class="card"><div class="card-body">
@@ -79,7 +83,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   (function() {
     const STORAGE = { PARSED_PLAN: 'fitness_parsed_plan', MEAL_LOGS: 'fitness_meal_logs', WORKOUT_LOGS: 'fitness_workout_logs', BODY_METRICS: 'fitness_body_metrics' };
@@ -87,7 +90,7 @@
     const DAY_ABBR = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     const DAY_REGEX = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
 
-    // ---------- PARSER (updated for notes-style) ----------
+    // ---------- PARSERS (unchanged from v2.4) ----------
     function parseWorkoutPlan(text){
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       const workouts = {};
@@ -101,22 +104,19 @@
           continue;
         }
         if (!currentDay) continue;
-        // Capture numbered exercise lines (e.g., "1 Chest-Supported DB Row...")
         if (/^\d+\s+/.test(line) && !/^(Post:|Pull-Up|Finisher)/i.test(line)) {
           workouts[currentDay].details.push(line);
           continue;
         }
-        // Capture other important lines (like "Pull-Up Rescue: ...", "Post: ...")
         if (line.startsWith('·') || line.startsWith('-') || line.startsWith('*')) {
           workouts[currentDay].details.push(line.replace(/^[·\-*]\s*/, ''));
-        } else if (line.length > 0 && !line.match(/block|exercise/i) ) {
+        } else if (line.length > 0 && !line.match(/block|exercise/i)) {
           workouts[currentDay].details.push(line);
         }
       }
       return workouts;
     }
 
-    // Other parsers (unchanged)
     function parseFullPlan(text) {
       text = text.replace(/^[“"']+/, '').replace(/[”"']+$/, '').trim();
       const sectionsRaw = text.split(/\n---+\n/).map(s => s.trim()).filter(s => s);
@@ -184,7 +184,7 @@
       document.getElementById('saveMealLogBtn').addEventListener('click', () => { const date = document.getElementById('mealLogDate').value; const logs = getMealLogs(); document.querySelectorAll('.actual-meal-text').forEach(ta => { const key = ta.dataset.mealKey; const cb = document.querySelector(`.adherence-check[data-meal-key="${key}"]`); logs[key] = { date, description: ta.value, adherent: cb ? cb.checked : false }; }); saveMealLogs(logs); alert('Meal log saved!'); renderDashboard(); });
     }
 
-    // ---------- WORKOUT LOG (notes style) ----------
+    // Workout Log (notes style)
     function renderWorkoutLogUI(selectedDay = null) {
       const plan = getPlan();
       if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) { document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>'; return; }
@@ -200,7 +200,6 @@
           const judoKey=`${currentDay}_judo_feel`; const savedFeel=workoutLogs[judoKey]?.feel||5;
           html += `<div class="judo-slider-container" style="background:#e8e8e8;border-radius:8px;padding:1rem;margin:1rem 0;"><label>How did Judo feel? (1=terrible, 10=amazing)</label><input type="range" class="form-range" id="judoFeelSlider" min="1" max="10" value="${savedFeel}" step="1"><div class="d-flex justify-content-between"><span>1</span><span class="fw-bold" id="judoFeelValue">${savedFeel}</span><span>10</span></div></div>`;
         } else if (wo.details?.length) {
-          // Notes-style logging: each planned exercise gets a textarea for actual notes
           html += `<div class="mb-3"><h6>Planned Exercises</h6>`;
           wo.details.forEach((detail, idx) => {
             const noteKey = `${currentDay}_note_${idx}`;
@@ -241,9 +240,199 @@
       });
     }
 
-    // Body metrics & dashboard
-    function renderBodyHistory() { const m=getBodyMetrics(); if(!m.length){ document.getElementById('bodyMetricsHistory').innerHTML='<p class="text-muted mt-3">No entries.</p>'; return; } const sorted=[...m].sort((a,b)=>new Date(b.date)-new Date(a.date)); let h='<h6 class="fw-bold mt-4">History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight</th><th>BF(lbs)</th><th>Visceral</th><th>Muscle(lbs)</th></tr></thead><tbody>'; sorted.slice(0,10).forEach(m=>h+=`<tr><td>${m.date}</td><td>${m.weight||'-'}</td><td>${m.bodyFat||'-'}</td><td>${m.visceralFat||'-'}</td><td>${m.skeletalMuscle||'-'}</td></tr>`); h+='</tbody></table></div>'; document.getElementById('bodyMetricsHistory').innerHTML=h; }
-    function renderDashboard() { const plan=getPlan(), body=getBodyMetrics(), meals=getMealLogs(), wLogs=getWorkoutLogs(); if(!plan){ document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>'; return; } const latest=body.length?body.sort((a,b)=>new Date(b.date)-new Date(a.date))[0]:null; const totalMeals=Object.values(meals).filter(l=>l.description).length, adherent=Object.values(meals).filter(l=>l.adherent).length, totalWOs=Object.values(wLogs).filter(l=>l.note||l.feel).length; let html=`<div class="row g-4"><div class="col-12"><h4 class="fw-bold">Dashboard</h4></div><div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.weight||'—'}</div><div class="metric-label">Weight (lbs)</div></div></div><div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latest?.bodyFat||'—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div><div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latest?.visceralFat||'—'}</div><div class="metric-label">Visceral Fat</div></div></div><div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.skeletalMuscle||'—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div></div><div class="dashboard-highlight mt-4"><div class="row text-center"><div class="col-4"><span class="fw-bold fs-5">${totalMeals}</span><br><small>Meals Logged</small></div><div class="col-4"><span class="fw-bold fs-5">${adherent}</span><br><small>Adherent</small></div><div class="col-4"><span class="fw-bold fs-5">${totalWOs}</span><br><small>Workouts Logged</small></div></div></div>`; if(latest) html+=`<div class="mt-3 text-muted small">📅 Latest: ${latest.date}</div>`; if(plan.primaryDirective?.directive) html+=`<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`; document.getElementById('dashboardContent').innerHTML=html; }
+    // Body metrics & dashboard + CHART + EXPORT
+    function renderBodyHistory() {
+      const m=getBodyMetrics(); if(!m.length){ document.getElementById('bodyMetricsHistory').innerHTML='<p class="text-muted mt-3">No entries.</p>'; return; }
+      const sorted=[...m].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      let h='<h6 class="fw-bold mt-4">History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight</th><th>BF(lbs)</th><th>Visceral</th><th>Muscle(lbs)</th></tr></thead><tbody>';
+      sorted.slice(0,10).forEach(m=>h+=`<tr><td>${m.date}</td><td>${m.weight||'-'}</td><td>${m.bodyFat||'-'}</td><td>${m.visceralFat||'-'}</td><td>${m.skeletalMuscle||'-'}</td></tr>`);
+      h+='</tbody></table></div>'; document.getElementById('bodyMetricsHistory').innerHTML=h;
+    }
+
+    let weightChart = null;
+    function renderWeightChart() {
+      const metrics = getBodyMetrics();
+      if (!metrics.length) return;
+      const sorted = [...metrics].sort((a,b) => new Date(a.date) - new Date(b.date));
+      const labels = sorted.map(m => m.date);
+      const weights = sorted.map(m => m.weight || null);
+      
+      const ctx = document.getElementById('weightChartCanvas')?.getContext('2d');
+      if (!ctx) return;
+      if (weightChart) weightChart.destroy();
+      weightChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Weight (lbs)',
+            data: weights,
+            borderColor: '#1a1a1a',
+            backgroundColor: 'rgba(26,26,26,0.1)',
+            tension: 0.1,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: false }
+          }
+        }
+      });
+    }
+
+    function generateExportText() {
+      const plan = getPlan();
+      const body = getBodyMetrics();
+      const meals = getMealLogs();
+      const wLogs = getWorkoutLogs();
+      let text = "## User Progress Data\n\n";
+      
+      // Body metrics
+      text += "### Body Metrics History\n";
+      if (body.length) {
+        const sorted = [...body].sort((a,b) => new Date(b.date) - new Date(a.date));
+        text += "Date, Weight (lbs), Body Fat (lbs), Visceral Fat, Skeletal Muscle (lbs)\n";
+        sorted.forEach(m => text += `${m.date}, ${m.weight||''}, ${m.bodyFat||''}, ${m.visceralFat||''}, ${m.skeletalMuscle||''}\n`);
+      } else {
+        text += "No entries yet.\n";
+      }
+      
+      // Meal logs
+      text += "\n### Meal Logs\n";
+      const mealDays = Object.keys(plan?.mealPlan || {});
+      if (mealDays.length) {
+        mealDays.forEach(day => {
+          const dayPlan = plan.mealPlan[day];
+          if (!dayPlan) return;
+          text += `\nDay: ${day}\n`;
+          dayPlan.meals.forEach((meal, idx) => {
+            const key = `${day}_${idx}`;
+            const log = meals[key] || {};
+            text += `- ${meal.meal} (${meal.time}) Planned: ${meal.description} | Actual: ${log.description || '—'} | Adherent: ${log.adherent ? 'Yes' : 'No'}\n`;
+          });
+        });
+      } else {
+        text += "No meal plan parsed.\n";
+      }
+      
+      // Workout logs
+      text += "\n### Workout Logs\n";
+      const woDays = Object.keys(plan?.workouts || {});
+      if (woDays.length) {
+        woDays.forEach(day => {
+          const wo = plan.workouts[day];
+          if (!wo) return;
+          text += `\nDay: ${day} (${wo.title})\n`;
+          if (wo.title.toLowerCase().includes('judo')) {
+            const judoKey = `${day}_judo_feel`;
+            const feel = wLogs[judoKey]?.feel;
+            text += `- Judo Feel: ${feel ? feel+'/10' : '—'}\n`;
+          } else {
+            wo.details.forEach((detail, idx) => {
+              const noteKey = `${day}_note_${idx}`;
+              const note = wLogs[noteKey]?.note || '—';
+              text += `- Exercise: ${detail}\n  Actual: ${note}\n`;
+            });
+          }
+        });
+      } else {
+        text += "No workout plan parsed.\n";
+      }
+      
+      return text;
+    }
+
+    function showExportModal() {
+      const exportText = generateExportText();
+      // Create a simple modal with textarea for copying
+      const modalHtml = `
+        <div class="modal fade" id="exportModal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">📤 Export Data for DeepSeek</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <p class="small text-muted">Copy the text below and paste it to DeepSeek to get an updated plan.</p>
+                <textarea class="form-control" rows="15" readonly id="exportTextarea">${exportText}</textarea>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-primary" id="copyExportBtn"><i class="bi bi-clipboard"></i> Copy to Clipboard</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      const modalContainer = document.createElement('div');
+      modalContainer.innerHTML = modalHtml;
+      document.body.appendChild(modalContainer);
+      const modalEl = document.getElementById('exportModal');
+      const bsModal = new bootstrap.Modal(modalEl);
+      bsModal.show();
+      
+      document.getElementById('copyExportBtn').addEventListener('click', () => {
+        const ta = document.getElementById('exportTextarea');
+        ta.select();
+        document.execCommand('copy');
+        alert('Copied!');
+      });
+      
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        modalContainer.remove();
+      });
+    }
+
+    function renderDashboard() {
+      const plan = getPlan();
+      const body = getBodyMetrics();
+      const meals = getMealLogs();
+      const wLogs = getWorkoutLogs();
+      if (!plan) { document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>'; return; }
+      const latest = body.length ? body.sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
+      const totalMeals = Object.values(meals).filter(l=>l.description).length;
+      const adherent = Object.values(meals).filter(l=>l.adherent).length;
+      const totalWOs = Object.values(wLogs).filter(l=>l.note||l.feel).length;
+      
+      let html = `
+        <div class="row g-4">
+          <div class="col-12 d-flex justify-content-between align-items-center">
+            <h4 class="fw-bold">Dashboard</h4>
+            <button class="btn btn-outline-dark" id="exportDataBtn"><i class="bi bi-download"></i> Export Data</button>
+          </div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.weight||'—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latest?.bodyFat||'—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latest?.visceralFat||'—'}</div><div class="metric-label">Visceral Fat</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.skeletalMuscle||'—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div>
+        </div>
+        <div class="dashboard-highlight mt-4">
+          <div class="row text-center">
+            <div class="col-4"><span class="fw-bold fs-5">${totalMeals}</span><br><small>Meals Logged</small></div>
+            <div class="col-4"><span class="fw-bold fs-5">${adherent}</span><br><small>Adherent</small></div>
+            <div class="col-4"><span class="fw-bold fs-5">${totalWOs}</span><br><small>Workouts Logged</small></div>
+          </div>
+        </div>`;
+      
+      if (latest) html += `<div class="mt-3 text-muted small">📅 Latest entry: ${latest.date}</div>`;
+      if (plan.primaryDirective?.directive) html += `<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`;
+      
+      // Weight chart
+      if (body.length > 1) {
+        html += `<div class="card mt-4"><div class="card-body"><h6 class="fw-bold">📈 Weight Trend</h6><div class="chart-container"><canvas id="weightChartCanvas"></canvas></div></div></div>`;
+      }
+      
+      document.getElementById('dashboardContent').innerHTML = html;
+      
+      // Attach export button
+      const exportBtn = document.getElementById('exportDataBtn');
+      if (exportBtn) exportBtn.addEventListener('click', showExportModal);
+      
+      // Render chart after DOM update
+      if (body.length > 1) setTimeout(renderWeightChart, 100);
+    }
 
     function init() {
       renderDashboard(); renderBodyHistory();
@@ -255,10 +444,6 @@
         document.getElementById('rehabSuppsPane').innerHTML = '<h5 class="section-title">🧘 Rehab</h5>'+plan.rehab.map(r=>`<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')+'<h5 class="section-title mt-3">💊 Supplements</h5><ul>'+plan.supplements.map(s=>`<li>${s}</li>`).join('')+'</ul>';
         document.getElementById('stopPane').innerHTML = plan.stopRules.map(r=>`<div class="stop-rule">${r}</div>`).join('');
         document.getElementById('resultsContainer').style.display='block';
-        const hasDetails = Object.values(plan.workouts).some(w => w.details && w.details.length > 0);
-        if (!hasDetails) {
-          document.getElementById('workoutLogContent').innerHTML = '<div class="alert alert-warning">⚠️ Old plan detected – no exercise details. Please go to <b>Parse tab</b>, click <b>Clear</b>, then paste and parse again.</div>';
-        }
       }
     }
 
@@ -284,6 +469,7 @@
       document.getElementById('exportJsonBtn').disabled=true;
       localStorage.removeItem(STORAGE.PARSED_PLAN);
       document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>';
+      if (weightChart) { weightChart.destroy(); weightChart = null; }
     });
     document.getElementById('exportJsonBtn').addEventListener('click',()=>{ const plan=getPlan(); if(!plan) return; const blob=new Blob([JSON.stringify(plan,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='fitness_plan.json'; a.click(); });
     document.getElementById('saveBodyMetrics').addEventListener('click',()=>{ const date=document.getElementById('bodyDate').value; if(!date){ alert('Select date'); return; } const metrics=getBodyMetrics(); metrics.push({date,weight:document.getElementById('bodyWeight').value?parseFloat(document.getElementById('bodyWeight').value):null,bodyFat:document.getElementById('bodyFat').value?parseFloat(document.getElementById('bodyFat').value):null,visceralFat:document.getElementById('visceralFat').value?parseFloat(document.getElementById('visceralFat').value):null,skeletalMuscle:document.getElementById('skeletalMuscle').value?parseFloat(document.getElementById('skeletalMuscle').value):null}); saveBodyMetrics(metrics); ['bodyDate','bodyWeight','bodyFat','visceralFat','skeletalMuscle'].forEach(id=>document.getElementById(id).value=''); renderBodyHistory(); renderDashboard(); });
