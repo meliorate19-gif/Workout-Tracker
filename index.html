@@ -589,6 +589,11 @@
           <button id="saveBodyMetrics" class="btn btn-primary btn-full">Save Entry</button>
         </div>
       </div>
+      <div class="btn-row" style="margin-bottom:16px;">
+        <button id="exportBodyCsvBtn" class="btn btn-ghost" style="flex:1;">⬇ Export CSV</button>
+        <button id="importBodyCsvBtn" class="btn btn-ghost" style="flex:1;">⬆ Import CSV</button>
+      </div>
+      <input type="file" id="bodyImportInput" accept=".csv" style="display:none;">
       <div id="bodyMetricsHistory"></div>
     </div>
 
@@ -619,69 +624,81 @@
 (function () {
   'use strict';
 
-  // ── CONSTANTS ──────────────────────────────
-  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const SK = { PLAN:'fp_plan', MEALS:'fp_meals', WORKOUTS:'fp_workouts', BODY:'fp_body' };
+  // ── CONSTANTS ────────────────────────────────────────────────────────────
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const SK   = { PLAN:'fp_plan', MEALS:'fp_meals', WORKOUTS:'fp_workouts', BODY:'fp_body' };
+  const DAY_REG = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[—\-–]/i;
 
-  // ── STORAGE ────────────────────────────────
+  // ── DATE HELPERS ─────────────────────────────────────────────────────────
+  // Local YYYY-MM-DD (avoids UTC off-by-one on mobile)
+  function getTodayISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  // Full day name from device clock: 0=Sun…6=Sat matches DAYS index
+  function getTodayDayName() { return DAYS[new Date().getDay()]; }
+
+  // ── STORAGE ──────────────────────────────────────────────────────────────
   const store = {
-    set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} },
-    get: (k, fb) => { try { const d = localStorage.getItem(k); return d ? JSON.parse(d) : fb; } catch(e) { return fb; } },
-    del: k => localStorage.removeItem(k)
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(_) {} },
+    get(k, fb) { try { const d = localStorage.getItem(k); return d ? JSON.parse(d) : fb; } catch(_) { return fb; } },
+    del(k)    { localStorage.removeItem(k); }
   };
 
-  // ── TOAST ──────────────────────────────────
+  // ── TOAST ────────────────────────────────────────────────────────────────
+  const toastEl = document.getElementById('toast');
   let toastTimer;
-  function toast(msg, dur = 2000) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
+  function toast(msg, dur = 2200) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), dur);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), dur);
   }
 
-  // ── NAVIGATION ─────────────────────────────
+  // ── CACHED DOM REFS ──────────────────────────────────────────────────────
+  const navBtns   = Array.from(document.querySelectorAll('.nav-btn'));
+  const pages     = Array.from(document.querySelectorAll('.page'));
+  const subTabs   = Array.from(document.querySelectorAll('.sub-tab'));
+  const subPanes  = Array.from(document.querySelectorAll('.sub-pane'));
+
+  // ── NAVIGATION ───────────────────────────────────────────────────────────
   document.querySelector('.bottom-nav').addEventListener('click', e => {
     const btn = e.target.closest('.nav-btn');
     if (!btn) return;
-    const pageId = btn.dataset.page;
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    navBtns.forEach(b => b.classList.remove('active'));
+    pages.forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById(pageId).classList.add('active');
+    document.getElementById(btn.dataset.page).classList.add('active');
   });
 
-  // Sub-tabs (parse pane)
-  document.querySelectorAll('.sub-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.sub).classList.add('active');
-    });
-  });
+  subTabs.forEach(btn => btn.addEventListener('click', () => {
+    subTabs.forEach(b => b.classList.remove('active'));
+    subPanes.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.sub).classList.add('active');
+  }));
 
-  // ── PARSERS ────────────────────────────────
-  // Strips emoji, leading symbols, and trims a line for section-matching
-  function cleanHead(s) { return s.replace(/[\u{1F300}-\u{1FFFF}]/gu, '').replace(/^[🕒🍽💪🔧📊🛑\s]+/u,'').trim().toLowerCase(); }
+  // ── PARSER UTILITIES ─────────────────────────────────────────────────────
+  // Strip emoji + leading symbols, lowercase — for section label matching
+  function cleanHead(s) {
+    return s.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, '')
+            .replace(/^[\s\u2600-\u27BF]+/, '').trim().toLowerCase();
+  }
+  // Normalise en-dash / em-dash to plain —
+  const normDash = s => s.replace(/[\u2013\u2014]/g, '\u2014');
+  // Capitalise first letter of a word
+  const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
-  // Normalise em-dash / en-dash / hyphen variants to —
-  function normDash(s) { return s.replace(/[\u2013\u2014]/g, '—'); }
-
-  // Split the raw text into labelled sections using --- dividers
+  // ── SPLIT INTO SECTIONS ──────────────────────────────────────────────────
   function splitSections(text) {
-    text = text.replace(/^["'""\u201C\u201D]+|["'""\u201C\u201D]+$/g,'').trim();
-    // Sections are separated by lines that are only dashes (3+)
-    const parts = text.split(/\n[ \t]*---+[ \t]*\n/).map(s => s.trim()).filter(Boolean);
-    const out = [];
-    for (const p of parts) {
-      const firstLine = p.split('\n')[0];
-      const label = cleanHead(firstLine);
-      out.push({ label, text: p });
-    }
-    return out;
+    text = text.replace(/^[\u201C\u201D\u2018\u2019"']+|[\u201C\u201D\u2018\u2019"']+$/g, '').trim();
+    return text.split(/\n[ \t]*-{3,}[ \t]*\n/).map(s => s.trim()).filter(Boolean).map(p => ({
+      label: cleanHead(p.split('\n')[0]),
+      text: p
+    }));
   }
 
+  // ── FULL PLAN PARSER ─────────────────────────────────────────────────────
   function parseFullPlan(raw) {
     const sections = splitSections(raw);
     let header = null, schedSec = null, mealSec = null, workoutSec = null,
@@ -689,85 +706,73 @@
 
     for (const sec of sections) {
       const l = sec.label;
-      if (l.includes('schedule') || l.includes('daily schedule')) schedSec = sec.text;
-      else if (l.includes('meal') || l.includes('meals')) mealSec = sec.text;
-      else if (l.includes('workout') || l.includes('progression') || l.includes('week')) {
-        // workouts section — but not the header block (which has weight stats)
-        if (sec.text.match(/MONDAY|TUESDAY|WEDNESDAY/i)) workoutSec = sec.text;
-        else if (!header) header = sec.text;
-      }
+      if      (l.includes('schedule'))                    schedSec   = sec.text;
+      else if (l.includes('meal'))                        mealSec    = sec.text;
       else if (l.includes('rehab') || l.includes('supplement')) rehabSec = sec.text;
-      else if (l.includes('stop')) stopSec = sec.text;
-      else if (!header) header = sec.text; // first unmatched section = header
+      else if (l.includes('stop'))                        stopSec    = sec.text;
+      else if (l.includes('workout') || l.includes('week')) {
+        if (/MONDAY|TUESDAY|WEDNESDAY/i.test(sec.text))  workoutSec = sec.text;
+        else if (!header)                                 header     = sec.text;
+      }
+      else if (!header) header = sec.text;
     }
-    // Fallback: first section is always header
     if (!header && sections.length) header = sections[0].text;
 
-    // Workout section might be combined with progression tracker
-    // Split on PROGRESSION TRACKER if present
+    // Peel off embedded Progression Tracker from workout section
     let progText = null;
     if (workoutSec && /progression tracker/i.test(workoutSec)) {
       const idx = workoutSec.search(/progression tracker/i);
-      progText = workoutSec.slice(idx);
+      progText   = workoutSec.slice(idx);
       workoutSec = workoutSec.slice(0, idx);
     }
 
     return {
       primaryDirective: parseHeader(header || ''),
-      dailySchedule:    schedSec  ? parseDailySchedule(schedSec) : {},
-      mealPlan:         mealSec   ? parseMealPlan(mealSec)        : {},
-      workouts:         workoutSec? parseWorkoutPlan(workoutSec)  : {},
-      rehab:            rehabSec  ? parseRehab(rehabSec)          : [],
-      supplements:      rehabSec  ? parseSupplements(rehabSec)    : [],
-      stopRules:        stopSec   ? parseStopRules(stopSec)       : [],
-      progression:      progText  ? parseProgression(progText)    : []
+      dailySchedule:    schedSec   ? parseDailySchedule(schedSec) : {},
+      mealPlan:         mealSec    ? parseMealPlan(mealSec)        : {},
+      workouts:         workoutSec ? parseWorkoutPlan(workoutSec)  : {},
+      rehab:            rehabSec   ? parseRehab(rehabSec)          : [],
+      supplements:      rehabSec   ? parseSupplements(rehabSec)    : [],
+      stopRules:        stopSec    ? parseStopRules(stopSec)       : [],
+      progression:      progText   ? parseProgression(progText)    : []
     };
   }
 
-  // ── Header block: "NAME — WEEK N", stats line, focus line ──
+  // ── HEADER BLOCK ─────────────────────────────────────────────────────────
   function parseHeader(text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    const r = { title: '', stats: {}, focus: '', notes: [] };
-    for (const l of lines) {
-      // Title: "NAME — WEEK N PLAN"
-      if (!r.title && /week\s*\d/i.test(l)) { r.title = l; continue; }
-      // Stats line: "Weight 235.2 lbs | Muscle 104.3 lbs | ..."
-      const statMatch = l.match(/weight\s+([\d.]+)\s*lbs/i);
-      if (statMatch) {
-        r.stats.weight     = parseFloat((l.match(/weight\s+([\d.]+)/i)||[])[1]);
-        r.stats.muscle     = parseFloat((l.match(/muscle\s+([\d.]+)/i)||[])[1]);
-        r.stats.bodyFat    = parseFloat((l.match(/body\s*fat\s+([\d.]+)/i)||[])[1]);
-        r.stats.visceralFat= parseFloat((l.match(/visceral\s*fat\s+([\d.]+)/i)||[])[1]);
-        r.stats.date       = (l.match(/\(([^)]+)\)/)||[])[1] || '';
+    const r = { title:'', stats:{}, focus:'', directive:'', notes:[] };
+    for (const l of text.split('\n').map(s => s.trim()).filter(Boolean)) {
+      if (!r.title && /week\s*\d/i.test(l))           { r.title = l; continue; }
+      if (/weight\s+[\d.]+\s*lbs/i.test(l)) {
+        const g = k => parseFloat((l.match(new RegExp(k + '\\s+([\\d.]+)', 'i')) || [])[1]);
+        r.stats = {
+          weight:      g('weight'),
+          muscle:      g('muscle'),
+          bodyFat:     parseFloat((l.match(/body\s*fat\s+([\d.]+)/i) || [])[1]),
+          visceralFat: parseFloat((l.match(/visceral\s*fat\s+([\d.]+)/i) || [])[1]),
+          date:        (l.match(/\(([^)]+)\)/) || [])[1] || ''
+        };
         continue;
       }
-      // Focus line
-      if (/^focus:/i.test(l)) { r.focus = l.replace(/^focus:\s*/i,''); continue; }
-      // Directive line
-      if (/primary directive/i.test(l)) { r.directive = l.split(':').slice(1).join(':').trim(); continue; }
-      // Restrictions
-      if (/No BCAAs|No alcohol/i.test(l)) { r.restrictions = l; continue; }
-      // Anything else non-trivial
-      if (l.length > 10 && !r.directive) r.notes.push(l);
+      if (/^focus:/i.test(l))            { r.focus     = l.replace(/^focus:\s*/i, ''); continue; }
+      if (/primary directive/i.test(l))  { r.directive = l.split(':').slice(1).join(':').trim(); continue; }
+      if (/No BCAAs|No alcohol/i.test(l)){ r.restrictions = l; continue; }
+      if (l.length > 10 && !r.directive)   r.notes.push(l);
     }
-    // If no explicit directive but there's a focus, use it
     if (!r.directive && r.focus) r.directive = r.focus;
     return r;
   }
 
-  // ── Daily Schedule: tab/multi-space column table ──
+  // ── DAILY SCHEDULE ───────────────────────────────────────────────────────
   function parseDailySchedule(text) {
     const lines = text.split('\n');
-    // Find header row: contains "Time" and day abbreviations
     const headerIdx = lines.findIndex(l => /time/i.test(l) && /mon|tue|wed|thu|fri|sat|sun/i.test(l));
     if (headerIdx === -1) return {};
 
-    const headerLine = lines[headerIdx];
-    // Split on 2+ spaces or tabs
-    const cols = headerLine.split(/\t|\s{2,}/).map(c => c.trim()).filter(Boolean);
+    const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const cols = lines[headerIdx].split(/\t|\s{2,}/).map(c => c.trim()).filter(Boolean);
     // Map column index → short day name
-    const dayMap = {}; // colIdx → 'Mon'
-    const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const dayMap = {};
     cols.forEach((c, i) => {
       const match = DAY_SHORT.find(d => c.toLowerCase().startsWith(d.toLowerCase()));
       if (match) dayMap[i] = match;
@@ -778,179 +783,142 @@
 
     for (let i = headerIdx + 1; i < lines.length; i++) {
       const l = normDash(lines[i]);
-      if (!l.trim()) continue;
-      // Time column: starts with digits and AM/PM
-      if (!/^\d{1,2}[:\-–]\d{2}/.test(l.trim())) continue;
+      if (!l.trim() || !/^\d{1,2}[:\-\u2013]\d{2}/.test(l.trim())) continue;
       const cells = l.split(/\t|\s{2,}/).map(c => c.trim());
-      const time = cells[0];
-      Object.entries(dayMap).forEach(([colIdx, day]) => {
+      const time  = cells[0];
+      for (const [colIdx, day] of Object.entries(dayMap)) {
         const val = cells[+colIdx];
-        if (val && val !== '—' && val !== '-' && val !== '') {
-          sched[day].push({ time, activity: val });
-        }
-      });
+        if (val && val !== '\u2014' && val !== '-') sched[day].push({ time, activity: val });
+      }
     }
     return sched;
   }
 
-  // ── Meal Plan: day headers + bullet entries ──
+  // ── MEAL PLAN ────────────────────────────────────────────────────────────
   function parseMealPlan(text) {
-    const DAY_REG = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[—\-–]/i;
+    const SKIP = /^(meals|salad kit|daily option|hydration|recipe)/i;
     const lines = text.split('\n').map(l => normDash(l.trim())).filter(Boolean);
-    const md = {};
-    let cur = null;
-    const SKIP_REG = /^(meals|salad kit|daily option|hydration|recipe)/i;
+    const md  = {};
+    let cur   = null;
 
     for (const l of lines) {
-      if (SKIP_REG.test(l)) continue;
-      // Remove emoji from start for matching
-      const lClean = l.replace(/^[\u{1F300}-\u{1FFFF}\s]+/gu,'').trim();
-      const dm = lClean.match(DAY_REG);
+      if (SKIP.test(l)) continue;
+      const lc = l.replace(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\s]+/gu, '').trim();
+      const dm = lc.match(DAY_REG);
       if (dm) {
-        const nm = dm[1].charAt(0).toUpperCase() + dm[1].slice(1).toLowerCase();
-        cur = []; md[nm] = { title: l, meals: cur };
+        cur = [];
+        md[capFirst(dm[1])] = { title: l, meals: cur };
         continue;
       }
       if (!cur) continue;
-      // Bullet chars: ·, •, -, *, or numbered
-      if (/^[·•\-\*]/.test(l) || /^\d+[\.\)]/.test(l)) {
+      if (/^[·•\-*]/.test(l) || /^\d+[.)]]/.test(l)) {
         const m = parseMealLine(l);
-        if (m) cur.push(m);
-        else cur.push({ meal: 'Note', time: '', description: l.replace(/^[·•\-\*\d\.\)]\s*/,'') });
+        cur.push(m || { meal:'Note', time:'', description: l.replace(/^[·•\-*\d.)]\s*/,'') });
       }
     }
     return md;
   }
 
-  // Parse: "· Label (Time): Description"  OR  "· Label (Time) Description"
   function parseMealLine(line) {
-    const c = line.replace(/^[·•\-\*]\s*/,'');
-    // Pattern: Name (time): description
+    const c = line.replace(/^[·•\-*]\s*/, '');
     const m1 = c.match(/^(.+?)\s*\(([^)]+)\)\s*:\s*(.+)/);
     if (m1) return { meal: m1[1].trim(), time: m1[2].trim(), description: m1[3].trim() };
-    // Pattern: Name (time) description (no colon)
     const m2 = c.match(/^(.+?)\s*\(([^)]+)\)\s+(.+)/);
     if (m2) return { meal: m2[1].trim(), time: m2[2].trim(), description: m2[3].trim() };
-    // Pattern: Name: description (no time)
     const m3 = c.match(/^(.+?)\s*:\s*(.+)/);
     if (m3) return { meal: m3[1].trim(), time: '', description: m3[2].trim() };
     return null;
   }
 
-  // ── Workout Plan: day headers + mixed bullets/tables ──
+  // ── WORKOUT PLAN ─────────────────────────────────────────────────────────
   function parseWorkoutPlan(text) {
-    const DAY_REG = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[—\-–]/i;
+    const TABLE_HDR = /^(block|exercise|sets|reps|weight|time)\b/i;
+    const TABLE_ROW = /\t|\s{3,}/;
     const lines = text.split('\n').map(l => normDash(l.trim())).filter(Boolean);
     const workouts = {};
     let cur = null;
 
-    // Detect table header rows (contain typical column words)
-    const TABLE_HDR = /^(block|exercise|sets|reps|weight|time)\b/i;
-    // Detect table data rows: start with digit or word, multiple tab/space columns
-    const TABLE_ROW = /\t|\s{3,}/;
-
     for (const l of lines) {
-      const lClean = l.replace(/^[\u{1F300}-\u{1FFFF}\s]+/gu,'').trim();
-      const dm = lClean.match(DAY_REG);
+      const lc = l.replace(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\s]+/gu, '').trim();
+      const dm = lc.match(DAY_REG);
       if (dm) {
-        const nm = dm[1].charAt(0).toUpperCase() + dm[1].slice(1).toLowerCase();
-        cur = nm;
+        cur = capFirst(dm[1]);
         workouts[cur] = { title: l, details: [], tableRows: [] };
         continue;
       }
-      if (!cur) continue;
-      if (/^[-—]+$/.test(l)) continue; // separator line
+      if (!cur || /^[-\u2014]+$/.test(l) || /^(workout|week\s*\d)/i.test(lc)) continue;
 
-      // Skip the workout section title line itself
-      if (/^(workout|week\s*\d)/i.test(lClean) && !dm) continue;
+      if (TABLE_HDR.test(l)) { workouts[cur]._tableHeader = l; continue; }
 
-      if (TABLE_HDR.test(l)) {
-        // Store column headers for context but skip rendering as detail
-        workouts[cur]._tableHeader = l;
-        continue;
-      }
-
-      // Table data row: multiple columns separated by tabs or 3+ spaces
-      if (workouts[cur]._tableHeader && TABLE_ROW.test(l) && !l.startsWith('·') && !l.startsWith('•') && !l.startsWith('-')) {
+      if (workouts[cur]._tableHeader && TABLE_ROW.test(l) && !/^[·•\-*]/.test(l)) {
         const cells = l.split(/\t|\s{3,}/).map(c => c.trim()).filter(Boolean);
         if (cells.length >= 2) {
           workouts[cur].tableRows.push(cells);
-          // Also add as readable detail
-          workouts[cur].details.push(cells.join(' — '));
+          workouts[cur].details.push(cells.join(' \u2014 '));
           continue;
         }
       }
-
-      // Clear table context when we hit a bullet again
-      if (/^[·•\-\*]/.test(l)) delete workouts[cur]._tableHeader;
-
-      // Bullet or plain detail line
-      const clean = l.replace(/^[·•\-\*]\s*/,'');
+      if (/^[·•\-*]/.test(l)) delete workouts[cur]._tableHeader;
+      const clean = l.replace(/^[·•\-*]\s*/, '');
       if (clean) workouts[cur].details.push(clean);
     }
     return workouts;
   }
 
-  // ── Rehab: bullet list of exercises ──
+  // ── REHAB & SUPPLEMENTS ──────────────────────────────────────────────────
+  const SUPP_RE = /supplement|omega|collagen|magnesium|D3|K2|NAC|ALA|tart cherry|P5P|electrolyte|No BCAAs/i;
+
   function parseRehab(text) {
-    const items = [];
-    for (const l of text.split('\n')) {
+    return text.split('\n').reduce((acc, l) => {
       const t = l.trim();
-      if (!/^[·•\-]/.test(t)) continue;
-      if (/supplement|omega|collagen|magnesium|D3|K2|NAC|ALA|tart cherry|P5P|electrolyte/i.test(t)) continue;
-      const clean = t.replace(/^[·•\-]\s*/,'');
-      // Format: "Exercise  reps  purpose" or just free text
+      if (!/^[·•\-]/.test(t) || SUPP_RE.test(t)) return acc;
+      const clean = t.replace(/^[·•\-]\s*/, '');
       const parts = clean.split(/\s{2,}|\t/);
-      if (parts.length >= 2) items.push({ exercise: parts[0], reps_time: parts[1], purpose: parts.slice(2).join(' ') });
-      else items.push({ exercise: clean, reps_time: '', purpose: '' });
-    }
-    return items;
+      acc.push(parts.length >= 2
+        ? { exercise: parts[0], reps_time: parts[1], purpose: parts.slice(2).join(' ') }
+        : { exercise: clean, reps_time: '', purpose: '' });
+      return acc;
+    }, []);
   }
 
-  // ── Supplements: bullet lines that mention supplement ingredients ──
   function parseSupplements(text) {
-    const supps = [];
-    for (const l of text.split('\n')) {
+    return text.split('\n').reduce((acc, l) => {
       const t = l.trim();
-      if (/supplement|omega|collagen|magnesium|D3|K2|NAC|ALA|tart cherry|P5P|electrolyte|No BCAAs/i.test(t)) {
-        const clean = t.replace(/^[·•\-]\s*/,'');
-        if (clean.length > 2) supps.push(clean);
+      if (SUPP_RE.test(t)) {
+        const clean = t.replace(/^[·•\-]\s*/, '');
+        if (clean.length > 2) acc.push(clean);
       }
-    }
-    return supps;
+      return acc;
+    }, []);
   }
 
-  // ── Stop Rules: numbered list ──
   function parseStopRules(text) {
     return text.split('\n')
       .map(l => l.trim())
-      .filter(l => /^\d+[\.\)]/.test(l))
-      .map(l => l.replace(/^\d+[\.\)]\s*/,''));
+      .filter(l => /^\d+[.)]]/.test(l))
+      .map(l => l.replace(/^\d+[.)]\s*/, ''));
   }
 
-  // ── Progression Tracker: table rows ──
   function parseProgression(text) {
-    const rows = [];
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    // Find header row
     const hi = lines.findIndex(l => /day|metric|target/i.test(l));
-    if (hi === -1) return rows;
-    for (let i = hi + 1; i < lines.length; i++) {
-      const cells = lines[i].split(/\t|\s{2,}/).map(c => c.trim()).filter(Boolean);
-      if (cells.length >= 2) rows.push({ day: cells[0], metric: cells[1], target: cells[2]||'', actual: cells[3]||'' });
-    }
-    return rows;
+    if (hi === -1) return [];
+    return lines.slice(hi + 1).reduce((acc, l) => {
+      const cells = l.split(/\t|\s{2,}/).map(c => c.trim()).filter(Boolean);
+      if (cells.length >= 2) acc.push({ day: cells[0], metric: cells[1], target: cells[2]||'', actual: cells[3]||'' });
+      return acc;
+    }, []);
   }
 
-  // ── RENDER: PARSE TABS ──────────────────────
+  // ── RENDER: PARSE PREVIEW TABS ───────────────────────────────────────────
   function renderSchedule(sched) {
     if (!sched || !Object.keys(sched).length) return '<p style="color:var(--text3)">No schedule found.</p>';
-    return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].filter(d => sched[d]?.length).map(d =>
-      `<div class="schedule-day">
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+      .filter(d => sched[d]?.length)
+      .map(d => `<div class="schedule-day">
         <div class="schedule-day-label">${d}</div>
         ${sched[d].map(e => `<div class="schedule-row"><span class="schedule-time">${e.time}</span><span>${e.activity}</span></div>`).join('')}
-      </div>`
-    ).join('');
+      </div>`).join('');
   }
 
   function renderMealPlanPreview(mp) {
@@ -959,10 +927,12 @@
       `<div class="card" style="margin-bottom:12px;">
         <div class="card-header">${mp[d].title}</div>
         <div class="card-body" style="padding:12px 14px;">
-          ${mp[d].meals.map(m => `<div class="list-item"><div class="list-item-title">${m.meal} <span style="color:var(--text3);font-weight:400;">(${m.time})</span></div><div class="list-item-sub">${m.description}</div></div>`).join('')}
+          ${mp[d].meals.map(m => `<div class="list-item">
+            <div class="list-item-title">${m.meal}${m.time ? ` <span style="color:var(--text3);font-weight:400;">(${m.time})</span>` : ''}</div>
+            <div class="list-item-sub">${m.description}</div>
+          </div>`).join('')}
         </div>
-      </div>`
-    ).join('');
+      </div>`).join('');
   }
 
   function renderWorkoutsPreview(w) {
@@ -971,123 +941,134 @@
       `<div class="workout-card">
         <div class="workout-card-hd">${w[d].title}</div>
         ${w[d].details.map(det => `<div class="workout-detail">${det}</div>`).join('')}
-      </div>`
-    ).join('');
+      </div>`).join('');
   }
 
   function renderRehabSupps(plan) {
-    let html = '';
+    const parts = [];
     if (plan.rehab?.length) {
-      html += '<div class="section-hd">🧘 Rehab Exercises</div>';
-      html += plan.rehab.map(r =>
-        `<div class="rehab-item"><span>${r.exercise}${r.purpose ? ' — <span style="color:var(--text3)">' + r.purpose + '</span>' : ''}</span>${r.reps_time ? '<span class="rehab-badge">' + r.reps_time + '</span>' : ''}</div>`
-      ).join('');
+      parts.push('<div class="section-hd">\uD83E\uDDD8 Rehab Exercises</div>');
+      parts.push(...plan.rehab.map(r =>
+        `<div class="rehab-item"><span>${r.exercise}${r.purpose ? ` \u2014 <span style="color:var(--text3)">${r.purpose}</span>` : ''}</span>${r.reps_time ? `<span class="rehab-badge">${r.reps_time}</span>` : ''}</div>`
+      ));
     }
     if (plan.supplements?.length) {
-      html += '<div class="section-hd" style="margin-top:20px;">💊 Supplements</div>';
-      html += plan.supplements.map(s => `<div class="list-item" style="font-size:0.85rem;">${s}</div>`).join('');
+      parts.push('<div class="section-hd" style="margin-top:20px;">\uD83D\uDC8A Supplements</div>');
+      parts.push(...plan.supplements.map(s => `<div class="list-item" style="font-size:0.85rem;">${s}</div>`));
     }
     if (plan.progression?.length) {
-      html += '<div class="section-hd" style="margin-top:20px;">📊 Progression Targets</div>';
-      html += '<div style="overflow-x:auto;"><table class="metrics-table"><thead><tr><th>Day</th><th>Metric</th><th>Target</th><th>Actual</th></tr></thead><tbody>';
-      html += plan.progression.map(r =>
-        `<tr><td>${r.day}</td><td>${r.metric}</td><td style="color:var(--accent)">${r.target}</td><td style="color:var(--text2)">${r.actual || '—'}</td></tr>`
-      ).join('');
-      html += '</tbody></table></div>';
+      parts.push('<div class="section-hd" style="margin-top:20px;">\uD83D\uDCCA Progression Targets</div>');
+      parts.push(`<div style="overflow-x:auto;"><table class="metrics-table">
+        <thead><tr><th>Day</th><th>Metric</th><th>Target</th><th>Actual</th></tr></thead>
+        <tbody>${plan.progression.map(r =>
+          `<tr><td>${r.day}</td><td>${r.metric}</td><td style="color:var(--accent)">${r.target}</td><td style="color:var(--text2)">${r.actual||'\u2014'}</td></tr>`
+        ).join('')}</tbody>
+      </table></div>`);
     }
-    return html || '<p style="color:var(--text3)">No data found.</p>';
+    return parts.length ? parts.join('') : '<p style="color:var(--text3)">No data found.</p>';
   }
 
-  // ── MEAL LOG ────────────────────────────────
+  // ── SEGMENT CONTROL BUILDER ──────────────────────────────────────────────
+  function buildSegControl(id, days, curDay, todayName) {
+    return `<div class="seg-control" id="${id}">${days.map(d => {
+      const isToday  = d === todayName;
+      const isActive = d === curDay;
+      const dot = isToday
+        ? '<span style="display:block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:2px auto 0;opacity:0.8;"></span>'
+        : '<span style="display:block;width:4px;height:4px;margin:2px auto 0;"></span>';
+      const style = isToday && !isActive ? 'color:var(--accent);' : '';
+      return `<button class="seg-btn${isActive?' active':''}" data-day="${d}" style="${style}">${d.slice(0,3)}${dot}</button>`;
+    }).join('')}</div>`;
+  }
+
+  // ── MEAL LOG ─────────────────────────────────────────────────────────────
   function renderMealLogUI(selectedDay) {
     const plan = store.get(SK.PLAN, null);
     if (!plan?.mealPlan || !Object.keys(plan.mealPlan).length) return;
-    const mealLogs = store.get(SK.MEALS, {});
-    const today = new Date().toISOString().split('T')[0];
+
+    const mealLogs  = store.get(SK.MEALS, {});
+    const todayISO  = getTodayISO();
+    const todayName = getTodayDayName();
     const availDays = DAYS.filter(d => plan.mealPlan[d]);
-    const curDay = (selectedDay && availDays.includes(selectedDay)) ? selectedDay : availDays[0];
-    const dayPlan = plan.mealPlan[curDay];
+    const defaultDay = availDays.includes(todayName) ? todayName : availDays[0];
+    const curDay    = (selectedDay && availDays.includes(selectedDay)) ? selectedDay : defaultDay;
+    const dayPlan   = plan.mealPlan[curDay];
 
-    let html = `
-      <div class="seg-control" id="mealDaySeg">
-        ${availDays.map(d => `<button class="seg-btn${d===curDay?' active':''}" data-day="${d}">${d.slice(0,3)}</button>`).join('')}
-      </div>
-      <div class="form-row" style="margin-bottom:16px;">
-        <div class="form-group"><label>Log Date</label><input type="date" id="mealLogDate" value="${today}"></div>
+    const mealRows = dayPlan ? dayPlan.meals.map((meal, idx) => {
+      const key = `${curDay}_${idx}`;
+      const log = mealLogs[key] || {};
+      return `<div class="meal-entry">
+        <div class="meal-planned">
+          <div class="meal-planned-label">Planned</div>
+          <div class="meal-planned-name">${meal.meal}</div>
+          ${meal.time ? `<div class="meal-planned-time">${meal.time}</div>` : ''}
+          <div class="meal-planned-desc">${meal.description}</div>
+        </div>
+        <div class="meal-actual">
+          <label>What I actually ate</label>
+          <textarea class="actual-meal-text" data-meal-key="${key}" rows="2">${log.description||''}</textarea>
+          <div class="check-row">
+            <input class="adherence-check" type="checkbox" id="adh_${key}" data-meal-key="${key}"${log.adherent?' checked':''}>
+            <label for="adh_${key}">Adherent to plan</label>
+          </div>
+        </div>
       </div>`;
+    }).join('') : '';
 
-    if (dayPlan) {
-      dayPlan.meals.forEach((meal, idx) => {
-        const key = `${curDay}_${idx}`;
-        const log = mealLogs[key] || {};
-        html += `
-          <div class="meal-entry">
-            <div class="meal-planned">
-              <div class="meal-planned-label">Planned</div>
-              <div class="meal-planned-name">${meal.meal}</div>
-              <div class="meal-planned-time">${meal.time}</div>
-              <div class="meal-planned-desc">${meal.description}</div>
-            </div>
-            <div class="meal-actual">
-              <label>What I actually ate</label>
-              <textarea class="actual-meal-text" data-meal-key="${key}" rows="2">${log.description || ''}</textarea>
-              <div class="check-row">
-                <input class="adherence-check" type="checkbox" id="adh_${key}" data-meal-key="${key}" ${log.adherent ? 'checked' : ''}>
-                <label for="adh_${key}">Adherent to plan</label>
-              </div>
-            </div>
-          </div>`;
-      });
-    }
-
-    html += `<button id="saveMealLogBtn" class="btn btn-success btn-full">✓ Save ${curDay} Meal Log</button>`;
-    document.getElementById('mealLogContent').innerHTML = html;
+    document.getElementById('mealLogContent').innerHTML =
+      buildSegControl('mealDaySeg', availDays, curDay, todayName) +
+      `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="flex:1;"><label>Log Date</label><input type="date" id="mealLogDate" value="${todayISO}"></div>
+        <button id="mealTodayBtn" class="btn btn-ghost" style="margin-top:18px;padding:12px 14px;font-size:0.8rem;">Today</button>
+      </div>` +
+      mealRows +
+      `<button id="saveMealLogBtn" class="btn btn-success btn-full">\u2713 Save ${curDay} Meal Log</button>`;
 
     document.getElementById('mealDaySeg').addEventListener('click', e => {
       const btn = e.target.closest('.seg-btn');
       if (btn) renderMealLogUI(btn.dataset.day);
     });
-
+    document.getElementById('mealTodayBtn').addEventListener('click', () => renderMealLogUI(getTodayDayName()));
     document.getElementById('saveMealLogBtn').addEventListener('click', () => {
       const date = document.getElementById('mealLogDate').value;
       const logs = store.get(SK.MEALS, {});
       document.querySelectorAll('.actual-meal-text').forEach(ta => {
-        const key = ta.dataset.mealKey;
-        const cb = document.querySelector(`.adherence-check[data-meal-key="${key}"]`);
-        logs[key] = { date, description: ta.value, adherent: cb?.checked || false };
+        const cb = document.querySelector(`.adherence-check[data-meal-key="${ta.dataset.mealKey}"]`);
+        logs[ta.dataset.mealKey] = { date, description: ta.value, adherent: cb?.checked || false };
       });
       store.set(SK.MEALS, logs);
-      toast('✓ Meal log saved!');
+      toast('\u2713 Meal log saved!');
       renderDashboard();
     });
   }
 
-  // ── WORKOUT LOG ─────────────────────────────
+  // ── WORKOUT LOG ──────────────────────────────────────────────────────────
   function renderWorkoutLogUI(selectedDay) {
     const plan = store.get(SK.PLAN, null);
     if (!plan?.workouts || !Object.keys(plan.workouts).length) return;
-    const wLogs = store.get(SK.WORKOUTS, {});
-    const today = new Date().toISOString().split('T')[0];
+
+    const wLogs     = store.get(SK.WORKOUTS, {});
+    const todayISO  = getTodayISO();
+    const todayName = getTodayDayName();
     const availDays = DAYS.filter(d => plan.workouts[d]?.details?.length);
-    if (!availDays.length) { document.getElementById('workoutLogContent').innerHTML = '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No exercise data in plan</div></div>'; return; }
-    const curDay = (selectedDay && availDays.includes(selectedDay)) ? selectedDay : availDays[0];
-    const wo = plan.workouts[curDay];
-    const isJudo = wo?.title?.toLowerCase().includes('judo');
+    if (!availDays.length) {
+      document.getElementById('workoutLogContent').innerHTML =
+        '<div class="empty-state"><div class="empty-icon">\uD83C\uDFCB\uFE0F</div><div class="empty-text">No exercise data in plan</div></div>';
+      return;
+    }
+    const defaultDay = availDays.includes(todayName) ? todayName : availDays[0];
+    const curDay    = (selectedDay && availDays.includes(selectedDay)) ? selectedDay : defaultDay;
+    const wo        = plan.workouts[curDay];
+    const isJudo    = wo?.title?.toLowerCase().includes('judo');
 
-    let html = `
-      <div class="seg-control" id="woDaySeg">
-        ${availDays.map(d => `<button class="seg-btn${d===curDay?' active':''}" data-day="${d}">${d.slice(0,3)}</button>`).join('')}
-      </div>
-      <div class="form-row" style="margin-bottom:16px;">
-        <div class="form-group"><label>Log Date</label><input type="date" id="workoutLogDate" value="${today}"></div>
-      </div>`;
-
+    let workoutBody = '';
     if (wo) {
       if (isJudo) {
-        const judoKey = `${curDay}_judo_feel`;
-        const savedFeel = wLogs[judoKey]?.feel || 5;
-        if (wo.details.length) html += `<div class="card" style="margin-bottom:14px;"><div class="card-body">${wo.details.map(d => `<div style="font-size:0.85rem;margin-bottom:6px;color:var(--text2);">• ${d}</div>`).join('')}</div></div>`;
-        html += `<div class="card"><div class="card-body">
+        const savedFeel = wLogs[`${curDay}_judo_feel`]?.feel ?? 5;
+        if (wo.details.length) {
+          workoutBody += `<div class="card" style="margin-bottom:14px;"><div class="card-body">${wo.details.map(d => `<div style="font-size:0.85rem;margin-bottom:6px;color:var(--text2);">\u2022 ${d}</div>`).join('')}</div></div>`;
+        }
+        workoutBody += `<div class="card"><div class="card-body">
           <label>How did Judo feel today?</label>
           <div class="range-wrap">
             <div class="range-row">
@@ -1098,130 +1079,180 @@
           </div>
         </div></div>`;
       } else {
-        wo.details.forEach((detail, idx) => {
+        workoutBody = wo.details.map((detail, idx) => {
           const noteKey = `${curDay}_note_${idx}`;
-          const saved = wLogs[noteKey]?.note || '';
-          html += `<div class="exercise-entry">
+          return `<div class="exercise-entry">
             <div class="exercise-header">${detail}</div>
             <div class="exercise-body">
               <label>Actual performance</label>
-              <textarea class="workout-note-text" data-note-key="${noteKey}" rows="2">${saved}</textarea>
+              <textarea class="workout-note-text" data-note-key="${noteKey}" rows="2">${wLogs[noteKey]?.note||''}</textarea>
             </div>
           </div>`;
-        });
+        }).join('');
       }
     }
 
-    html += `<button id="saveWorkoutLogBtn" class="btn btn-success btn-full">✓ Save ${curDay} Workout</button>`;
-    document.getElementById('workoutLogContent').innerHTML = html;
+    document.getElementById('workoutLogContent').innerHTML =
+      buildSegControl('woDaySeg', availDays, curDay, todayName) +
+      `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="flex:1;"><label>Log Date</label><input type="date" id="workoutLogDate" value="${todayISO}"></div>
+        <button id="woTodayBtn" class="btn btn-ghost" style="margin-top:18px;padding:12px 14px;font-size:0.8rem;">Today</button>
+      </div>` +
+      workoutBody +
+      `<button id="saveWorkoutLogBtn" class="btn btn-success btn-full">\u2713 Save ${curDay} Workout</button>`;
 
     if (isJudo) {
       const slider = document.getElementById('judoSlider');
-      slider.addEventListener('input', () => document.getElementById('judoVal').textContent = slider.value);
+      slider.addEventListener('input', () => { document.getElementById('judoVal').textContent = slider.value; });
     }
-
     document.getElementById('woDaySeg').addEventListener('click', e => {
       const btn = e.target.closest('.seg-btn');
       if (btn) renderWorkoutLogUI(btn.dataset.day);
     });
-
+    document.getElementById('woTodayBtn').addEventListener('click', () => renderWorkoutLogUI(getTodayDayName()));
     document.getElementById('saveWorkoutLogBtn').addEventListener('click', () => {
       const date = document.getElementById('workoutLogDate').value;
       const logs = store.get(SK.WORKOUTS, {});
       if (isJudo) {
-        const s = document.getElementById('judoSlider');
-        logs[`${curDay}_judo_feel`] = { date, feel: parseInt(s.value) };
+        logs[`${curDay}_judo_feel`] = { date, feel: parseInt(document.getElementById('judoSlider').value, 10) };
       } else {
         document.querySelectorAll('.workout-note-text').forEach(ta => {
           logs[ta.dataset.noteKey] = { date, note: ta.value };
         });
       }
       store.set(SK.WORKOUTS, logs);
-      toast('✓ Workout saved!');
+      toast('\u2713 Workout saved!');
       renderDashboard();
     });
   }
 
-  // ── BODY METRICS ────────────────────────────
+  // ── BODY METRICS DELTA ───────────────────────────────────────────────────
+  // arr is sorted newest-first; prev entry is at idx+1
+  function bodyDelta(arr, idx, key) {
+    const cur  = arr[idx][key];
+    const prev = arr[idx + 1]?.[key];
+    if (cur == null || prev == null) return '';
+    const diff = +(cur - prev).toFixed(1);
+    if (diff === 0) return '';
+    const isGoodDown = key === 'weight' || key === 'bodyFat' || key === 'visceralFat';
+    const color = (isGoodDown ? diff < 0 : diff > 0) ? 'var(--success)' : 'var(--danger)';
+    return `<span style="font-size:0.7rem;color:${color};margin-left:4px;">${diff > 0 ? '+' : ''}${diff}</span>`;
+  }
+
+  // ── BODY HISTORY ─────────────────────────────────────────────────────────
   function renderBodyHistory() {
     const metrics = store.get(SK.BODY, []);
     const el = document.getElementById('bodyMetricsHistory');
     if (!metrics.length) { el.innerHTML = ''; return; }
-    const sorted = [...metrics].sort((a, b) => new Date(b.date) - new Date(a.date));
-    el.innerHTML = `
-      <div class="card">
-        <div class="card-header">History</div>
-        <div style="overflow-x:auto;">
-          <table class="metrics-table">
-            <thead><tr><th>Date</th><th>Weight</th><th>BF (lbs)</th><th>Visceral</th><th>Muscle</th></tr></thead>
-            <tbody>
-              ${sorted.slice(0, 10).map(m => `<tr><td>${m.date}</td><td>${m.weight ?? '—'}</td><td>${m.bodyFat ?? '—'}</td><td>${m.visceralFat ?? '—'}</td><td>${m.skeletalMuscle ?? '—'}</td></tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>`;
+
+    // Sort asc for delta calc, then reverse for display (newest first)
+    const sorted = [...metrics]
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .reverse();
+
+    const rows = sorted.map((m, i) => {
+      // Find original index for deletion (using date as stable key)
+      const origIdx = metrics.findIndex(x => x.date === m.date && x.weight === m.weight);
+      return `<tr>
+        <td>${m.date}${m._baseline ? ' <span style="font-size:0.6rem;color:var(--text3);">baseline</span>' : ''}</td>
+        <td>${m.weight  ?? '\u2014'}${bodyDelta(sorted, i, 'weight')}</td>
+        <td>${m.bodyFat ?? '\u2014'}${bodyDelta(sorted, i, 'bodyFat')}</td>
+        <td>${m.visceralFat ?? '\u2014'}${bodyDelta(sorted, i, 'visceralFat')}</td>
+        <td>${m.skeletalMuscle ?? '\u2014'}${bodyDelta(sorted, i, 'skeletalMuscle')}</td>
+        <td><button class="delete-body-row" data-idx="${origIdx}" style="background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:2px 6px;" title="Delete">\u2715</button></td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `<div class="card">
+      <div class="card-header">History <span style="font-size:0.72rem;color:var(--text3);font-weight:400;">(${metrics.length} entries)</span></div>
+      <div style="overflow-x:auto;">
+        <table class="metrics-table">
+          <thead><tr><th>Date</th><th>Weight</th><th>BF (lbs)</th><th>Visceral</th><th>Muscle</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+
+    el.querySelectorAll('.delete-body-row').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx   = parseInt(btn.dataset.idx, 10);
+        const all   = store.get(SK.BODY, []);
+        const entry = all[idx];
+        if (!entry || !confirm(`Delete entry for ${entry.date}?`)) return;
+        all.splice(idx, 1);
+        store.set(SK.BODY, all);
+        renderBodyHistory();
+        renderDashboard();
+        toast('Entry deleted');
+      });
+    });
   }
 
-  // ── DASHBOARD ────────────────────────────────
+  // ── DASHBOARD ────────────────────────────────────────────────────────────
   let weightChart = null;
 
   function renderDashboard() {
-    const plan = store.get(SK.PLAN, null);
-    const body = store.get(SK.BODY, []);
+    const plan  = store.get(SK.PLAN, null);
+    const body  = store.get(SK.BODY, []);
     const meals = store.get(SK.MEALS, {});
     const wLogs = store.get(SK.WORKOUTS, {});
+    const el    = document.getElementById('dash-content');
 
     if (!plan) {
-      document.getElementById('dash-content').innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Parse your plan to begin</div></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">\uD83D\uDCCB</div><div class="empty-text">Parse your plan to begin</div></div>';
       return;
     }
 
-    const latest = body.length ? [...body].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
-    const totalMeals = Object.values(meals).filter(l => l.description?.trim()).length;
-    const adherent = Object.values(meals).filter(l => l.adherent).length;
-    const totalWOs = Object.values(wLogs).filter(l => l.note?.trim() || l.feel).length;
+    const latest     = body.length ? [...body].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
+    const mealVals   = Object.values(meals);
+    const totalMeals = mealVals.filter(l => l.description?.trim()).length;
+    const adherent   = mealVals.filter(l => l.adherent).length;
+    const totalWOs   = Object.values(wLogs).filter(l => l.note?.trim() || l.feel).length;
 
-    const mVal = (v, cls='') => `<div class="metric-val ${v ? '' : 'empty'} ${cls}">${v ?? '—'}</div>`;
+    const tile = (cls, val, lbl) =>
+      `<div class="metric-tile${cls ? ' '+cls : ''}"><div class="metric-val${val ? '' : ' empty'}">${val ?? '\u2014'}</div><div class="metric-lbl">${lbl}</div></div>`;
 
-    let html = `
-      <div class="metric-grid">
-        <div class="metric-tile">${mVal(latest?.weight)}<div class="metric-lbl">Weight lbs</div></div>
-        <div class="metric-tile secondary">${mVal(latest?.bodyFat)}<div class="metric-lbl">Body Fat lbs</div></div>
-        <div class="metric-tile tertiary">${mVal(latest?.visceralFat)}<div class="metric-lbl">Visceral Fat</div></div>
-        <div class="metric-tile quad">${mVal(latest?.skeletalMuscle)}<div class="metric-lbl">Muscle lbs</div></div>
-      </div>
-      <div class="stats-row">
+    const pd   = plan.primaryDirective || {};
+    const parts = [
+      `<div class="metric-grid">
+        ${tile('',          latest?.weight,         'Weight lbs')}
+        ${tile('secondary', latest?.bodyFat,         'Body Fat lbs')}
+        ${tile('tertiary',  latest?.visceralFat,     'Visceral Fat')}
+        ${tile('quad',      latest?.skeletalMuscle,  'Muscle lbs')}
+      </div>`,
+      `<div class="stats-row">
         <div class="stat-cell"><div class="stat-num">${totalMeals}</div><div class="stat-label">Meals Logged</div></div>
         <div class="stat-cell"><div class="stat-num">${adherent}</div><div class="stat-label">Adherent</div></div>
         <div class="stat-cell"><div class="stat-num">${totalWOs}</div><div class="stat-label">Workouts</div></div>
-      </div>`;
+      </div>`
+    ];
 
-    const pd = plan.primaryDirective || {};
-    if (pd.title) html += `<div style="font-family:var(--font-display);font-size:0.82rem;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.3px;">${pd.title}</div>`;
-    if (pd.directive || pd.focus) {
-      html += `<div class="directive-banner"><strong>🎯 Focus</strong>${pd.directive || pd.focus}</div>`;
-    }
-    if (!latest && pd.stats?.weight) {
-      html += `<div class="directive-banner" style="background:rgba(10,132,255,0.08);border-color:rgba(10,132,255,0.2);"><strong style="color:#6eb8ff;">📋 Baseline (from plan)</strong>Weight: ${pd.stats.weight} lbs · BF: ${pd.stats.bodyFat} lbs · Visceral: ${pd.stats.visceralFat} cm² · Muscle: ${pd.stats.muscle} lbs${pd.stats.date ? ' <span style="color:var(--text3)">(' + pd.stats.date + ')</span>' : ''}</div>`;
-    }
-    if (latest) html += `<div style="font-size:0.72rem;color:var(--text3);margin-bottom:12px;">📅 Last entry: ${latest.date}</div>`;
+    if (pd.title)
+      parts.push(`<div style="font-family:var(--font-display);font-size:0.82rem;font-weight:700;color:var(--text2);margin-bottom:8px;">${pd.title}</div>`);
+    if (pd.directive || pd.focus)
+      parts.push(`<div class="directive-banner"><strong>\uD83C\uDFAF Focus</strong>${pd.directive || pd.focus}</div>`);
+    if (!latest && pd.stats?.weight)
+      parts.push(`<div class="directive-banner" style="background:rgba(10,132,255,0.08);border-color:rgba(10,132,255,0.2);">
+        <strong style="color:#6eb8ff;">\uD83D\uDCCB Baseline (from plan)</strong>
+        Weight: ${pd.stats.weight} lbs \u00B7 BF: ${pd.stats.bodyFat} lbs \u00B7 Visceral: ${pd.stats.visceralFat} cm\u00B2 \u00B7 Muscle: ${pd.stats.muscle} lbs
+        ${pd.stats.date ? `<span style="color:var(--text3);"> (${pd.stats.date})</span>` : ''}
+      </div>`);
+    if (latest)
+      parts.push(`<div style="font-size:0.72rem;color:var(--text3);margin-bottom:12px;">\uD83D\uDCC5 Last entry: ${latest.date}</div>`);
+    if (body.length > 1)
+      parts.push(`<div class="card"><div class="card-header">\uD83D\uDCC8 Weight Trend</div><div class="card-body"><div class="chart-wrap"><canvas id="weightChartCanvas"></canvas></div></div></div>`);
 
-    if (body.length > 1) html += `<div class="card"><div class="card-header">📈 Weight Trend</div><div class="card-body"><div class="chart-wrap"><canvas id="weightChartCanvas"></canvas></div></div></div>`;
+    parts.push(`<button class="btn btn-ghost btn-full" id="exportDataBtn" style="margin-top:8px;">\u2B07 Export Progress (.txt)</button>`);
 
-    html += `<button class="btn btn-ghost btn-full" id="exportDataBtn" style="margin-top:8px;">⬇ Export Progress (.txt)</button>`;
-
-    document.getElementById('dash-content').innerHTML = html;
-    document.getElementById('exportDataBtn')?.addEventListener('click', exportDataTxt);
-
+    el.innerHTML = parts.join('');
+    document.getElementById('exportDataBtn').addEventListener('click', exportDataTxt);
     if (body.length > 1) setTimeout(renderWeightChart, 80);
   }
 
   function renderWeightChart() {
-    const metrics = store.get(SK.BODY, []);
-    if (!metrics.length) return;
-    const sorted = [...metrics].sort((a, b) => new Date(a.date) - new Date(b.date));
     const ctx = document.getElementById('weightChartCanvas')?.getContext('2d');
     if (!ctx) return;
+    const sorted = [...store.get(SK.BODY, [])].sort((a, b) => new Date(a.date) - new Date(b.date));
     if (weightChart) { weightChart.destroy(); weightChart = null; }
     weightChart = new Chart(ctx, {
       type: 'line',
@@ -1229,110 +1260,124 @@
         labels: sorted.map(m => m.date),
         datasets: [{
           label: 'Weight (lbs)',
-          data: sorted.map(m => m.weight),
+          data:  sorted.map(m => m.weight),
           borderColor: '#c8f53a',
           backgroundColor: 'rgba(200,245,58,0.08)',
-          tension: 0.3,
-          fill: true,
-          pointBackgroundColor: '#c8f53a',
-          pointRadius: 4
+          tension: 0.3, fill: true,
+          pointBackgroundColor: '#c8f53a', pointRadius: 4
         }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { ticks: { color: '#666', font: { family: 'DM Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { ticks: { color: '#666', font: { family: 'DM Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: false }
+          x: { ticks: { color:'#666', font:{ family:'DM Mono', size:10 } }, grid:{ color:'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color:'#666', font:{ family:'DM Mono', size:10 } }, grid:{ color:'rgba(255,255,255,0.05)' }, beginAtZero: false }
         }
       }
     });
   }
 
-  // ── EXPORT ──────────────────────────────────
+  // ── EXPORT / IMPORT ──────────────────────────────────────────────────────
   function generateExportText() {
-    const plan = store.get(SK.PLAN, null);
-    const body = store.get(SK.BODY, []);
+    const plan  = store.get(SK.PLAN, null);
+    const body  = store.get(SK.BODY, []);
     const meals = store.get(SK.MEALS, {});
     const wLogs = store.get(SK.WORKOUTS, {});
-    let txt = '## FitTrack Progress Export\n\n### Body Metrics\nDate, Weight, BF (lbs), Visceral, Muscle\n';
-    if (body.length) [...body].sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(m => txt += `${m.date}, ${m.weight||''}, ${m.bodyFat||''}, ${m.visceralFat||''}, ${m.skeletalMuscle||''}\n`);
-    txt += '\n### Meal Logs\n';
-    Object.keys(plan?.mealPlan || {}).forEach(day => {
-      const dp = plan.mealPlan[day]; if (!dp) return;
-      txt += `\nDay: ${day}\n`;
+    const lines = ['## FitTrack Progress Export', '', '### Body Metrics', 'Date, Weight, BF (lbs), Visceral, Muscle'];
+
+    [...body].sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(m =>
+      lines.push(`${m.date}, ${m.weight||''}, ${m.bodyFat||''}, ${m.visceralFat||''}, ${m.skeletalMuscle||''}`)
+    );
+    lines.push('', '### Meal Logs');
+    for (const day of Object.keys(plan?.mealPlan || {})) {
+      const dp = plan.mealPlan[day]; if (!dp) continue;
+      lines.push(`\nDay: ${day}`);
       dp.meals.forEach((m, idx) => {
         const log = meals[`${day}_${idx}`] || {};
-        txt += `- ${m.meal} (${m.time}): Planned: ${m.description} | Actual: ${log.description||'—'} | Adherent: ${log.adherent?'Yes':'No'}\n`;
+        lines.push(`- ${m.meal} (${m.time}): Planned: ${m.description} | Actual: ${log.description||'\u2014'} | Adherent: ${log.adherent?'Yes':'No'}`);
       });
-    });
-    txt += '\n### Workout Logs\n';
-    Object.keys(plan?.workouts || {}).forEach(day => {
-      const wo = plan.workouts[day]; if (!wo) return;
-      txt += `\nDay: ${day} (${wo.title})\n`;
+    }
+    lines.push('', '### Workout Logs');
+    for (const day of Object.keys(plan?.workouts || {})) {
+      const wo = plan.workouts[day]; if (!wo) continue;
+      lines.push(`\nDay: ${day} (${wo.title})`);
       if (wo.title.toLowerCase().includes('judo')) {
-        txt += `- Judo Feel: ${wLogs[`${day}_judo_feel`]?.feel || '—'}/10\n`;
+        lines.push(`- Judo Feel: ${wLogs[`${day}_judo_feel`]?.feel || '\u2014'}/10`);
       } else {
-        wo.details.forEach((d, i) => { txt += `- ${d}\n  Actual: ${wLogs[`${day}_note_${i}`]?.note || '—'}\n`; });
+        wo.details.forEach((d, i) => lines.push(`- ${d}\n  Actual: ${wLogs[`${day}_note_${i}`]?.note || '\u2014'}`));
       }
-    });
-    return txt;
+    }
+    return lines.join('\n');
   }
 
   function saveFile(name, content, type) {
     const blob = new Blob([content], { type });
-    if (navigator.share && navigator.canShare) {
-      const file = new File([blob], name, { type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: name }).catch(() => dlBlob(blob, name)); return;
-      }
+    if (navigator.canShare?.({ files: [new File([blob], name, { type })] })) {
+      navigator.share({ files: [new File([blob], name, { type })], title: name }).catch(() => dlBlob(blob, name));
+      return;
     }
     dlBlob(blob, name);
   }
   function dlBlob(blob, name) {
     const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement('a'), { href: url, download: name, style: 'display:none' });
+    const a   = Object.assign(document.createElement('a'), { href:url, download:name, style:'display:none' });
     document.body.appendChild(a); a.click();
     setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
   }
-  function exportDataTxt() { saveFile(`fittrack_${new Date().toISOString().split('T')[0]}.txt`, generateExportText(), 'text/plain'); }
-  function exportJson() { const p = store.get(SK.PLAN, null); if (p) saveFile(`fitplan_${new Date().toISOString().split('T')[0]}.json`, JSON.stringify(p, null, 2), 'application/json'); }
+  function exportDataTxt() { saveFile(`fittrack_${getTodayISO()}.txt`, generateExportText(), 'text/plain'); }
+  function exportJson()    { const p = store.get(SK.PLAN,null); if(p) saveFile(`fitplan_${getTodayISO()}.json`, JSON.stringify(p,null,2), 'application/json'); }
 
-  // ── PARSE BUTTON ────────────────────────────
+  // ── PARSE BUTTON ─────────────────────────────────────────────────────────
   document.getElementById('parseBtn').addEventListener('click', () => {
-    const raw = document.getElementById('rawInput').value.trim();
+    const raw   = document.getElementById('rawInput').value.trim();
     const errEl = document.getElementById('parseError');
     errEl.style.display = 'none';
     if (!raw) { errEl.textContent = 'Please paste your plan text first.'; errEl.style.display = 'block'; return; }
+
+    // Confirm reset BEFORE parsing so user isn't surprised
+    if (store.get(SK.PLAN, null)) {
+      if (!confirm('Parsing a new week will reset meal and workout logs. Body metrics are kept. Continue?')) return;
+      store.del(SK.MEALS);
+      store.del(SK.WORKOUTS);
+    }
+
     try {
       const plan = parseFullPlan(raw);
       store.set(SK.PLAN, plan);
-      document.getElementById('sub-sched').innerHTML = renderSchedule(plan.dailySchedule);
-      document.getElementById('sub-meals').innerHTML = renderMealPlanPreview(plan.mealPlan);
+
+      document.getElementById('sub-sched').innerHTML   = renderSchedule(plan.dailySchedule);
+      document.getElementById('sub-meals').innerHTML   = renderMealPlanPreview(plan.mealPlan);
       document.getElementById('sub-workout').innerHTML = renderWorkoutsPreview(plan.workouts);
-      document.getElementById('sub-rehab').innerHTML = renderRehabSupps(plan);
-      document.getElementById('sub-stop').innerHTML = plan.stopRules.length
-        ? plan.stopRules.map(r => `<div class="stop-rule">⚠️ ${r}</div>`).join('')
+      document.getElementById('sub-rehab').innerHTML   = renderRehabSupps(plan);
+      document.getElementById('sub-stop').innerHTML    = plan.stopRules.length
+        ? plan.stopRules.map(r => `<div class="stop-rule">\u26A0\uFE0F ${r}</div>`).join('')
         : '<p style="color:var(--text3)">No stop rules found.</p>';
       document.getElementById('resultsContainer').style.display = 'block';
       document.getElementById('exportJsonBtn').disabled = false;
-      // Auto-seed body metrics from plan baseline stats if not already logged that date
+
+      // Auto-seed baseline body metrics from plan header stats
       const pd = plan.primaryDirective;
-      if (pd?.stats?.weight && pd.stats.date) {
+      if (pd?.stats?.weight) {
         const existing = store.get(SK.BODY, []);
-        const dateKey = pd.stats.date.replace(/[^\d\-]/g,'').trim() || new Date().toISOString().split('T')[0];
+        const dateKey  = pd.stats.date
+          ? pd.stats.date.replace(/[^\d\-]/g, '').slice(0, 10) || getTodayISO()
+          : getTodayISO();
         const alreadyHas = existing.some(e => e.date === dateKey || (e._baseline && e.weight === pd.stats.weight));
         if (!alreadyHas) {
           existing.push({ date: dateKey, weight: pd.stats.weight, bodyFat: pd.stats.bodyFat, visceralFat: pd.stats.visceralFat, skeletalMuscle: pd.stats.muscle, _baseline: true });
           store.set(SK.BODY, existing);
-          renderBodyHistory();
         }
       }
-      renderDashboard(); renderMealLogUI(); renderWorkoutLogUI();
-      toast('✓ Plan parsed successfully!');
+
+      renderBodyHistory();
+      renderDashboard();
+      renderMealLogUI();
+      renderWorkoutLogUI();
+      toast('\u2713 Plan parsed successfully!');
     } catch (e) {
-      errEl.textContent = 'Parse error: ' + e.message; errEl.style.display = 'block';
+      errEl.textContent = 'Parse error: ' + e.message;
+      errEl.style.display = 'block';
     }
   });
 
@@ -1344,54 +1389,95 @@
     store.del(SK.PLAN);
     if (weightChart) { weightChart.destroy(); weightChart = null; }
     renderDashboard();
-    document.getElementById('mealLogContent').innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">Parse a plan first</div></div>';
-    document.getElementById('workoutLogContent').innerHTML = '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">Parse a plan first</div></div>';
+    document.getElementById('mealLogContent').innerHTML    = '<div class="empty-state"><div class="empty-icon">\uD83C\uDF7D</div><div class="empty-text">Parse a plan first</div></div>';
+    document.getElementById('workoutLogContent').innerHTML = '<div class="empty-state"><div class="empty-icon">\uD83C\uDFCB</div><div class="empty-text">Parse a plan first</div></div>';
     toast('Plan cleared');
   });
 
   document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
 
-  // ── BODY METRICS ────────────────────────────
+  // ── SAVE BODY METRICS ────────────────────────────────────────────────────
   document.getElementById('saveBodyMetrics').addEventListener('click', () => {
     const date = document.getElementById('bodyDate').value;
-    if (!date) { toast('⚠️ Select a date first'); return; }
+    if (!date) { toast('\u26A0\uFE0F Select a date first'); return; }
+    const ids  = ['bodyWeight','bodyFat','visceralFat','skeletalMuscle'];
+    const vals = ids.map(id => { const v = document.getElementById(id).value; return v ? parseFloat(v) : null; });
     const metrics = store.get(SK.BODY, []);
-    const entry = {
-      date,
-      weight: document.getElementById('bodyWeight').value ? parseFloat(document.getElementById('bodyWeight').value) : null,
-      bodyFat: document.getElementById('bodyFat').value ? parseFloat(document.getElementById('bodyFat').value) : null,
-      visceralFat: document.getElementById('visceralFat').value ? parseFloat(document.getElementById('visceralFat').value) : null,
-      skeletalMuscle: document.getElementById('skeletalMuscle').value ? parseFloat(document.getElementById('skeletalMuscle').value) : null
-    };
-    metrics.push(entry);
+    metrics.push({ date, weight: vals[0], bodyFat: vals[1], visceralFat: vals[2], skeletalMuscle: vals[3] });
     store.set(SK.BODY, metrics);
-    ['bodyDate','bodyWeight','bodyFat','visceralFat','skeletalMuscle'].forEach(id => document.getElementById(id).value = '');
-    renderBodyHistory(); renderDashboard();
-    toast('✓ Metrics saved!');
+    ['bodyDate','bodyWeight','bodyFat','visceralFat','skeletalMuscle'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('bodyDate').value = getTodayISO();
+    renderBodyHistory();
+    renderDashboard();
+    toast('\u2713 Metrics saved!');
   });
 
-  // ── INIT ─────────────────────────────────────
-  function init() {
-    // Set today's date as default for body metrics
-    document.getElementById('bodyDate').value = new Date().toISOString().split('T')[0];
+  // ── CSV EXPORT ───────────────────────────────────────────────────────────
+  document.getElementById('exportBodyCsvBtn').addEventListener('click', () => {
+    const metrics = store.get(SK.BODY, []);
+    if (!metrics.length) { toast('No entries to export'); return; }
+    const sorted = [...metrics].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const csv = ['date,weight,bodyFat,visceralFat,skeletalMuscle',
+      ...sorted.map(m => [m.date, m.weight??'', m.bodyFat??'', m.visceralFat??'', m.skeletalMuscle??''].join(','))
+    ].join('\n');
+    saveFile(`fittrack_body_${getTodayISO()}.csv`, csv, 'text/csv');
+    toast('\u2713 CSV exported!');
+  });
 
+  // ── CSV IMPORT ───────────────────────────────────────────────────────────
+  document.getElementById('importBodyCsvBtn').addEventListener('click', () => document.getElementById('bodyImportInput').click());
+
+  document.getElementById('bodyImportInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const lines    = e.target.result.trim().split('\n');
+        const startIdx = lines[0].toLowerCase().includes('date') ? 1 : 0;
+        const imported = lines.slice(startIdx).reduce((acc, l) => {
+          const p = l.split(',').map(s => s.trim());
+          if (p[0] && /\d{4}-\d{2}-\d{2}/.test(p[0]))
+            acc.push({ date: p[0], weight: p[1]?parseFloat(p[1]):null, bodyFat: p[2]?parseFloat(p[2]):null, visceralFat: p[3]?parseFloat(p[3]):null, skeletalMuscle: p[4]?parseFloat(p[4]):null });
+          return acc;
+        }, []);
+        if (!imported.length) { toast('\u26A0\uFE0F No valid rows found'); return; }
+        const byDate = {};
+        store.get(SK.BODY, []).forEach(m => byDate[m.date] = m);
+        imported.forEach(m => byDate[m.date] = m);
+        const merged = Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+        store.set(SK.BODY, merged);
+        renderBodyHistory();
+        renderDashboard();
+        toast(`\u2713 Imported ${imported.length} entries (${merged.length} total)`);
+      } catch (err) {
+        toast('\u26A0\uFE0F Failed to parse CSV: ' + err.message);
+      }
+      this.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ── INIT ─────────────────────────────────────────────────────────────────
+  function init() {
+    document.getElementById('bodyDate').value = getTodayISO();
     renderDashboard();
     renderBodyHistory();
 
     const plan = store.get(SK.PLAN, null);
-    if (plan) {
-      document.getElementById('sub-sched').innerHTML = renderSchedule(plan.dailySchedule);
-      document.getElementById('sub-meals').innerHTML = renderMealPlanPreview(plan.mealPlan);
-      document.getElementById('sub-workout').innerHTML = renderWorkoutsPreview(plan.workouts);
-      document.getElementById('sub-rehab').innerHTML = renderRehabSupps(plan);
-      document.getElementById('sub-stop').innerHTML = plan.stopRules.length
-        ? plan.stopRules.map(r => `<div class="stop-rule">⚠️ ${r}</div>`).join('')
-        : '<p style="color:var(--text3)">No stop rules found.</p>';
-      document.getElementById('resultsContainer').style.display = 'block';
-      document.getElementById('exportJsonBtn').disabled = false;
-      renderMealLogUI();
-      renderWorkoutLogUI();
-    }
+    if (!plan) return;
+
+    document.getElementById('sub-sched').innerHTML   = renderSchedule(plan.dailySchedule);
+    document.getElementById('sub-meals').innerHTML   = renderMealPlanPreview(plan.mealPlan);
+    document.getElementById('sub-workout').innerHTML = renderWorkoutsPreview(plan.workouts);
+    document.getElementById('sub-rehab').innerHTML   = renderRehabSupps(plan);
+    document.getElementById('sub-stop').innerHTML    = plan.stopRules.length
+      ? plan.stopRules.map(r => `<div class="stop-rule">\u26A0\uFE0F ${r}</div>`).join('')
+      : '<p style="color:var(--text3)">No stop rules found.</p>';
+    document.getElementById('resultsContainer').style.display = 'block';
+    document.getElementById('exportJsonBtn').disabled = false;
+    renderMealLogUI();
+    renderWorkoutLogUI();
   }
 
   init();
