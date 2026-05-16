@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Fitness Tracker v3.0</title>
+  <title>Fitness Tracker v3.1</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
@@ -275,11 +275,10 @@
 </head>
 <body>
   <div class="container">
-    <div class="version-badge">v3.0</div>
+    <div class="version-badge">v3.1</div>
     <h1 class="mb-2 text-center fw-bold">📋 Weekly Fitness & Nutrition Tracker</h1>
     <p class="text-center mb-4" style="color:#333;">Parse plan → Log actual meals & lifts → Track body metrics</p>
 
-    <!-- Main Navigation Tabs -->
     <ul class="nav nav-tabs justify-content-center" id="mainTabs">
       <li class="nav-item"><button class="nav-link active" data-tab="dashboardPane">🏠 Dashboard</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="parsePane">📥 Parse Plan</button></li>
@@ -288,85 +287,63 @@
       <li class="nav-item"><button class="nav-link" data-tab="bodyPane">📊 Body Metrics</button></li>
     </ul>
 
-    <!-- Tab Content -->
     <div id="mainTabsContent">
-      <!-- Dashboard Pane -->
       <div class="tab-pane active" id="dashboardPane">
-        <div id="dashboardContent">
-          <div class="text-center py-5 text-muted">Parse your plan to start.</div>
-        </div>
+        <div id="dashboardContent"><div class="text-center py-5 text-muted">Parse your plan to start.</div></div>
       </div>
 
-      <!-- Parse Pane -->
       <div class="tab-pane" id="parsePane">
-        <div class="row justify-content-center">
-          <div class="col-lg-10">
-            <div class="card">
-              <div class="card-body">
-                <label class="form-label fw-bold">Paste plan text</label>
-                <textarea id="rawInput" class="form-control mb-3" rows="10" placeholder="Paste full plan..."></textarea>
-                <div class="d-flex gap-2 flex-wrap">
-                  <button id="parseBtn" class="btn btn-primary px-4">🔍 Parse</button>
-                  <button id="clearBtn" class="btn btn-outline-secondary">Clear</button>
-                  <button id="exportJsonBtn" class="btn btn-outline-dark ms-auto" disabled>📤 Share JSON</button>
-                </div>
-                <div id="parseError" class="text-danger small mt-2"></div>
-              </div>
+        <div class="row justify-content-center"><div class="col-lg-10">
+          <div class="card"><div class="card-body">
+            <label class="form-label fw-bold">Paste plan text</label>
+            <textarea id="rawInput" class="form-control mb-3" rows="10" placeholder="Paste full plan..."></textarea>
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="parseBtn" class="btn btn-primary px-4">🔍 Parse</button>
+              <button id="clearBtn" class="btn btn-outline-secondary">Clear</button>
+              <button id="exportJsonBtn" class="btn btn-outline-dark ms-auto" disabled>📤 Share JSON</button>
             </div>
-            <div id="resultsContainer" style="display:none;">
-              <ul class="nav nav-tabs mt-3" id="resultTabs">
-                <li class="nav-item"><button class="nav-link active" data-subtab="schedulePane">📅</button></li>
-                <li class="nav-item"><button class="nav-link" data-subtab="mealsPane">🍽️</button></li>
-                <li class="nav-item"><button class="nav-link" data-subtab="workoutPane">🏋️</button></li>
-                <li class="nav-item"><button class="nav-link" data-subtab="rehabSuppsPane">🧘</button></li>
-                <li class="nav-item"><button class="nav-link" data-subtab="stopPane">⚠️</button></li>
-              </ul>
-              <div class="mt-2">
-                <div class="tab-pane active" id="schedulePane"></div>
-                <div class="tab-pane" id="mealsPane"></div>
-                <div class="tab-pane" id="workoutPane"></div>
-                <div class="tab-pane" id="rehabSuppsPane"></div>
-                <div class="tab-pane" id="stopPane"></div>
-              </div>
+            <div id="parseError" class="text-danger small mt-2"></div>
+          </div></div>
+          <div id="resultsContainer" style="display:none;">
+            <ul class="nav nav-tabs mt-3" id="resultTabs">
+              <li class="nav-item"><button class="nav-link active" data-subtab="schedulePane">📅</button></li>
+              <li class="nav-item"><button class="nav-link" data-subtab="mealsPane">🍽️</button></li>
+              <li class="nav-item"><button class="nav-link" data-subtab="workoutPane">🏋️</button></li>
+              <li class="nav-item"><button class="nav-link" data-subtab="rehabSuppsPane">🧘</button></li>
+              <li class="nav-item"><button class="nav-link" data-subtab="stopPane">⚠️</button></li>
+            </ul>
+            <div class="mt-2">
+              <div class="tab-pane active" id="schedulePane"></div>
+              <div class="tab-pane" id="mealsPane"></div>
+              <div class="tab-pane" id="workoutPane"></div>
+              <div class="tab-pane" id="rehabSuppsPane"></div>
+              <div class="tab-pane" id="stopPane"></div>
             </div>
           </div>
-        </div>
+        </div></div>
       </div>
 
-      <!-- Meal Log Pane -->
       <div class="tab-pane" id="mealsLogPane">
-        <div id="mealLogContent">
-          <div class="text-center py-5 text-muted">Parse a plan first.</div>
-        </div>
+        <div id="mealLogContent"><div class="text-center py-5 text-muted">Parse a plan first.</div></div>
       </div>
 
-      <!-- Workout Log Pane -->
       <div class="tab-pane" id="workoutLogPane">
-        <div id="workoutLogContent">
-          <div class="text-center py-5 text-muted">Parse a plan first.</div>
-        </div>
+        <div id="workoutLogContent"><div class="text-center py-5 text-muted">Parse a plan first.</div></div>
       </div>
 
-      <!-- Body Metrics Pane -->
       <div class="tab-pane" id="bodyPane">
-        <div class="row">
-          <div class="col-lg-6 mx-auto">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="fw-bold"><i class="bi bi-graph-up"></i> Log Body Metrics</h5>
-                <div class="row g-3 mt-2">
-                  <div class="col-md-6"><label class="form-label">Date</label><input type="date" id="bodyDate" class="form-control"></div>
-                  <div class="col-md-6"><label class="form-label">Weight (lbs)</label><input type="number" id="bodyWeight" class="form-control" step="0.1" placeholder="e.g. 185.5"></div>
-                  <div class="col-md-4"><label class="form-label">Body Fat (lbs)</label><input type="number" id="bodyFat" class="form-control" step="0.1" placeholder="e.g. 26.3"></div>
-                  <div class="col-md-4"><label class="form-label">Visceral Fat</label><input type="number" id="visceralFat" class="form-control" step="0.1" placeholder="e.g. 5"></div>
-                  <div class="col-md-4"><label class="form-label">Skeletal Muscle (lbs)</label><input type="number" id="skeletalMuscle" class="form-control" step="0.1" placeholder="e.g. 78.5"></div>
-                </div>
-                <button id="saveBodyMetrics" class="btn btn-primary mt-3 w-100"><i class="bi bi-save"></i> Save Entry</button>
-                <div id="bodyMetricsHistory" class="mt-4"></div>
-              </div>
-            </div>
+        <div class="row"><div class="col-lg-6 mx-auto"><div class="card"><div class="card-body">
+          <h5 class="fw-bold"><i class="bi bi-graph-up"></i> Log Body Metrics</h5>
+          <div class="row g-3 mt-2">
+            <div class="col-md-6"><label class="form-label">Date</label><input type="date" id="bodyDate" class="form-control"></div>
+            <div class="col-md-6"><label class="form-label">Weight (lbs)</label><input type="number" id="bodyWeight" class="form-control" step="0.1"></div>
+            <div class="col-md-4"><label class="form-label">Body Fat (lbs)</label><input type="number" id="bodyFat" class="form-control" step="0.1"></div>
+            <div class="col-md-4"><label class="form-label">Visceral Fat</label><input type="number" id="visceralFat" class="form-control" step="0.1"></div>
+            <div class="col-md-4"><label class="form-label">Skeletal Muscle (lbs)</label><input type="number" id="skeletalMuscle" class="form-control" step="0.1"></div>
           </div>
-        </div>
+          <button id="saveBodyMetrics" class="btn btn-primary mt-3 w-100"><i class="bi bi-save"></i> Save Entry</button>
+          <div id="bodyMetricsHistory" class="mt-4"></div>
+        </div></div></div></div>
       </div>
     </div>
   </div>
@@ -374,20 +351,16 @@
   <script>
     (function() {
       // ──────────────────────────────────────
-      // 1. CUSTOM TAB SWITCHING (no Bootstrap JS dependency)
+      // 1. TAB SWITCHING
       // ──────────────────────────────────────
       function switchTab(nav, targetId) {
-        // Update active button
         nav.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         const btn = nav.querySelector(`[data-tab="${targetId}"], [data-subtab="${targetId}"]`);
         if (btn) btn.classList.add('active');
-        // Update active pane
         const targetPane = document.getElementById(targetId);
         if (targetPane) {
           const parent = targetPane.parentElement;
-          if (parent) {
-            parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-          }
+          if (parent) parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
           targetPane.classList.add('active');
         }
       }
@@ -404,12 +377,11 @@
           switchTab(nav, targetId);
         });
       }
-
       setupTabs('#mainTabs');
       setupTabs('#resultTabs');
 
       // ──────────────────────────────────────
-      // 2. STORAGE HELPERS
+      // 2. STORAGE
       // ──────────────────────────────────────
       const STORAGE = {
         PARSED_PLAN: 'fp_plan',
@@ -417,15 +389,12 @@
         WORKOUT_LOGS: 'fp_workouts',
         BODY_METRICS: 'fp_body'
       };
-      const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      const DAY_ABBR = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      const DAY_ABBR = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
       const DAY_REGEX = /^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*—/i;
 
-      const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
-      const load = k => {
-        const d = localStorage.getItem(k);
-        return d ? JSON.parse(d) : null;
-      };
+      const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+      const load = k => { const d = localStorage.getItem(k); return d ? JSON.parse(d) : null; };
       const getPlan = () => load(STORAGE.PARSED_PLAN);
       const savePlan = p => save(STORAGE.PARSED_PLAN, p);
       const getMealLogs = () => load(STORAGE.MEAL_LOGS) || {};
@@ -436,7 +405,7 @@
       const saveBodyMetrics = m => save(STORAGE.BODY_METRICS, m);
 
       // ──────────────────────────────────────
-      // 3. PARSERS
+      // 3. PARSERS (improved workout parser)
       // ──────────────────────────────────────
       function parseWorkoutPlan(text) {
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -450,13 +419,10 @@
             continue;
           }
           if (!currentDay) continue;
-          if (/^\d+\s+/.test(line) && !/^(Post:|Pull-Up|Finisher)/i.test(line)) {
-            workouts[currentDay].details.push(line);
-          } else if (line.startsWith('·') || line.startsWith('-') || line.startsWith('*')) {
-            workouts[currentDay].details.push(line.replace(/^[·\-*]\s*/, ''));
-          } else if (line.length > 0 && !line.match(/block|exercise/i)) {
-            workouts[currentDay].details.push(line);
-          }
+          // Exclude common separator lines or empty
+          if (/^[-—]+$/.test(line)) continue;
+          // Push every other line as a detail
+          workouts[currentDay].details.push(line);
         }
         return workouts;
       }
@@ -464,13 +430,7 @@
       function parseFullPlan(text) {
         text = text.replace(/^[“"']+/, '').replace(/[”"']+$/, '').trim();
         const sectionsRaw = text.split(/\n---+\n/).map(s => s.trim()).filter(s => s);
-        let pd = {},
-          ds = null,
-          mp = null,
-          wp = null,
-          dr = null,
-          sp = null,
-          sr = null;
+        let pd={}, ds=null, mp=null, wp=null, dr=null, sp=null, sr=null;
         for (let sec of sectionsRaw) {
           const lines = sec.split('\n').filter(l => l.trim());
           if (!lines.length) continue;
@@ -483,7 +443,7 @@
           else if (first.includes('supplement protocol')) sp = sec;
           else if (first.includes('stop rules')) sr = sec;
         }
-        if (!Object.keys(pd).length) pd = parsePrimaryDirective(sectionsRaw[0] || '');
+        if (!Object.keys(pd).length) pd = parsePrimaryDirective(sectionsRaw[0]||'');
         return {
           primaryDirective: pd,
           dailySchedule: ds ? parseDailySchedule(ds) : [],
@@ -494,366 +454,118 @@
           stopRules: sr ? parseStopRules(sr) : []
         };
       }
+      function parsePrimaryDirective(text) { const r={}; text.split('\n').forEach(l=>{ if(l.includes('Primary Directive')) r.directive=l.split(':').slice(1).join(':').trim(); else if(l.includes('No BCAAs')||l.includes('No alcohol')) r.restrictions=l; else if(l.includes('Black coffee')) r.allowedDrinks=l; else if(l.match(/^\d+,\s*\d{4}/)) r.date=l; }); return r; }
+      function parseDailySchedule(text) { const lines=text.split('\n').filter(l=>l.trim()); let hi=lines.findIndex(l=>l.includes('Time')&&(l.includes('Mon')||l.includes('Tue'))); if(hi===-1) return[]; const days=lines[hi].split(/\s{2,}/).filter(t=>DAY_ABBR.includes(t.slice(0,3))).map(t=>t.slice(0,3)); let sched={}; days.forEach(d=>sched[d]=[]); for(let i=hi+1;i<lines.length;i++){ if(!/^\d{1,2}:\d{2}\s+(AM|PM)/i.test(lines[i])) break; const tk=lines[i].split(/\s{2,}/); const time=tk[0]; const acts=tk.slice(1,1+days.length).map(t=>t==='—'?'':t); days.forEach((d,idx)=>{ if(acts[idx]) sched[d].push({time,activity:acts[idx]}); }); } return sched; }
+      function parseMealPlan(text) { const lines=text.split('\n').filter(l=>l.trim()); const md={}; let cur=null,nm=null; lines.forEach(l=>{ if(l.match(/^(meal plan|salad kit rule|daily option|hydration)/i)) return; const dm=l.match(DAY_REGEX); if(dm){ nm=dm[1].charAt(0).toUpperCase()+dm[1].slice(1).toLowerCase(); cur=[]; md[nm]={title:l,meals:cur}; } else if(l.startsWith('·')&&cur){ const m=parseMealLine(l); if(m) cur.push(m); } }); return md; }
+      function parseMealLine(line){ const c=line.replace(/^·\s*/,''); const m=c.match(/^(.+?)\s*\(([^)]+)\)\s*:\s*(.+)/); return m?{meal:m[1].trim(),time:m[2].trim(),description:m[3].trim()}:null; }
+      function parseRehabTable(text){ const lines=text.split('\n').filter(l=>l.trim()); const re=[]; let hf=false; lines.forEach(l=>{ if(l.toLowerCase().includes('exercise')&&l.toLowerCase().includes('reps')){ hf=true; return; } if(!hf||!(l.startsWith('·')||l.startsWith('-'))) return; const p=l.replace(/^[·\-]\s*/,'').split(/\s{2,}/); if(p.length>=2) re.push({exercise:p[0],reps_time:p[1],purpose:p.slice(2).join(' ')}); }); return re; }
+      function parseSupplements(text){ return text.split('\n').filter(l=>l.trim()&&!l.toLowerCase().includes('supplement protocol')&&!l.includes('No BCAAs')); }
+      function parseStopRules(text){ return text.split('\n').filter(l=>/^\d+\./.test(l)).map(l=>l.replace(/^\d+\.\s*/,'')); }
 
-      function parsePrimaryDirective(text) {
-        const r = {};
-        text.split('\n').forEach(l => {
-          if (l.includes('Primary Directive')) r.directive = l.split(':').slice(1).join(':').trim();
-          else if (l.includes('No BCAAs') || l.includes('No alcohol')) r.restrictions = l;
-          else if (l.includes('Black coffee')) r.allowedDrinks = l;
-          else if (l.match(/^\d+,\s*\d{4}/)) r.date = l;
-        });
-        return r;
-      }
-
-      function parseDailySchedule(text) {
-        const lines = text.split('\n').filter(l => l.trim());
-        let hi = lines.findIndex(l => l.includes('Time') && (l.includes('Mon') || l.includes('Tue')));
-        if (hi === -1) return [];
-        const days = lines[hi].split(/\s{2,}/).filter(t => DAY_ABBR.includes(t.slice(0, 3))).map(t => t.slice(0, 3));
-        let sched = {};
-        days.forEach(d => sched[d] = []);
-        for (let i = hi + 1; i < lines.length; i++) {
-          if (!/^\d{1,2}:\d{2}\s+(AM|PM)/i.test(lines[i])) break;
-          const tk = lines[i].split(/\s{2,}/);
-          const time = tk[0];
-          const acts = tk.slice(1, 1 + days.length).map(t => t === '—' ? '' : t);
-          days.forEach((d, idx) => { if (acts[idx]) sched[d].push({ time, activity: acts[idx] }); });
-        }
-        return sched;
-      }
-
-      function parseMealPlan(text) {
-        const lines = text.split('\n').filter(l => l.trim());
-        const md = {};
-        let cur = null,
-          nm = null;
-        lines.forEach(l => {
-          if (l.match(/^(meal plan|salad kit rule|daily option|hydration)/i)) return;
-          const dm = l.match(DAY_REGEX);
-          if (dm) {
-            nm = dm[1].charAt(0).toUpperCase() + dm[1].slice(1).toLowerCase();
-            cur = [];
-            md[nm] = { title: l, meals: cur };
-          } else if (l.startsWith('·') && cur) {
-            const m = parseMealLine(l);
-            if (m) cur.push(m);
-          }
-        });
-        return md;
-      }
-
-      function parseMealLine(line) {
-        const c = line.replace(/^·\s*/, '');
-        const m = c.match(/^(.+?)\s*\(([^)]+)\)\s*:\s*(.+)/);
-        return m ? { meal: m[1].trim(), time: m[2].trim(), description: m[3].trim() } : null;
-      }
-
-      function parseRehabTable(text) {
-        const lines = text.split('\n').filter(l => l.trim());
-        const re = [];
-        let hf = false;
-        lines.forEach(l => {
-          if (l.toLowerCase().includes('exercise') && l.toLowerCase().includes('reps')) { hf = true; return; }
-          if (!hf || !(l.startsWith('·') || l.startsWith('-'))) return;
-          const p = l.replace(/^[·\-]\s*/, '').split(/\s{2,}/);
-          if (p.length >= 2) re.push({ exercise: p[0], reps_time: p[1], purpose: p.slice(2).join(' ') });
-        });
-        return re;
-      }
-
-      function parseSupplements(text) {
-        return text.split('\n').filter(l => l.trim() && !l.toLowerCase().includes('supplement protocol') && !l
-          .includes('No BCAAs'));
-      }
-
-      function parseStopRules(text) {
-        return text.split('\n').filter(l => /^\d+\./.test(l)).map(l => l.replace(/^\d+\.\s*/, ''));
-      }
+      // Render helpers
+      function renderSchedule(s){ if(!s||!Object.keys(s).length) return'<p class="text-muted">No schedule.</p>'; return DAY_ABBR.filter(d=>s[d]).map(d=>'<div class="mb-3"><h6 class="fw-bold">'+d+'</h6><ul class="list-group list-group-flush">'+s[d].map(e=>'<li class="list-group-item d-flex"><span class="badge-time me-2">'+e.time+'</span> '+e.activity+'</li>').join('')+'</ul></div>').join(''); }
+      function renderMealPlan(mp){ if(!mp||!Object.keys(mp).length) return'<p class="text-muted">No meal plan.</p>'; return DAYS.filter(d=>mp[d]).map(d=>'<div class="meal-day"><h6 class="fw-bold">'+mp[d].title+'</h6><ul class="list-group list-group-flush">'+mp[d].meals.map(m=>'<li class="list-group-item"><span class="badge bg-secondary me-2">'+m.meal+' ('+m.time+')</span> '+m.description+'</li>').join('')+'</ul></div>').join(''); }
+      function renderWorkouts(w){ if(!w||!Object.keys(w).length) return'<p class="text-muted">No workouts.</p>'; return DAYS.filter(d=>w[d]).map(d=>{const wo=w[d]; let h='<div class="card mb-3"><div class="card-body"><h6 class="fw-bold">'+wo.title+'</h6>'; if(wo.details.length) h+=wo.details.map(d=>'<p class="mb-1">• '+d+'</p>').join(''); return h+'</div></div>'; }).join(''); }
 
       // ──────────────────────────────────────
-      // 4. RENDER HELPERS
-      // ──────────────────────────────────────
-      function renderSchedule(s) {
-        if (!s || !Object.keys(s).length) return '<p class="text-muted">No schedule.</p>';
-        return DAY_ABBR.filter(d => s[d]).map(d =>
-          '<div class="mb-3"><h6 class="fw-bold">' + d + '</h6><ul class="list-group list-group-flush">' +
-          s[d].map(e => '<li class="list-group-item d-flex"><span class="badge-time me-2">' + e.time +
-            '</span> ' + e.activity + '</li>').join('') + '</ul></div>'
-        ).join('');
-      }
-
-      function renderMealPlan(mp) {
-        if (!mp || !Object.keys(mp).length) return '<p class="text-muted">No meal plan.</p>';
-        return DAYS.filter(d => mp[d]).map(d =>
-          '<div class="meal-day"><h6 class="fw-bold">' + mp[d].title + '</h6><ul class="list-group list-group-flush">' +
-          mp[d].meals.map(m =>
-            '<li class="list-group-item"><span class="badge bg-secondary me-2">' + m.meal + ' (' + m.time +
-            ')</span> ' + m.description + '</li>').join('') + '</ul></div>'
-        ).join('');
-      }
-
-      function renderWorkouts(w) {
-        if (!w || !Object.keys(w).length) return '<p class="text-muted">No workouts.</p>';
-        return DAYS.filter(d => w[d]).map(d => {
-          const wo = w[d];
-          let h = '<div class="card mb-3"><div class="card-body"><h6 class="fw-bold">' + wo.title + '</h6>';
-          if (wo.details.length) h += wo.details.map(d => '<p class="mb-1">• ' + d + '</p>').join('');
-          return h + '</div></div>';
-        }).join('');
-      }
-
-      // ──────────────────────────────────────
-      // 5. MEAL LOG UI
+      // 4. MEAL LOG UI
       // ──────────────────────────────────────
       function renderMealLogUI(selectedDay) {
-        const plan = getPlan();
-        if (!plan || !plan.mealPlan || !Object.keys(plan.mealPlan).length) {
-          document.getElementById('mealLogContent').innerHTML =
-            '<div class="text-center py-5 text-muted">Parse a plan first.</div>';
-          return;
-        }
-        const mealLogs = getMealLogs();
-        const today = new Date().toISOString().split('T')[0];
+        const plan = getPlan(); if (!plan || !plan.mealPlan || !Object.keys(plan.mealPlan).length) { document.getElementById('mealLogContent').innerHTML='<div class="text-center py-5 text-muted">Parse a plan first.</div>'; return; }
+        const mealLogs = getMealLogs(); const today = new Date().toISOString().split('T')[0];
         const availableDays = DAYS.filter(d => plan.mealPlan[d]);
         const currentDay = selectedDay && availableDays.includes(selectedDay) ? selectedDay : availableDays[0];
-        let html =
-          '<div class="card"><div class="card-body"><h5 class="fw-bold mb-3"><i class="bi bi-pencil-square"></i> Daily Meal Log</h5><div class="row mb-3"><div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="mealLogDate" class="form-control" value="' +
-          today + '"></div><div class="col-md-4"><label class="form-label">Select Day</label><select id="mealDaySelect" class="form-select">' +
-          availableDays.map(d => '<option value="' + d + '" ' + (d === currentDay ? 'selected' : '') + '>' + d +
-            '</option>').join('') + '</select></div></div><div id="mealDayPlan">';
+        let html = '<div class="card"><div class="card-body"><h5 class="fw-bold mb-3"><i class="bi bi-pencil-square"></i> Daily Meal Log</h5><div class="row mb-3"><div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="mealLogDate" class="form-control" value="'+today+'"></div><div class="col-md-4"><label class="form-label">Select Day</label><select id="mealDaySelect" class="form-select">'+availableDays.map(d=>'<option value="'+d+'" '+(d===currentDay?'selected':'')+'>'+d+'</option>').join('')+'</select></div></div><div id="mealDayPlan">';
         const dayPlan = plan.mealPlan[currentDay];
-        if (dayPlan) {
-          dayPlan.meals.forEach((meal, idx) => {
-            const mealKey = currentDay + '_' + idx;
-            const log = mealLogs[mealKey] || {};
-            html +=
-              '<div class="meal-log-row border rounded p-3 mb-3"><div class="planned-meal"><strong>' + meal
-              .meal + ' (' + meal.time + ')</strong><br>Planned: ' + meal.description +
-              '</div><div class="mt-2 actual-meal-entry p-2 rounded"><label class="form-label small mb-1 fw-semibold">What I actually ate:</label><textarea class="form-control actual-meal-text" data-meal-key="' +
-              mealKey + '" rows="2">' + (log.description || '') +
-              '</textarea><div class="form-check mt-2"><input class="form-check-input adherence-check" type="checkbox" data-meal-key="' +
-              mealKey + '" ' + (log.adherent ? 'checked' : '') +
-              '><label class="form-check-label">Adherent to plan</label></div></div></div>';
-          });
-        }
-        html += '</div><button id="saveMealLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save ' +
-          currentDay + ' Meal Log</button></div></div>';
+        if (dayPlan) { dayPlan.meals.forEach((meal, idx) => { const mealKey = currentDay+'_'+idx; const log = mealLogs[mealKey] || {}; html += '<div class="meal-log-row border rounded p-3 mb-3"><div class="planned-meal"><strong>'+meal.meal+' ('+meal.time+')</strong><br>Planned: '+meal.description+'</div><div class="mt-2 actual-meal-entry p-2 rounded"><label class="form-label small mb-1 fw-semibold">What I actually ate:</label><textarea class="form-control actual-meal-text" data-meal-key="'+mealKey+'" rows="2">'+(log.description||'')+'</textarea><div class="form-check mt-2"><input class="form-check-input adherence-check" type="checkbox" data-meal-key="'+mealKey+'" '+(log.adherent?'checked':'')+'><label class="form-check-label">Adherent to plan</label></div></div></div>'; }); }
+        html += '</div><button id="saveMealLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save '+currentDay+' Meal Log</button></div></div>';
         document.getElementById('mealLogContent').innerHTML = html;
-        document.getElementById('mealDaySelect').addEventListener('change', function() { renderMealLogUI(this
-          .value); });
-        document.getElementById('saveMealLogBtn').addEventListener('click', function() {
-          const date = document.getElementById('mealLogDate').value;
-          const logs = getMealLogs();
-          document.querySelectorAll('.actual-meal-text').forEach(function(ta) {
-            const key = ta.dataset.mealKey;
-            const cb = document.querySelector('.adherence-check[data-meal-key="' + key + '"]');
-            logs[key] = { date: date, description: ta.value, adherent: cb ? cb.checked : false };
-          });
-          saveMealLogs(logs);
-          alert('Meal log saved!');
-          renderDashboard();
-        });
+        document.getElementById('mealDaySelect').addEventListener('change', function() { renderMealLogUI(this.value); });
+        document.getElementById('saveMealLogBtn').addEventListener('click', () => { const date = document.getElementById('mealLogDate').value; const logs = getMealLogs(); document.querySelectorAll('.actual-meal-text').forEach(ta => { const key = ta.dataset.mealKey; const cb = document.querySelector('.adherence-check[data-meal-key="'+key+'"]'); logs[key] = { date, description: ta.value, adherent: cb ? cb.checked : false }; }); saveMealLogs(logs); alert('Meal log saved!'); renderDashboard(); });
       }
 
       // ──────────────────────────────────────
-      // 6. WORKOUT LOG UI
+      // 5. WORKOUT LOG UI
       // ──────────────────────────────────────
       function renderWorkoutLogUI(selectedDay) {
         const plan = getPlan();
-        if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) {
-          document.getElementById('workoutLogContent').innerHTML =
-            '<div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>';
-          return;
-        }
-        const workoutLogs = getWorkoutLogs();
-        const today = new Date().toISOString().split('T')[0];
+        if (!plan || !plan.workouts || !Object.keys(plan.workouts).length) { document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted"><i class="bi bi-activity"></i><p>Parse a plan first.</p></div>'; return; }
+        const workoutLogs = getWorkoutLogs(); const today = new Date().toISOString().split('T')[0];
         const availableDays = DAYS.filter(d => plan.workouts[d] && plan.workouts[d].details.length);
-        if (!availableDays.length) {
-          document.getElementById('workoutLogContent').innerHTML =
-            '<div class="text-center py-5 text-muted"><p>No exercise data found.</p></div>';
-          return;
-        }
+        if (!availableDays.length) { document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted"><p>No exercise data found.</p></div>'; return; }
         const currentDay = selectedDay && availableDays.includes(selectedDay) ? selectedDay : availableDays[0];
-        const wo = plan.workouts[currentDay];
-        const isJudo = wo && wo.title.toLowerCase().includes('judo');
-        let html =
-          '<div class="card"><div class="card-body"><h5 class="fw-bold"><i class="bi bi-bar-chart"></i> Workout Log</h5><div class="row mb-3"><div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="workoutLogDate" class="form-control" value="' +
-          today + '"></div><div class="col-md-4"><label class="form-label">Select Day</label><select id="workoutDaySelect" class="form-select">' +
-          availableDays.map(d => '<option value="' + d + '" ' + (d === currentDay ? 'selected' : '') + '>' + d +
-            '</option>').join('') + '</select></div></div><div id="workoutDayPlan">';
+        const wo = plan.workouts[currentDay]; const isJudo = wo && wo.title.toLowerCase().includes('judo');
+        let html = '<div class="card"><div class="card-body"><h5 class="fw-bold"><i class="bi bi-bar-chart"></i> Workout Log</h5><div class="row mb-3"><div class="col-md-4"><label class="form-label">Log Date</label><input type="date" id="workoutLogDate" class="form-control" value="'+today+'"></div><div class="col-md-4"><label class="form-label">Select Day</label><select id="workoutDaySelect" class="form-select">'+availableDays.map(d=>'<option value="'+d+'" '+(d===currentDay?'selected':'')+'>'+d+'</option>').join('')+'</select></div></div><div id="workoutDayPlan">';
         if (wo) {
           if (isJudo) {
-            if (wo.details.length) {
-              html += '<div class="mb-3"><h6>Workout Details</h6><ul class="list-group list-group-flush">' + wo.details
-                .map(d => '<li class="list-group-item">' + d + '</li>').join('') + '</ul></div>';
-            }
-            const judoKey = currentDay + '_judo_feel';
-            const savedFeel = workoutLogs[judoKey] ? workoutLogs[judoKey].feel : 5;
-            html +=
-              '<div class="judo-slider-container"><label>How did Judo feel? (1=terrible, 10=amazing)</label><input type="range" class="form-range" id="judoFeelSlider" min="1" max="10" value="' +
-              savedFeel +
-              '" step="1"><div class="d-flex justify-content-between"><span>1</span><span class="fw-bold" id="judoFeelValue">' +
-              savedFeel + '</span><span>10</span></div></div>';
+            if (wo.details.length) { html += '<div class="mb-3"><h6>Workout Details</h6><ul class="list-group list-group-flush">'+wo.details.map(d=>'<li class="list-group-item">'+d+'</li>').join('')+'</ul></div>'; }
+            const judoKey=currentDay+'_judo_feel'; const savedFeel=workoutLogs[judoKey]?workoutLogs[judoKey].feel:5;
+            html += '<div class="judo-slider-container"><label>How did Judo feel? (1=terrible, 10=amazing)</label><input type="range" class="form-range" id="judoFeelSlider" min="1" max="10" value="'+savedFeel+'" step="1"><div class="d-flex justify-content-between"><span>1</span><span class="fw-bold" id="judoFeelValue">'+savedFeel+'</span><span>10</span></div></div>';
           } else {
             html += '<div class="mb-3"><h6>Planned Exercises</h6>';
-            wo.details.forEach(function(detail, idx) {
-              const noteKey = currentDay + '_note_' + idx;
+            wo.details.forEach((detail, idx) => {
+              const noteKey = currentDay+'_note_'+idx;
               const savedNote = workoutLogs[noteKey] ? workoutLogs[noteKey].note : '';
-              html +=
-                '<div class="workout-note-row"><div class="planned-meal"><strong>' + detail +
-                '</strong></div><div class="mt-2 actual-meal-entry p-2 rounded"><label class="form-label small mb-1 fw-semibold">Actual performance</label><textarea class="form-control workout-note-text" data-note-key="' +
-                noteKey + '" rows="2">' + savedNote + '</textarea></div></div>';
+              html += '<div class="workout-note-row"><div class="planned-meal"><strong>'+detail+'</strong></div><div class="mt-2 actual-meal-entry p-2 rounded"><label class="form-label small mb-1 fw-semibold">Actual performance</label><textarea class="form-control workout-note-text" data-note-key="'+noteKey+'" rows="2">'+savedNote+'</textarea></div></div>';
             });
             html += '</div>';
           }
         }
-        html += '</div><button id="saveWorkoutLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save ' +
-          currentDay + ' Workout Log</button></div></div>';
+        html += '</div><button id="saveWorkoutLogBtn" class="btn btn-success w-100 mt-3"><i class="bi bi-check2-circle"></i> Save '+currentDay+' Workout Log</button></div></div>';
         document.getElementById('workoutLogContent').innerHTML = html;
-        if (isJudo) {
-          var slider = document.getElementById('judoFeelSlider');
-          var valueDisplay = document.getElementById('judoFeelValue');
-          valueDisplay.textContent = slider.value;
-          slider.addEventListener('input', function() { valueDisplay.textContent = slider.value; });
-        }
-        document.getElementById('workoutDaySelect').addEventListener('change', function() { renderWorkoutLogUI(this
-            .value); });
-        document.getElementById('saveWorkoutLogBtn').addEventListener('click', function() {
-          const date = document.getElementById('workoutLogDate').value;
-          const logs = getWorkoutLogs();
-          if (isJudo) {
-            const s = document.getElementById('judoFeelSlider');
-            logs[currentDay + '_judo_feel'] = { date: date, feel: parseInt(s.value) };
-          } else {
-            document.querySelectorAll('.workout-note-text').forEach(function(ta) {
-              logs[ta.dataset.noteKey] = { date: date, note: ta.value };
-            });
-          }
-          saveWorkoutLogs(logs);
-          alert('Workout log saved!');
-          renderDashboard();
-        });
+        if (isJudo) { const slider=document.getElementById('judoFeelSlider'); document.getElementById('judoFeelValue').textContent=slider.value; slider.addEventListener('input',()=>document.getElementById('judoFeelValue').textContent=slider.value); }
+        document.getElementById('workoutDaySelect').addEventListener('change', function() { renderWorkoutLogUI(this.value); });
+        document.getElementById('saveWorkoutLogBtn').addEventListener('click', () => { const date=document.getElementById('workoutLogDate').value; const logs=getWorkoutLogs(); if(isJudo){ const s=document.getElementById('judoFeelSlider'); logs[currentDay+'_judo_feel']={date,feel:parseInt(s.value)}; } else { document.querySelectorAll('.workout-note-text').forEach(ta=>{ logs[ta.dataset.noteKey]={date, note:ta.value}; }); } saveWorkoutLogs(logs); alert('Workout log saved!'); renderDashboard(); });
       }
 
       // ──────────────────────────────────────
-      // 7. BODY METRICS & DASHBOARD
+      // 6. BODY METRICS & DASHBOARD
       // ──────────────────────────────────────
       function renderBodyHistory() {
-        const m = getBodyMetrics();
-        if (!m.length) {
-          document.getElementById('bodyMetricsHistory').innerHTML = '<p class="text-muted mt-3">No entries yet.</p>';
-          return;
-        }
-        const sorted = [].concat(m).sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
-        let h =
-          '<h6 class="fw-bold mt-4">History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight</th><th>BF(lbs)</th><th>Visceral</th><th>Muscle(lbs)</th></tr></thead><tbody>';
-        sorted.slice(0, 10).forEach(function(m) {
-          h += '<tr><td>' + m.date + '</td><td>' + (m.weight || '-') + '</td><td>' + (m.bodyFat || '-') +
-            '</td><td>' + (m.visceralFat || '-') + '</td><td>' + (m.skeletalMuscle || '-') + '</td></tr>';
-        });
-        h += '</tbody></table></div>';
-        document.getElementById('bodyMetricsHistory').innerHTML = h;
+        const m=getBodyMetrics(); if(!m.length){ document.getElementById('bodyMetricsHistory').innerHTML='<p class="text-muted mt-3">No entries yet.</p>'; return; }
+        const sorted=[...m].sort((a,b)=>new Date(b.date)-new Date(a.date));
+        let h='<h6 class="fw-bold mt-4">History</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Weight</th><th>BF(lbs)</th><th>Visceral</th><th>Muscle(lbs)</th></tr></thead><tbody>';
+        sorted.slice(0,10).forEach(m=>h+=`<tr><td>${m.date}</td><td>${m.weight||'-'}</td><td>${m.bodyFat||'-'}</td><td>${m.visceralFat||'-'}</td><td>${m.skeletalMuscle||'-'}</td></tr>`);
+        h+='</tbody></table></div>'; document.getElementById('bodyMetricsHistory').innerHTML=h;
       }
 
-      var weightChart = null;
-
+      let weightChart = null;
       function renderWeightChart() {
-        const metrics = getBodyMetrics();
-        if (!metrics.length) return;
-        const sorted = [].concat(metrics).sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-        const labels = sorted.map(function(m) { return m.date; });
-        const weights = sorted.map(function(m) { return m.weight || null; });
-        const canvas = document.getElementById('weightChartCanvas');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
+        const metrics = getBodyMetrics(); if (!metrics.length) return;
+        const sorted = [...metrics].sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const labels = sorted.map(m=>m.date);
+        const weights = sorted.map(m=>m.weight||null);
+        const ctx = document.getElementById('weightChartCanvas')?.getContext('2d');
+        if (!ctx) return;
         if (weightChart) weightChart.destroy();
-        weightChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Weight (lbs)',
-              data: weights,
-              borderColor: '#1a1a1a',
-              backgroundColor: 'rgba(26,26,26,0.1)',
-              tension: 0.1,
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: false } }
-          }
-        });
+        weightChart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'Weight (lbs)', data:weights, borderColor:'#1a1a1a', backgroundColor:'rgba(26,26,26,0.1)', tension:0.1, fill:true }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:false } } } });
       }
 
       function generateExportText() {
-        const plan = getPlan();
-        const body = getBodyMetrics();
-        const meals = getMealLogs();
-        const wLogs = getWorkoutLogs();
-        var text = "## User Progress Data\n\n### Body Metrics History\n";
+        const plan=getPlan(); const body=getBodyMetrics(); const meals=getMealLogs(); const wLogs=getWorkoutLogs();
+        let text="## User Progress Data\n\n### Body Metrics History\n";
         if (body.length) {
-          text += "Date, Weight (lbs), Body Fat (lbs), Visceral Fat, Skeletal Muscle (lbs)\n";
-          [].concat(body).sort(function(a, b) { return new Date(b.date) - new Date(a.date); }).forEach(function(m) {
-            text += m.date + ', ' + (m.weight || '') + ', ' + (m.bodyFat || '') + ', ' + (m.visceralFat || '') +
-              ', ' + (m.skeletalMuscle || '') + '\n';
-          });
-        } else {
-          text += "No entries yet.\n";
-        }
-        text += "\n### Meal Logs\n";
-        Object.keys(plan && plan.mealPlan ? plan.mealPlan : {}).forEach(function(day) {
-          const dp = plan.mealPlan[day];
-          if (!dp) return;
-          text += '\nDay: ' + day + '\n';
-          dp.meals.forEach(function(meal, idx) {
-            const key = day + '_' + idx;
-            const log = meals[key] || {};
-            text += '- ' + meal.meal + ' (' + meal.time + ') Planned: ' + meal.description + ' | Actual: ' + (
-              log.description || '—') + ' | Adherent: ' + (log.adherent ? 'Yes' : 'No') + '\n';
-          });
-        });
-        text += "\n### Workout Logs\n";
-        Object.keys(plan && plan.workouts ? plan.workouts : {}).forEach(function(day) {
-          const wo = plan.workouts[day];
-          if (!wo) return;
-          text += '\nDay: ' + day + ' (' + wo.title + ')\n';
-          if (wo.title.toLowerCase().includes('judo')) {
-            const feel = wLogs[day + '_judo_feel'] ? wLogs[day + '_judo_feel'].feel : null;
-            text += '- Judo Feel: ' + (feel ? feel + '/10' : '—') + '\n';
-          } else {
-            wo.details.forEach(function(detail, idx) {
-              const note = wLogs[day + '_note_' + idx] ? wLogs[day + '_note_' + idx].note : '—';
-              text += '- Exercise: ' + detail + '\n  Actual: ' + note + '\n';
-            });
-          }
-        });
+          text+="Date, Weight (lbs), Body Fat (lbs), Visceral Fat, Skeletal Muscle (lbs)\n";
+          [...body].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(m=>text+=`${m.date}, ${m.weight||''}, ${m.bodyFat||''}, ${m.visceralFat||''}, ${m.skeletalMuscle||''}\n`);
+        } else text+="No entries yet.\n";
+        text+="\n### Meal Logs\n";
+        Object.keys(plan?.mealPlan||{}).forEach(day=>{ const dp=plan.mealPlan[day]; if(!dp) return; text+=`\nDay: ${day}\n`; dp.meals.forEach((meal,idx)=>{ const key=`${day}_${idx}`; const log=meals[key]||{}; text+=`- ${meal.meal} (${meal.time}) Planned: ${meal.description} | Actual: ${log.description||'—'} | Adherent: ${log.adherent?'Yes':'No'}\n`; }); });
+        text+="\n### Workout Logs\n";
+        Object.keys(plan?.workouts||{}).forEach(day=>{ const wo=plan.workouts[day]; if(!wo) return; text+=`\nDay: ${day} (${wo.title})\n`; if(wo.title.toLowerCase().includes('judo')){ const feel=wLogs[`${day}_judo_feel`]?.feel; text+=`- Judo Feel: ${feel?feel+'/10':'—'}\n`; } else { wo.details.forEach((detail,idx)=>{ const note=wLogs[`${day}_note_${idx}`]?.note||'—'; text+=`- Exercise: ${detail}\n  Actual: ${note}\n`; }); } });
         return text;
       }
 
-      // ──────────────────────────────────────
-      // 8. FILE EXPORT (direct save – iOS Share Sheet or download)
-      // ──────────────────────────────────────
       function saveFile(filename, content, mimeType) {
         const blob = new Blob([content], { type: mimeType });
-        // Try iOS Share Sheet first
         if (navigator.share && navigator.canShare) {
           const file = new File([blob], filename, { type: mimeType });
           if (navigator.canShare({ files: [file] })) {
-            navigator.share({ files: [file], title: filename }).catch(function() {
-              // Fallback if share fails
-              downloadBlob(blob, filename);
-            });
+            navigator.share({ files: [file], title: filename }).catch(()=> downloadBlob(blob, filename));
             return;
           }
         }
-        // Fallback: direct download via anchor
         downloadBlob(blob, filename);
       }
-
       function downloadBlob(blob, filename) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -862,173 +574,80 @@
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
-        setTimeout(function() {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }, 100);
+        setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
       }
+      function exportDataTxt() { saveFile('fitness_progress_'+new Date().toISOString().split('T')[0]+'.txt', generateExportText(), 'text/plain'); }
+      function exportJson() { const plan=getPlan(); if(!plan) return; saveFile('fitness_plan_'+new Date().toISOString().split('T')[0]+'.json', JSON.stringify(plan,null,2), 'application/json'); }
 
-      function exportDataTxt() {
-        const text = generateExportText();
-        const dateStr = new Date().toISOString().split('T')[0];
-        saveFile('fitness_progress_' + dateStr + '.txt', text, 'text/plain');
-      }
-
-      function exportJson() {
-        const plan = getPlan();
-        if (!plan) return;
-        const jsonStr = JSON.stringify(plan, null, 2);
-        const dateStr = new Date().toISOString().split('T')[0];
-        saveFile('fitness_plan_' + dateStr + '.json', jsonStr, 'application/json');
-      }
-
-      // ──────────────────────────────────────
-      // 9. RENDER DASHBOARD
-      // ──────────────────────────────────────
       function renderDashboard() {
-        const plan = getPlan();
-        const body = getBodyMetrics();
-        const meals = getMealLogs();
-        const wLogs = getWorkoutLogs();
-        if (!plan) {
-          document.getElementById('dashboardContent').innerHTML =
-            '<div class="text-center py-5 text-muted">Parse your plan to start.</div>';
-          return;
-        }
-        const latest = body.length ? [].concat(body).sort(function(a, b) { return new Date(b.date) - new Date(a
-          .date); })[0] : null;
-        const totalMeals = Object.values(meals).filter(function(l) { return l.description; }).length;
-        const adherent = Object.values(meals).filter(function(l) { return l.adherent; }).length;
-        const totalWOs = Object.values(wLogs).filter(function(l) { return l.note || l.feel; }).length;
-        var html =
-          '<div class="row g-4"><div class="col-12 d-flex justify-content-between align-items-center"><h4 class="fw-bold">Dashboard</h4><button class="btn btn-outline-dark" id="exportDataBtn"><i class="bi bi-download"></i> Export Data (.txt)</button></div>' +
-          '<div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">' + (latest && latest
-            .weight ? latest.weight : '—') +
-          '</div><div class="metric-label">Weight (lbs)</div></div></div>' +
-          '<div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">' + (latest &&
-            latest.bodyFat ? latest.bodyFat : '—') +
-          '</div><div class="metric-label">Body Fat (lbs)</div></div></div>' +
-          '<div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">' + (latest &&
-            latest.visceralFat ? latest.visceralFat : '—') +
-          '</div><div class="metric-label">Visceral Fat</div></div></div>' +
-          '<div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">' + (latest && latest
-            .skeletalMuscle ? latest.skeletalMuscle : '—') +
-          '</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div></div>' +
-          '<div class="dashboard-highlight mt-4"><div class="row text-center"><div class="col-4"><span class="fw-bold fs-5">' +
-          totalMeals + '</span><br><small>Meals Logged</small></div>' +
-          '<div class="col-4"><span class="fw-bold fs-5">' + adherent +
-          '</span><br><small>Adherent</small></div>' +
-          '<div class="col-4"><span class="fw-bold fs-5">' + totalWOs +
-          '</span><br><small>Workouts Logged</small></div></div></div>';
-        if (latest) html += '<div class="mt-3 text-muted small">📅 Latest: ' + latest.date + '</div>';
-        if (plan.primaryDirective && plan.primaryDirective.directive) html +=
-          '<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ' + plan.primaryDirective.directive +
-          '</div>';
-        if (body.length > 1) html +=
-          '<div class="card mt-4"><div class="card-body"><h6 class="fw-bold">📈 Weight Trend</h6><div class="chart-container"><canvas id="weightChartCanvas"></canvas></div></div></div>';
+        const plan=getPlan(); const body=getBodyMetrics(); const meals=getMealLogs(); const wLogs=getWorkoutLogs();
+        if (!plan) { document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>'; return; }
+        const latest = body.length ? [...body].sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
+        const totalMeals = Object.values(meals).filter(l=>l.description).length;
+        const adherent = Object.values(meals).filter(l=>l.adherent).length;
+        const totalWOs = Object.values(wLogs).filter(l=>l.note||l.feel).length;
+        let html = `<div class="row g-4"><div class="col-12 d-flex justify-content-between align-items-center"><h4 class="fw-bold">Dashboard</h4><button class="btn btn-outline-dark" id="exportDataBtn"><i class="bi bi-download"></i> Export Data (.txt)</button></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.weight||'—'}</div><div class="metric-label">Weight (lbs)</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card secondary"><div class="metric-value">${latest?.bodyFat||'—'}</div><div class="metric-label">Body Fat (lbs)</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card tertiary"><div class="metric-value">${latest?.visceralFat||'—'}</div><div class="metric-label">Visceral Fat</div></div></div>
+          <div class="col-md-6 col-lg-3"><div class="metric-card"><div class="metric-value">${latest?.skeletalMuscle||'—'}</div><div class="metric-label">Skeletal Muscle (lbs)</div></div></div></div>
+          <div class="dashboard-highlight mt-4"><div class="row text-center"><div class="col-4"><span class="fw-bold fs-5">${totalMeals}</span><br><small>Meals Logged</small></div><div class="col-4"><span class="fw-bold fs-5">${adherent}</span><br><small>Adherent</small></div><div class="col-4"><span class="fw-bold fs-5">${totalWOs}</span><br><small>Workouts Logged</small></div></div></div>`;
+        if (latest) html += `<div class="mt-3 text-muted small">📅 Latest: ${latest.date}</div>`;
+        if (plan.primaryDirective?.directive) html += `<div class="mt-3 alert alert-info py-2"><strong>Directive:</strong> ${plan.primaryDirective.directive}</div>`;
+        if (body.length > 1) html += '<div class="card mt-4"><div class="card-body"><h6 class="fw-bold">📈 Weight Trend</h6><div class="chart-container"><canvas id="weightChartCanvas"></canvas></div></div></div>';
         document.getElementById('dashboardContent').innerHTML = html;
-        var exportBtn = document.getElementById('exportDataBtn');
-        if (exportBtn) exportBtn.addEventListener('click', exportDataTxt);
+        document.getElementById('exportDataBtn')?.addEventListener('click', exportDataTxt);
         if (body.length > 1) setTimeout(renderWeightChart, 100);
       }
 
-      // ──────────────────────────────────────
-      // 10. INITIALIZATION
-      // ──────────────────────────────────────
       function init() {
-        renderDashboard();
-        renderBodyHistory();
+        renderDashboard(); renderBodyHistory();
         const plan = getPlan();
         if (plan) {
           document.getElementById('schedulePane').innerHTML = renderSchedule(plan.dailySchedule);
           document.getElementById('mealsPane').innerHTML = renderMealPlan(plan.mealPlan);
           document.getElementById('workoutPane').innerHTML = renderWorkouts(plan.workouts);
-          document.getElementById('rehabSuppsPane').innerHTML =
-            '<h5 class="section-title">🧘 Rehab</h5>' + plan.rehab.map(function(r) { return '<p><strong>' + r.exercise +
-              '</strong> – ' + r.reps_time + ' – ' + r.purpose + '</p>'; }).join('') +
-            '<h5 class="section-title mt-3">💊 Supplements</h5><ul>' + plan.supplements.map(function(s) { return '<li>' +
-              s + '</li>'; }).join('') + '</ul>';
-          document.getElementById('stopPane').innerHTML = plan.stopRules.map(function(r) {
-            return '<div class="stop-rule">' + r + '</div>'; }).join('');
-          document.getElementById('resultsContainer').style.display = 'block';
+          document.getElementById('rehabSuppsPane').innerHTML = '<h5 class="section-title">🧘 Rehab</h5>'+plan.rehab.map(r=>`<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')+'<h5 class="section-title mt-3">💊 Supplements</h5><ul>'+plan.supplements.map(s=>`<li>${s}</li>`).join('')+'</ul>';
+          document.getElementById('stopPane').innerHTML = plan.stopRules.map(r=>`<div class="stop-rule">${r}</div>`).join('');
+          document.getElementById('resultsContainer').style.display='block';
         }
       }
 
-      // ──────────────────────────────────────
-      // 11. EVENT BINDINGS
-      // ──────────────────────────────────────
-      document.getElementById('parseBtn').addEventListener('click', function() {
+      document.getElementById('parseBtn').addEventListener('click',()=>{
         const raw = document.getElementById('rawInput').value.trim();
-        if (!raw) { document.getElementById('parseError').textContent = 'Paste text first.'; return; }
-        try {
-          const plan = parseFullPlan(raw);
-          savePlan(plan);
-          document.getElementById('schedulePane').innerHTML = renderSchedule(plan.dailySchedule);
-          document.getElementById('mealsPane').innerHTML = renderMealPlan(plan.mealPlan);
-          document.getElementById('workoutPane').innerHTML = renderWorkouts(plan.workouts);
-          document.getElementById('rehabSuppsPane').innerHTML =
-            '<h5 class="section-title">🧘 Rehab</h5>' + plan.rehab.map(function(r) { return '<p><strong>' + r.exercise +
-              '</strong> – ' + r.reps_time + ' – ' + r.purpose + '</p>'; }).join('') +
-            '<h5 class="section-title mt-3">💊 Supplements</h5><ul>' + plan.supplements.map(function(s) { return '<li>' +
-              s + '</li>'; }).join('') + '</ul>';
-          document.getElementById('stopPane').innerHTML = plan.stopRules.map(function(r) { return '<div class="stop-rule">' +
-            r + '</div>'; }).join('');
-          document.getElementById('resultsContainer').style.display = 'block';
-          document.getElementById('exportJsonBtn').disabled = false;
-          document.getElementById('parseError').textContent = '';
-          renderDashboard();
-          renderMealLogUI();
-          renderWorkoutLogUI();
-        } catch (e) { document.getElementById('parseError').textContent = 'Error: ' + e.message; }
+        if(!raw){ document.getElementById('parseError').textContent='Paste text first.'; return; }
+        try{
+          const plan = parseFullPlan(raw); savePlan(plan);
+          document.getElementById('schedulePane').innerHTML=renderSchedule(plan.dailySchedule);
+          document.getElementById('mealsPane').innerHTML=renderMealPlan(plan.mealPlan);
+          document.getElementById('workoutPane').innerHTML=renderWorkouts(plan.workouts);
+          document.getElementById('rehabSuppsPane').innerHTML='<h5 class="section-title">🧘 Rehab</h5>'+plan.rehab.map(r=>`<p><strong>${r.exercise}</strong> – ${r.reps_time} – ${r.purpose}</p>`).join('')+'<h5 class="section-title mt-3">💊 Supplements</h5><ul>'+plan.supplements.map(s=>`<li>${s}</li>`).join('')+'</ul>';
+          document.getElementById('stopPane').innerHTML=plan.stopRules.map(r=>`<div class="stop-rule">${r}</div>`).join('');
+          document.getElementById('resultsContainer').style.display='block'; document.getElementById('exportJsonBtn').disabled=false;
+          document.getElementById('parseError').textContent='';
+          renderDashboard(); renderMealLogUI(); renderWorkoutLogUI();
+        }catch(e){ document.getElementById('parseError').textContent='Error: '+e.message; }
       });
-
-      document.getElementById('clearBtn').addEventListener('click', function() {
-        document.getElementById('rawInput').value = '';
-        document.getElementById('resultsContainer').style.display = 'none';
-        document.getElementById('exportJsonBtn').disabled = true;
-        localStorage.removeItem(STORAGE.PARSED_PLAN);
-        document.getElementById('dashboardContent').innerHTML =
-          '<div class="text-center py-5 text-muted">Parse your plan to start.</div>';
-        if (weightChart) { weightChart.destroy();
-          weightChart = null; }
-        document.getElementById('mealLogContent').innerHTML =
-          '<div class="text-center py-5 text-muted">Parse a plan first.</div>';
-        document.getElementById('workoutLogContent').innerHTML =
-          '<div class="text-center py-5 text-muted">Parse a plan first.</div>';
+      document.getElementById('clearBtn').addEventListener('click',()=>{
+        document.getElementById('rawInput').value=''; document.getElementById('resultsContainer').style.display='none';
+        document.getElementById('exportJsonBtn').disabled=true; localStorage.removeItem(STORAGE.PARSED_PLAN);
+        document.getElementById('dashboardContent').innerHTML='<div class="text-center py-5 text-muted">Parse your plan to start.</div>';
+        if (weightChart) { weightChart.destroy(); weightChart=null; }
+        document.getElementById('mealLogContent').innerHTML='<div class="text-center py-5 text-muted">Parse a plan first.</div>';
+        document.getElementById('workoutLogContent').innerHTML='<div class="text-center py-5 text-muted">Parse a plan first.</div>';
       });
-
       document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
-
-      document.getElementById('saveBodyMetrics').addEventListener('click', function() {
-        const date = document.getElementById('bodyDate').value;
-        if (!date) { alert('Select a date first'); return; }
-        const metrics = getBodyMetrics();
-        metrics.push({
-          date: date,
-          weight: document.getElementById('bodyWeight').value ? parseFloat(document.getElementById('bodyWeight')
-            .value) : null,
-          bodyFat: document.getElementById('bodyFat').value ? parseFloat(document.getElementById('bodyFat').value) :
-            null,
-          visceralFat: document.getElementById('visceralFat').value ? parseFloat(document.getElementById(
-            'visceralFat').value) : null,
-          skeletalMuscle: document.getElementById('skeletalMuscle').value ? parseFloat(document.getElementById(
-            'skeletalMuscle').value) : null
-        });
+      document.getElementById('saveBodyMetrics').addEventListener('click',()=>{
+        const date=document.getElementById('bodyDate').value; if(!date){ alert('Select date'); return; }
+        const metrics=getBodyMetrics();
+        metrics.push({date,weight:document.getElementById('bodyWeight').value?parseFloat(document.getElementById('bodyWeight').value):null,bodyFat:document.getElementById('bodyFat').value?parseFloat(document.getElementById('bodyFat').value):null,visceralFat:document.getElementById('visceralFat').value?parseFloat(document.getElementById('visceralFat').value):null,skeletalMuscle:document.getElementById('skeletalMuscle').value?parseFloat(document.getElementById('skeletalMuscle').value):null});
         saveBodyMetrics(metrics);
-        ['bodyDate', 'bodyWeight', 'bodyFat', 'visceralFat', 'skeletalMuscle'].forEach(function(id) { document
-          .getElementById(id).value = ''; });
-        renderBodyHistory();
-        renderDashboard();
+        ['bodyDate','bodyWeight','bodyFat','visceralFat','skeletalMuscle'].forEach(id=>document.getElementById(id).value='');
+        renderBodyHistory(); renderDashboard();
       });
 
-      // ──────────────────────────────────────
-      // 12. STARTUP
-      // ──────────────────────────────────────
       init();
-      if (getPlan()) {
-        renderMealLogUI();
-        renderWorkoutLogUI();
-      }
+      if(getPlan()){ renderMealLogUI(); renderWorkoutLogUI(); }
     })();
   </script>
 </body>
